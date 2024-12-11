@@ -24,66 +24,6 @@ interface Projet {
   status: "En cours" | "Terminé" | "En réflexion";
 }
 
-// const projets: Projet[] = [
-//   {
-//     id: 1,
-//     titre: "Projet Alpha",
-//     image: "/portfolio.png",
-//     description:
-//       "Ce projet vise à développer une application innovante pour résoudre le problème X.",
-//     status: "En cours",
-//   },
-//   {
-//     id: 2,
-//     titre: "Projet Beta",
-//     image: "/portfolio.png",
-//     description: "Un projet ambitieux pour améliorer la productivité.",
-//     status: "Terminé",
-//   },
-//   {
-//     id: 3,
-//     titre: "Projet Gamma",
-//     image: "/portfolio.png",
-//     description: "Une idée en réflexion pour révolutionner le domaine Y.",
-//     status: "En réflexion",
-//   },
-//   {
-//     id: 4,
-//     titre: "Projet Delta",
-//     image: "/portfolio.png",
-//     description: "Un projet visant à améliorer l'efficacité énergétique.",
-//     status: "En cours",
-//   },
-//   {
-//     id: 5,
-//     titre: "Projet Epsilon",
-//     image: "/portfolio.png",
-//     description: "Un projet pour le développement d'un réseau intelligent.",
-//     status: "Terminé",
-//   },
-//   {
-//     id: 6,
-//     titre: "Projet Epsilon",
-//     image: "/portfolio.png",
-//     description: "Un projet pour le développement d'un réseau intelligent.",
-//     status: "Terminé",
-//   },
-//   {
-//     id: 7,
-//     titre: "Projet Epsilon",
-//     image: "/portfolio.png",
-//     description: "Un projet pour le développement d'un réseau intelligent.",
-//     status: "Terminé",
-//   },
-//   {
-//     id: 8,
-//     titre: "Projet Epsilon",
-//     image: "/portfolio.png",
-//     description: "Un projet pour le développement d'un réseau intelligent.",
-//     status: "Terminé",
-//   },
-// ];
-
 export default function Projets(): JSX.Element {
   const [selectedProjet, setSelectedProjet] = useState<Projet | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -92,12 +32,12 @@ export default function Projets(): JSX.Element {
     onOpen();
   };
 
-  const breakpointColumnsObj = {
-    default: 4,
-    1100: 3,
-    700: 2,
-    500: 1,
-  };
+  //   const breakpointColumnsObj = {
+  //     default: 4,
+  //     1100: 3,
+  //     700: 2,
+  //     500: 1,
+  //   };
 
   const getStatusColor = (status: Projet["status"]): string => {
     switch (status) {
@@ -114,7 +54,7 @@ export default function Projets(): JSX.Element {
 
   return (
     <Template>
-      <div className="relative isolate px-10 pt-14 lg:px-16 bg-white dark:bg-black text-black dark:text-white">
+      <div className="relative isolate px-4 sm:px-6 md:px-10 lg:px-16 pt-8 sm:pt-10 md:pt-14 bg-white dark:bg-black text-black dark:text-white">
         {/* Background Elements */}
         <div
           className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
@@ -138,25 +78,39 @@ export default function Projets(): JSX.Element {
 
         {/* Masonry Grid */}
         <Masonry
-          breakpointCols={breakpointColumnsObj}
+          breakpointCols={{
+            default: 4, // 4 colonnes par défaut
+            1100: 3, // 3 colonnes pour les écrans moyens
+            700: 2, // 2 colonnes pour les petits écrans
+            500: 1, // 1 colonne pour les très petits écrans
+          }}
           className="flex w-auto gap-4 px-6"
           columnClassName="bg-clip-padding"
         >
           {projets.map((projet) => (
             <div
               key={projet.id}
-              className="mb-4 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
+              className="mb-4 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow bg-white dark:bg-gray-800"
             >
+              {/* Image de la card */}
               <div
                 className="w-full bg-cover bg-center"
                 style={{
-                  height: `${200 + Math.random() * 100}px`,
+                  height: "200px",
                   backgroundImage: `url(${projet.image})`,
                 }}
                 role="img"
                 aria-label={`Image de ${projet.titre}`}
               ></div>
-              <div className="p-4 bg-white dark:bg-gray-800">
+
+              {/* Contenu de la card */}
+              <div className="p-4">
+                {/* Titre du projet */}
+                <h3 className="text-xl font-semibold text-black dark:text-white mb-2">
+                  {projet.titre}
+                </h3>
+
+                {/* Bouton En savoir plus */}
                 <button
                   className="flex items-center justify-center gap-2 px-6 py-2 bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white rounded-full shadow-md hover:scale-105 transition transform"
                   onClick={() => handleOpenDrawer(projet)}
@@ -182,7 +136,7 @@ export default function Projets(): JSX.Element {
           <DrawerContent>
             {selectedProjet && (
               <>
-                <DrawerHeader className="flex items-center justify-between">
+                <DrawerHeader className="flex items-center justify-between  ">
                   <h2 className="text-2xl font-bold">{selectedProjet.titre}</h2>
                   <Button isIconOnly variant="light" onPress={onClose}>
                     &times;

@@ -1,17 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useRouter, usePathname } from "next/navigation"; // Import depuis next/navigation
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { HiOutlineMenuAlt3, HiX } from "react-icons/hi";
+import { HiOutlineMenuAlt3 } from "react-icons/hi";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  Button,
+} from "@nextui-org/react";
 import ThemeSwitcher from "@/components/ThemeSwitcher/ThemeSwitcher";
 import Image from "next/image";
 
 export default function Header(): JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
-  const router = useRouter(); // Hook pour la navigation
-  const pathname = usePathname(); // Récupère l'URL actuelle
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleResize = () => {
@@ -28,18 +34,17 @@ export default function Header(): JSX.Element {
 
   const navigateToSection = (sectionId: string) => {
     if (pathname === "/") {
-      // Si sur la page d'accueil, scroller vers la section
       const section = document.getElementById(sectionId);
       if (section) {
         section.scrollIntoView({ behavior: "smooth" });
       }
     } else {
-      // Sinon, rediriger vers la page d'accueil avec un hash
       router.push(`/#${sectionId}`);
     }
+    setIsOpen(false); // Fermer le Drawer après navigation
   };
 
-  const toggleMenu = () => setIsOpen(!isOpen);
+  const toggleDrawer = () => setIsOpen(!isOpen);
 
   return (
     <header className="fixed top-0 left-0 w-full z-10 px-5 py-5 backdrop-blur-lg bg-white/30 dark:bg-black/30 border border-white/20">
@@ -51,11 +56,8 @@ export default function Header(): JSX.Element {
 
         {/* Tagline Section */}
         <div className="hidden md:block text-sm text-black dark:text-white">
-          <span className="font-bold">
-            Développeur - UX/UI Designer basé au
-          </span>
+          <span className="font-bold">Développeur - UX/UI Designer</span>
           <br />
-          <span className="font-bold">Burkina Faso</span>
         </div>
 
         {/* ThemeSwitcher */}
@@ -84,11 +86,14 @@ export default function Header(): JSX.Element {
             Compétences
           </button>
           <button
-            onClick={() => navigateToSection("tarification")}
+            onClick={() => navigateToSection("services")}
             className="hover:underline"
           >
-            Tarification
+            Mes services
           </button>
+          <Link href="/projets" className="hover:underline">
+            Mes projets
+          </Link>
           <Link
             href="/contact"
             className="px-4 py-2 bg-[#1B255A] text-white rounded-full shadow-lg hover:bg-blue-700 transition"
@@ -99,47 +104,69 @@ export default function Header(): JSX.Element {
 
         {/* Mobile Menu Toggle */}
         <div className="md:hidden">
-          <button onClick={toggleMenu} className="text-2xl">
-            {isOpen ? <HiX /> : <HiOutlineMenuAlt3 />}
+          <button onClick={toggleDrawer} className="text-2xl">
+            <HiOutlineMenuAlt3 />
           </button>
         </div>
       </div>
 
       {/* Mobile Navigation Drawer */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ duration: 0.3 }}
-            className="fixed top-0 left-0 w-3/4 sm:w-1/2 h-full bg-white dark:bg-black shadow-lg z-50 flex flex-col items-start px-8 py-6 space-y-6"
-          >
-            <button
-              onClick={toggleMenu}
-              className="absolute top-5 right-5 text-2xl"
-            >
-              <HiX />
-            </button>
-            <button onClick={() => navigateToSection("travaux")}>
-              Travaux
-            </button>
-            <button onClick={() => navigateToSection("outils")}>Outils</button>
-            <button onClick={() => navigateToSection("competences")}>
-              Compétences
-            </button>
-            <button onClick={() => navigateToSection("tarification")}>
-              Tarification
-            </button>
-            <Link
-              href="/contact"
-              className="px-4 py-2 bg-[#1B255A] text-white rounded-full shadow-lg hover:bg-blue-700 transition"
-            >
-              Contactez-moi
-            </Link>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Drawer
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+        size="xs"
+        placement="right"
+        radius="md"
+        backdrop="blur"
+        hideCloseButton
+      >
+        <DrawerContent>
+          <>
+            {/* Drawer Header */}
+            <DrawerHeader>
+              <div className="flex items-center justify-between w-full">
+                <span className="text-2xl font-bold">Menu</span>
+                <Button
+                  isIconOnly
+                  variant="light"
+                  onPress={() => setIsOpen(false)}
+                >
+                  &times;
+                </Button>
+              </div>
+            </DrawerHeader>
+
+            {/* Drawer Body */}
+            <DrawerBody>
+              <div className="flex flex-col space-y-4 items-start">
+                <ThemeSwitcher />
+                <button onClick={() => navigateToSection("travaux")}>
+                  Travaux
+                </button>
+                <button onClick={() => navigateToSection("outils")}>
+                  Outils
+                </button>
+                <button onClick={() => navigateToSection("competences")}>
+                  Compétences
+                </button>
+                <button onClick={() => navigateToSection("services")}>
+                  Mes services
+                </button>
+                <Link href="/projets" onClick={() => setIsOpen(false)}>
+                  Mes projets
+                </Link>
+                <Link
+                  href="/contact"
+                  className="px-4 py-2 bg-[#1B255A] text-white rounded-full shadow-lg hover:bg-blue-700 transition"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Contactez-moi
+                </Link>
+              </div>
+            </DrawerBody>
+          </>
+        </DrawerContent>
+      </Drawer>
     </header>
   );
 }
