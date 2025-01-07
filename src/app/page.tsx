@@ -4,8 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import Template from "./Template";
 import { Button } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+
+  const handleNavigate = () => {
+    router.push("/contact");
+  };
   return (
     <Template>
       <div className="flex flex-col min-h-screen">
@@ -26,21 +32,24 @@ export default function Home() {
 
           <div className="flex-grow">
             {/* Hero Section */}
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-16 mx-4 md:mx-8">
+            <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-12 lg:gap-16 px-4 md:px-8 lg:px-16 max-w-screen-xl mx-auto">
               {/* Left Section */}
-              <div className="flex flex-col items-start gap-6 w-full lg:w-auto">
+              <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6 w-full lg:w-full">
                 <p className="text-xs md:text-sm border-white border-2 p-2 rounded-full">
                   Salut je suis Nicolas 👋
                 </p>
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight">
-                  Je conçois des applications <br /> et sites web qui donnent
-                  vie <br />à vos idées.
+                  Je conçois des applications et sites web qui donnent vie à vos
+                  idées.
                 </h1>
                 <p className="text-sm md:text-lg">
                   Avez-vous une idée de projet en tête ? Transformons-la
                   ensemble en une réalité exceptionnelle.
                 </p>
-                <Button className="px-4 py-2 md:px-6 md:py-3 text-sm md:text-lg font-medium rounded-full bg-[#1B255A] text-white shadow-lg">
+                <Button
+                  className="px-4 py-2 md:px-6 md:py-3 text-sm md:text-lg font-medium rounded-full bg-[#1B255A] text-white shadow-lg"
+                  onClick={handleNavigate}
+                >
                   Discutons-en
                 </Button>
               </div>
@@ -84,10 +93,10 @@ export default function Home() {
             </div>
 
             {/* New Section with Glassmorphism and Content */}
-            <div className="mt-16 p-8 py-24 rounded-3xl bg-blue-100 dark:bg-white/10 dark:backdrop-blur-md dark:border dark:border-white/20 mx-8">
+            <div className="mt-16 p-6 md:p-8 lg:p-12 py-16 md:py-20 lg:py-24 rounded-3xl bg-blue-100 dark:bg-white/10 dark:backdrop-blur-md dark:border dark:border-white/20 mx-4 md:mx-8 lg:mx-auto max-w-screen-lg">
               <div className="flex flex-col lg:flex-row items-center gap-8">
-                {/* Left Content */}
-                <div className="flex flex-col gap-4 lg:w-1/2">
+                {/* Contenu gauche */}
+                <div className="flex flex-col gap-6 lg:w-1/2">
                   <div className="flex items-center gap-2">
                     <Image
                       src="/logo-itouch.png"
@@ -95,46 +104,49 @@ export default function Home() {
                       width={40}
                       height={40}
                     />
-                    <h2 className="text-xl font-bold text-blue-600">
+                    <h2 className="text-lg md:text-xl font-bold text-blue-600">
                       Itouch App
                     </h2>
                   </div>
-                  <h3 className="text-2xl font-semibold">DESIGN UX/UI</h3>
-                  <p className="text-lg text-justify">
+                  <h3 className="text-xl md:text-2xl lg:text-3xl font-semibold">
+                    DESIGN UX/UI
+                  </h3>
+                  <p className="text-sm md:text-base lg:text-lg text-justify leading-relaxed">
                     Une application complète pour la gestion des bars et
                     restaurants, intégrant la gestion des employés, des
                     salaires, et la génération automatisée des fiches de paie,
                     pour une gestion simplifiée et efficace.
                   </p>
-                  <div className="flex gap-4">
-                    <Button className="px-4 py-2 bg-blue-600 text-white rounded-full">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <Button className="px-4 py-2 text-sm md:text-base lg:text-lg bg-blue-600 text-white rounded-full w-full md:w-auto">
                       Voir les détails
                     </Button>
                     <Link href="/contact">
-                      <Button className="px-4 py-2 bg-transparent border border-blue-600 text-blue-600 rounded-full">
+                      <Button className="px-4 py-2 text-sm md:text-base lg:text-lg bg-transparent border border-blue-600 text-blue-600 rounded-full w-full md:w-auto">
                         Discutons-en
                       </Button>
                     </Link>
                   </div>
                 </div>
 
-                {/* Right Image */}
-                <div className="hidden lg:block lg:w-1/2">
+                {/* Image droite */}
+                <div className="hidden md:block lg:w-1/2">
                   <Image
                     src="/itouch.png"
                     alt="Itouch App"
                     width={500}
                     height={400}
+                    className="w-full max-w-md lg:max-w-full h-auto"
                   />
                 </div>
               </div>
             </div>
 
             {/* Agropole Section */}
-            <div className="mt-16 p-8 py-24 rounded-3xl bg-green-100 dark:bg-white/10 dark:backdrop-blur-md dark:border dark:border-white/20 mx-8">
+            <div className="mt-16 p-6 md:p-8 lg:p-12 py-16 md:py-20 lg:py-24 rounded-3xl bg-green-100 dark:bg-white/10 dark:backdrop-blur-md dark:border dark:border-white/20 mx-4 md:mx-8 lg:mx-auto max-w-screen-lg">
               <div className="flex flex-col lg:flex-row items-center gap-8">
-                {/* Left Content */}
-                <div className="flex flex-col gap-4 lg:w-1/2">
+                {/* Contenu gauche */}
+                <div className="flex flex-col gap-6 lg:w-1/2">
                   <div className="flex items-center gap-2">
                     <Image
                       src="/logo-agropole.png"
@@ -142,14 +154,14 @@ export default function Home() {
                       width={40}
                       height={40}
                     />
-                    <h2 className="text-xl font-bold text-green-600">
+                    <h2 className="text-lg md:text-xl font-bold text-green-600">
                       Agropole
                     </h2>
                   </div>
-                  <h3 className="text-2xl font-semibold">
+                  <h3 className="text-xl md:text-2xl lg:text-3xl font-semibold">
                     AGRICULTURE INNOVANTE
                   </h3>
-                  <p className="text-lg text-justify">
+                  <p className="text-sm md:text-base lg:text-lg text-justify leading-relaxed">
                     Agropole est une plateforme complète dédiée à
                     l&apos;agriculture, offrant une marketplace pour
                     l&apos;achat et la vente de produits agricoles avec
@@ -157,35 +169,36 @@ export default function Home() {
                     prévisions météorologiques pour aider les agriculteurs à
                     suivre les conditions climatiques.
                   </p>
-                  <div className="flex gap-4">
-                    <Button className="px-4 py-2 bg-green-600 text-white rounded-full">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <Button className="px-4 py-2 text-sm md:text-base lg:text-lg bg-green-600 text-white rounded-full w-full md:w-auto">
                       Voir les détails
                     </Button>
                     <Link href="/contact">
-                      <Button className="px-4 py-2 bg-transparent border border-green-600 text-green-600 rounded-full">
+                      <Button className="px-4 py-2 text-sm md:text-base lg:text-lg bg-transparent border border-green-600 text-green-600 rounded-full w-full md:w-auto">
                         Discutons-en
                       </Button>
                     </Link>
                   </div>
                 </div>
 
-                {/* Right Image */}
-                <div className="hidden lg:block lg:w-1/2">
+                {/* Image droite */}
+                <div className="hidden md:block lg:w-1/2">
                   <Image
                     src="/agropole.png"
                     alt="Agropole"
                     width={500}
                     height={400}
+                    className="w-full max-w-md lg:max-w-full h-auto"
                   />
                 </div>
               </div>
             </div>
 
             {/* Exclusivity Section */}
-            <div className="mt-16 p-8 py-24 rounded-3xl bg-orange-100 dark:bg-white/10 dark:backdrop-blur-md dark:border dark:border-white/20 mx-8">
+            <div className="mt-16 p-6 md:p-8 lg:p-12 py-16 md:py-20 lg:py-24 rounded-3xl bg-orange-100 dark:bg-white/10 dark:backdrop-blur-md dark:border dark:border-white/20 mx-4 md:mx-8 lg:mx-auto max-w-screen-lg">
               <div className="flex flex-col lg:flex-row items-center gap-8">
-                {/* Left Content */}
-                <div className="flex flex-col gap-4 lg:w-1/2">
+                {/* Contenu gauche */}
+                <div className="flex flex-col gap-6 lg:w-1/2">
                   <div className="flex items-center gap-2">
                     <Image
                       src="/logo-exclusivity.png"
@@ -193,12 +206,14 @@ export default function Home() {
                       width={40}
                       height={40}
                     />
-                    <h2 className="text-xl font-bold text-black">
+                    <h2 className="text-lg md:text-xl font-bold text-black">
                       Exclusivity
                     </h2>
                   </div>
-                  <h3 className="text-2xl font-semibold">INNOVATION UNIQUE</h3>
-                  <p className="text-lg text-justify">
+                  <h3 className="text-xl md:text-2xl lg:text-3xl font-semibold">
+                    INNOVATION UNIQUE
+                  </h3>
+                  <p className="text-sm md:text-base lg:text-lg text-justify leading-relaxed">
                     Exclusivity est un réseau social dédié aux échanges
                     exclusifs entre utilisateurs, intégrant une gestion de
                     followers pour suivre et interagir avec les publications. Il
@@ -206,23 +221,24 @@ export default function Home() {
                     créer des interactions personnalisées dans un environnement
                     sécurisé et convivial.
                   </p>
-                  <div className="flex gap-4">
-                    <Button className="px-4 py-2 bg-orange-600 text-white rounded-full">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <Button className="px-4 py-2 text-sm md:text-base lg:text-lg bg-orange-600 text-white rounded-full w-full md:w-auto">
                       Voir les détails
                     </Button>
-                    <Button className="px-4 py-2 bg-transparent border border-orange-600 text-orange-600 rounded-full">
+                    <Button className="px-4 py-2 text-sm md:text-base lg:text-lg bg-transparent border border-orange-600 text-orange-600 rounded-full w-full md:w-auto">
                       Discutons-en
                     </Button>
                   </div>
                 </div>
 
-                {/* Right Image */}
-                <div className="hidden lg:block lg:w-1/2">
+                {/* Image droite */}
+                <div className="hidden md:block lg:w-1/2">
                   <Image
                     src="/exclusivity.png"
                     alt="Exclusivity"
                     width={500}
                     height={400}
+                    className="w-full max-w-md lg:max-w-full h-auto"
                   />
                 </div>
               </div>
@@ -347,130 +363,115 @@ export default function Home() {
 
             {/* Methods Section */}
             <div className="mt-16 p-8 rounded-3xl bg-transparent dark:bg-white/10 dark:backdrop-blur-md dark:border dark:border-white/20 mx-8">
-              <div className="flex items-center gap-2 mb-4"></div>
               <h2 className="text-3xl font-extrabold text-center mb-8">
-                Les compétences que j’utilise pour créer mes produits.
+                Les outils et compétences que j’utilise pour créer mes produits.
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6">
-                <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src="/skill-ux.png"
-                    alt="UX/UI"
-                    width={60}
-                    height={60}
-                  />
-                  <p className="text-center text-sm font-medium">UX/UI</p>
+
+              {/* Section compétences techniques */}
+              <div className="mb-12">
+                <h3 className="text-2xl font-bold mb-6 text-center">
+                  Compétences techniques
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6">
+                  {[
+                    { src: "/skill-ux.png", alt: "UX/UI", label: "UX/UI" },
+                    {
+                      src: "/skill-dev.png",
+                      alt: "Frontend",
+                      label: "Développement Frontend",
+                    },
+                    {
+                      src: "/skill-dev-back.png",
+                      alt: "Backend",
+                      label: "Développement Backend",
+                    },
+                    {
+                      src: "/skill-github.png",
+                      alt: "GitHub",
+                      label: "GitHub",
+                    },
+                    {
+                      src: "/skill-docker.png",
+                      alt: "Docker",
+                      label: "Docker",
+                    },
+                    {
+                      src: "/skill-testing.png",
+                      alt: "Testing",
+                      label: "Testing",
+                    },
+                  ].map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col items-center gap-2"
+                    >
+                      <Image
+                        src={item.src}
+                        alt={item.alt}
+                        width={60}
+                        height={60}
+                      />
+                      <p className="text-center text-sm font-medium">
+                        {item.label}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src="/skill-dev.png"
-                    alt="Développement"
-                    width={60}
-                    height={60}
-                  />
-                  <p className="text-center text-sm font-medium">
-                    Développement Frontend
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src="/skill-dev-back.png"
-                    alt="Développement"
-                    width={60}
-                    height={60}
-                  />
-                  <p className="text-center text-sm font-medium">
-                    Développement Backend
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src="/skill-github.png"
-                    alt="GitHub"
-                    width={60}
-                    height={60}
-                  />
-                  <p className="text-center text-sm font-medium">GitHub</p>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src="/skill-docker.png"
-                    alt="Docker"
-                    width={60}
-                    height={60}
-                  />
-                  <p className="text-center text-sm font-medium">Docker</p>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src="/skill-communication.png"
-                    alt="Communication"
-                    width={60}
-                    height={60}
-                  />
-                  <p className="text-center text-sm font-medium">
-                    Communication
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src="/skill-collaboration.png"
-                    alt="Collaboration"
-                    width={60}
-                    height={60}
-                  />
-                  <p className="text-center text-sm font-medium">
-                    Collaboration
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src="/skill-agile.png"
-                    alt="Méthodes Agile"
-                    width={60}
-                    height={60}
-                  />
-                  <p className="text-center text-sm font-medium">
-                    Méthodes Agile
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src="/skill-testing.png"
-                    alt="Testing"
-                    width={60}
-                    height={60}
-                  />
-                  <p className="text-center text-sm font-medium">Testing</p>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src="/skill-prix-abordable.png"
-                    alt="Testing"
-                    width={60}
-                    height={60}
-                  />
-                  <p className="text-center text-sm font-medium">
-                    Coûts abordables
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src="/skill-trust.png"
-                    alt="Testing"
-                    width={60}
-                    height={60}
-                  />
-                  <p className="text-center text-sm font-medium">Confiance</p>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <Image
-                    src="/skill-ingenious.png"
-                    alt="Testing"
-                    width={60}
-                    height={60}
-                  />
-                  <p className="text-center text-sm font-medium">Ingéniosité</p>
+              </div>
+
+              {/* Section valeurs et attributs */}
+              <div>
+                <h3 className="text-2xl font-bold mb-6 text-center">
+                  Valeurs et attributs
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6">
+                  {[
+                    {
+                      src: "/skill-communication.png",
+                      alt: "Communication",
+                      label: "Communication",
+                    },
+                    {
+                      src: "/skill-collaboration.png",
+                      alt: "Collaboration",
+                      label: "Collaboration",
+                    },
+                    {
+                      src: "/skill-agile.png",
+                      alt: "Agile",
+                      label: "Méthodes Agile",
+                    },
+                    {
+                      src: "/skill-prix-abordable.png",
+                      alt: "Prix Abordable",
+                      label: "Coûts abordables",
+                    },
+                    {
+                      src: "/skill-trust.png",
+                      alt: "Confiance",
+                      label: "Confiance",
+                    },
+                    {
+                      src: "/skill-ingenious.png",
+                      alt: "Ingéniosité",
+                      label: "Ingéniosité",
+                    },
+                  ].map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col items-center gap-2"
+                    >
+                      <Image
+                        src={item.src}
+                        alt={item.alt}
+                        width={60}
+                        height={60}
+                      />
+                      <p className="text-center text-sm font-medium">
+                        {item.label}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -587,7 +588,7 @@ export default function Home() {
             <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center px-4 sm:px-6 space-y-4 sm:space-y-0">
               {/* Footer Left Section */}
               <div className="text-xs sm:text-sm">
-                NDev © 2024. Designed by O.Nicolas MILLOGO
+                NDev © {new Date().getFullYear()}. Designed by O.Nicolas MILLOGO
               </div>
 
               {/* Footer Center Section */}
@@ -602,26 +603,30 @@ export default function Home() {
 
               {/* Footer Right Section */}
               <div className="flex items-center justify-center space-x-4">
-                <Link
-                  href="https://dribbble.com"
-                  target="_blank"
-                  legacyBehavior
-                >
-                  <a className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
+                <Link href="https://dribbble.com" legacyBehavior>
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm"
+                  >
                     Dribbble
                   </a>
                 </Link>
-                <Link href="https://behance.net" target="_blank" legacyBehavior>
-                  <a className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
+                <Link href="https://behance.net" legacyBehavior>
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm"
+                  >
                     Behance
                   </a>
                 </Link>
-                <Link
-                  href="https://linkedin.com"
-                  target="_blank"
-                  legacyBehavior
-                >
-                  <a className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
+                <Link href="https://linkedin.com" legacyBehavior>
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm"
+                  >
                     LinkedIn
                   </a>
                 </Link>

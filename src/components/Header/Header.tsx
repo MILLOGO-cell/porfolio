@@ -41,23 +41,22 @@ export default function Header(): JSX.Element {
     } else {
       router.push(`/#${sectionId}`);
     }
-    setIsOpen(false); // Fermer le Drawer après navigation
+    setIsOpen(false);
   };
 
   const toggleDrawer = () => setIsOpen(!isOpen);
 
   return (
-    <header className="fixed top-0 left-0 w-full z-10 px-5 py-5 backdrop-blur-lg bg-white/30 dark:bg-black/30 border border-white/20">
+    <header className="fixed top-0 left-0 w-full z-10 px-5 py-4 backdrop-blur-lg bg-white/30 dark:bg-black/30 border border-white/20">
       <div className="flex items-center justify-between">
         {/* Logo Section */}
-        <Link href="/" className="cursor-pointer">
+        <Link href="/" aria-label="Home">
           <Image src="/logo.png" alt="Logo" width={40} height={40} />
         </Link>
 
         {/* Tagline Section */}
         <div className="hidden md:block text-sm text-black dark:text-white">
           <span className="font-bold">Développeur - UX/UI Designer</span>
-          <br />
         </div>
 
         {/* ThemeSwitcher */}
@@ -67,31 +66,23 @@ export default function Header(): JSX.Element {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-6 text-black dark:text-white items-center">
-          <button
-            onClick={() => navigateToSection("travaux")}
-            className="hover:underline"
+          {["travaux", "outils", "competences", "services"].map((section) => (
+            <button
+              key={section}
+              onClick={() => navigateToSection(section)}
+              className={`hover:underline ${
+                pathname === `/#${section}` ? "text-blue-700 font-semibold" : ""
+              }`}
+            >
+              {section.charAt(0).toUpperCase() + section.slice(1)}
+            </button>
+          ))}
+          <Link
+            href="/projets"
+            className={`hover:underline ${
+              pathname === "/projets" ? "text-blue-700 font-semibold" : ""
+            }`}
           >
-            Travaux
-          </button>
-          <button
-            onClick={() => navigateToSection("outils")}
-            className="hover:underline"
-          >
-            Outils
-          </button>
-          <button
-            onClick={() => navigateToSection("competences")}
-            className="hover:underline"
-          >
-            Compétences
-          </button>
-          <button
-            onClick={() => navigateToSection("services")}
-            className="hover:underline"
-          >
-            Mes services
-          </button>
-          <Link href="/projets" className="hover:underline">
             Mes projets
           </Link>
           <Link
@@ -104,7 +95,11 @@ export default function Header(): JSX.Element {
 
         {/* Mobile Menu Toggle */}
         <div className="md:hidden">
-          <button onClick={toggleDrawer} className="text-2xl">
+          <button
+            onClick={toggleDrawer}
+            className="text-2xl"
+            aria-label="Toggle Menu"
+          >
             <HiOutlineMenuAlt3 />
           </button>
         </div>
@@ -119,40 +114,43 @@ export default function Header(): JSX.Element {
         radius="md"
         backdrop="blur"
         hideCloseButton
+        className="transition-transform duration-300"
       >
         <DrawerContent>
           <>
             {/* Drawer Header */}
-            <DrawerHeader>
-              <div className="flex items-center justify-between w-full">
-                <span className="text-2xl font-bold">Menu</span>
-                <Button
-                  isIconOnly
-                  variant="light"
-                  onPress={() => setIsOpen(false)}
-                >
-                  &times;
-                </Button>
-              </div>
+            <DrawerHeader className="flex items-center justify-between w-full">
+              <span className="text-2xl font-bold">Menu</span>
+              <Button
+                isIconOnly
+                variant="light"
+                onPress={() => setIsOpen(false)}
+                aria-label="Close Menu"
+              >
+                &times;
+              </Button>
             </DrawerHeader>
 
             {/* Drawer Body */}
             <DrawerBody>
               <div className="flex flex-col space-y-4 items-start">
                 <ThemeSwitcher />
-                <button onClick={() => navigateToSection("travaux")}>
-                  Travaux
-                </button>
-                <button onClick={() => navigateToSection("outils")}>
-                  Outils
-                </button>
-                <button onClick={() => navigateToSection("competences")}>
-                  Compétences
-                </button>
-                <button onClick={() => navigateToSection("services")}>
-                  Mes services
-                </button>
-                <Link href="/projets" onClick={() => setIsOpen(false)}>
+                {["travaux", "outils", "competences", "services"].map(
+                  (section) => (
+                    <button
+                      key={section}
+                      onClick={() => navigateToSection(section)}
+                      className="text-lg hover:underline"
+                    >
+                      {section.charAt(0).toUpperCase() + section.slice(1)}
+                    </button>
+                  )
+                )}
+                <Link
+                  href="/projets"
+                  className="text-lg hover:underline"
+                  onClick={() => setIsOpen(false)}
+                >
                   Mes projets
                 </Link>
                 <Link

@@ -14,7 +14,6 @@ import {
   useDisclosure,
   Chip,
 } from "@nextui-org/react";
-import { projets } from "@/data/projets";
 
 interface Projet {
   id: number;
@@ -24,20 +23,54 @@ interface Projet {
   status: "En cours" | "Terminé" | "En réflexion";
 }
 
+const projets: Projet[] = [
+  {
+    id: 1,
+    titre: "Medysis",
+    image: "/medysis.png",
+    description:
+      "Medysis est un système de gestion de centre de santé complet. Il inclut la gestion des patients, des rendez-vous, des consultations, ainsi qu'un module dédié à la pharmacie.",
+    status: "En cours",
+  },
+  {
+    id: 2,
+    titre: "Agropole",
+    image: "/agropole.png",
+    description:
+      "Une plateforme connectée pour les agriculteurs, intégrant une marketplace, des prévisions météorologiques et des outils de gestion agricole.",
+    status: "Terminé",
+  },
+  {
+    id: 3,
+    titre: "Exclusivity",
+    image: "/exclusivity.png",
+    description:
+      "Un réseau social innovant qui met en avant des interactions exclusives entre les utilisateurs, avec gestion des followers et des publications.",
+    status: "En cours",
+  },
+  {
+    id: 4,
+    titre: "ITouch",
+    image: "/itouch.png",
+    description:
+      "Une application complète pour la gestion des bars et restaurants, intégrant la gestion des employés, des salaires, et la génération automatisée des fiches de paie.",
+    status: "Terminé",
+  },
+];
+
 export default function Projets(): JSX.Element {
   const [selectedProjet, setSelectedProjet] = useState<Projet | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   const handleOpenDrawer = (projet: Projet) => {
     setSelectedProjet(projet);
     onOpen();
   };
 
-  //   const breakpointColumnsObj = {
-  //     default: 4,
-  //     1100: 3,
-  //     700: 2,
-  //     500: 1,
-  //   };
+  const handleCloseDrawer = () => {
+    setSelectedProjet(null);
+    onClose();
+  };
 
   const getStatusColor = (status: Projet["status"]): string => {
     switch (status) {
@@ -72,17 +105,17 @@ export default function Projets(): JSX.Element {
         {/* Titre */}
         <div className="text-center py-10">
           <h1 className="text-3xl font-bold">
-            Bienvenu dans l’univers de mes projets.
+            Bienvenue dans l’univers de mes projets.
           </h1>
         </div>
 
         {/* Masonry Grid */}
         <Masonry
           breakpointCols={{
-            default: 4, // 4 colonnes par défaut
-            1100: 3, // 3 colonnes pour les écrans moyens
-            700: 2, // 2 colonnes pour les petits écrans
-            500: 1, // 1 colonne pour les très petits écrans
+            default: 4,
+            1100: 3,
+            700: 2,
+            500: 1,
           }}
           className="flex w-auto gap-4 px-6"
           columnClassName="bg-clip-padding"
@@ -94,23 +127,23 @@ export default function Projets(): JSX.Element {
             >
               {/* Image de la card */}
               <div
-                className="w-full bg-cover bg-center"
+                className="w-full bg-cover bg-center group"
                 style={{
                   height: "200px",
                   backgroundImage: `url(${projet.image})`,
                 }}
                 role="img"
                 aria-label={`Image de ${projet.titre}`}
-              ></div>
+              >
+                <div className="w-full h-full bg-black/30 opacity-0 group-hover:opacity-100 transition duration-300"></div>
+              </div>
 
               {/* Contenu de la card */}
               <div className="p-4">
-                {/* Titre du projet */}
                 <h3 className="text-xl font-semibold text-black dark:text-white mb-2">
                   {projet.titre}
                 </h3>
 
-                {/* Bouton En savoir plus */}
                 <button
                   className="flex items-center justify-center gap-2 px-6 py-2 bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 text-white rounded-full shadow-md hover:scale-105 transition transform"
                   onClick={() => handleOpenDrawer(projet)}
@@ -126,7 +159,9 @@ export default function Projets(): JSX.Element {
         {/* Drawer */}
         <Drawer
           isOpen={isOpen}
-          onOpenChange={(open) => !open && setSelectedProjet(null)}
+          onOpenChange={(open) => {
+            if (!open) handleCloseDrawer();
+          }}
           placement="right"
           size="md"
           backdrop="blur"
@@ -136,9 +171,13 @@ export default function Projets(): JSX.Element {
           <DrawerContent>
             {selectedProjet && (
               <>
-                <DrawerHeader className="flex items-center justify-between  ">
+                <DrawerHeader className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold">{selectedProjet.titre}</h2>
-                  <Button isIconOnly variant="light" onPress={onClose}>
+                  <Button
+                    isIconOnly
+                    variant="light"
+                    onPress={handleCloseDrawer}
+                  >
                     &times;
                   </Button>
                 </DrawerHeader>
@@ -150,9 +189,6 @@ export default function Projets(): JSX.Element {
                     height={250}
                     className="rounded-lg mb-4"
                   />
-                  {/* <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                    <strong>Status :</strong> {selectedProjet.status}
-                  </p> */}
                   <Chip
                     className={`mb-4 ${getStatusColor(selectedProjet.status)}`}
                     variant="flat"

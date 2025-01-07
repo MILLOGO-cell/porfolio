@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import Template from "../../Template";
@@ -94,10 +95,18 @@ export default function Contact(): JSX.Element {
           Envoie-moi un message, je te répondrai sous 48 heures maximum.
         </h2>
 
-        <div className="bg-blue-50 dark:bg-black/10 p-6 rounded-xl shadow-md w-full max-w-lg">
+        <div className="bg-blue-50 dark:bg-black/10 p-6 rounded-xl shadow-lg w-full max-w-lg">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {error && <p className="text-red-600">{error}</p>}
-            {success && <p className="text-green-600">{success}</p>}
+            {error && (
+              <p className="text-red-600 bg-red-100 dark:bg-red-900 p-3 rounded-md">
+                {error}
+              </p>
+            )}
+            {success && (
+              <p className="text-green-600 bg-green-100 dark:bg-green-900 p-3 rounded-md">
+                {success}
+              </p>
+            )}
 
             <div>
               <label htmlFor="name" className="block font-medium mb-1">
@@ -111,7 +120,7 @@ export default function Contact(): JSX.Element {
                 onChange={handleChange}
                 placeholder="John Doe"
                 required
-                className="w-full p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -127,7 +136,7 @@ export default function Contact(): JSX.Element {
                 onChange={handleChange}
                 placeholder="johndoe@gmail.com"
                 required
-                className="w-full p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -143,13 +152,17 @@ export default function Contact(): JSX.Element {
                 placeholder="Fais moi savoir ce que tu as en tête."
                 rows={5}
                 required
-                className="w-full p-3 rounded-lg border dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               ></textarea>
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 bg-[#1B255A] text-white rounded-full font-semibold text-lg shadow-lg hover:bg-blue-800 transition"
+              className={`w-full py-3 rounded-full font-semibold text-lg shadow-lg transition-transform transform hover:scale-105 ${
+                isSubmitting
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-[#1B255A] text-white hover:bg-blue-800"
+              }`}
               disabled={isSubmitting}
             >
               {isSubmitting ? "Envoi en cours..." : "Discutons"}
