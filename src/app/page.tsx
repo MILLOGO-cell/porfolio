@@ -609,7 +609,7 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm"
                   >
-                    Dribbble
+                    Dribbbles
                   </a>
                 </Link>
                 <Link href="https://behance.net" legacyBehavior>
