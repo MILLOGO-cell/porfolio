@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import Template from "./Template";
-import { Button } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import FeaturedProjects from "@/components/FeaturedProjects";
@@ -15,7 +14,6 @@ export default function Home() {
     router.push("/contact");
   };
 
-  // Variants pour les animations
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
@@ -35,7 +33,6 @@ export default function Home() {
     <Template>
       <div className="flex flex-col min-h-screen">
         <div className="relative isolate px-4 sm:px-3 md:px-8 lg:px-16 pt-8 sm:pt-10 md:pt-14 lg:pt-20 bg-white dark:bg-black text-black dark:text-white">
-          {/* Background Elements */}
           <div
             className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
             aria-hidden="true"
@@ -53,9 +50,7 @@ export default function Home() {
           </div>
 
           <div className="flex-grow">
-            {/* Hero Section */}
             <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-12 lg:gap-16 px-4 md:px-8 lg:px-16 max-w-screen-xl mx-auto">
-              {/* Left Section */}
               <motion.div
                 initial="hidden"
                 animate="visible"
@@ -92,16 +87,15 @@ export default function Home() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Button
+                  <button
                     className="px-6 py-3 md:px-8 md:py-4 text-sm md:text-lg font-semibold rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                     onClick={handleNavigate}
                   >
                     Discutons-en
-                  </Button>
+                  </button>
                 </motion.div>
               </motion.div>
 
-              {/* Right Section */}
               <motion.div
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -130,7 +124,6 @@ export default function Home() {
               </motion.div>
             </div>
 
-            {/* Call to Action Section */}
             <motion.div
               id="travaux"
               initial="hidden"
@@ -148,19 +141,17 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 className="flex justify-center items-center mt-8"
               >
-                <Button className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
+                <div className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
                   Mes travaux{" "}
                   <span role="img" aria-label="briefcase">
                     💼
                   </span>
-                </Button>
+                </div>
               </motion.div>
             </motion.div>
 
-            {/* Featured Projects - COMPOSANT DYNAMIQUE */}
             <FeaturedProjects />
 
-            {/* Bouton "Voir plus" */}
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -173,14 +164,13 @@ export default function Home() {
                 <motion.span
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+                  className="inline-block px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   Voir plus →
                 </motion.span>
               </Link>
             </motion.div>
 
-            {/* Tools Section Header */}
             <motion.div
               id="outils"
               initial="hidden"
@@ -190,15 +180,14 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="flex justify-center items-center mt-20"
             >
-              <Button className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
+              <div className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
                 Mes outils favoris
                 <span role="img" aria-label="tools">
                   🛠️
                 </span>
-              </Button>
+              </div>
             </motion.div>
 
-            {/* Tools Grid */}
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -247,7 +236,6 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Skills Section Header */}
             <motion.div
               id="competences"
               initial="hidden"
@@ -257,15 +245,14 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="flex justify-center items-center mt-20"
             >
-              <Button className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
+              <div className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
                 Méthodes de travail
                 <span role="img" aria-label="lightbulb">
                   💡
                 </span>
-              </Button>
+              </div>
             </motion.div>
 
-            {/* Skills Grid */}
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -278,7 +265,6 @@ export default function Home() {
                 Les outils et compétences que j&apos;utilise pour créer mes produits
               </h2>
 
-              {/* Technical Skills */}
               <div className="mb-16">
                 <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">
                   Compétences techniques
@@ -315,7 +301,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Values */}
               <div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">
                   Valeurs et attributs
@@ -353,7 +338,6 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Services Section */}
             <motion.div
               id="services"
               initial="hidden"
@@ -363,15 +347,14 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="flex justify-center items-center mt-20"
             >
-              <Button className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
+              <div className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
                 Mes services
                 <span role="img" aria-label="money">
                   💰
                 </span>
-              </Button>
+              </div>
             </motion.div>
 
-            {/* Pricing Cards */}
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -404,53 +387,52 @@ export default function Home() {
                     gradient: "from-indigo-600 to-purple-600"
                   },
                 ].map((service, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.2 }}
+                    whileHover={{ scale: 1.05, y: -10 }}
+                    className="bg-white dark:bg-gray-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 flex flex-col"
+                  >
                     <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: index * 0.2 }}
-                      whileHover={{ scale: 1.05, y: -10 }}
-                      className="bg-white dark:bg-gray-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 flex flex-col"
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.6 }}
                     >
-                      <motion.div
-                        whileHover={{ rotate: 360 }}
-                        transition={{ duration: 0.6 }}
-                      >
-                        <Image
-                          src={service.img}
-                          alt={service.title}
-                          width={70}
-                          height={70}
-                          className="mb-4"
-                        />
-                      </motion.div>
-                      <h3 className="text-2xl font-bold mt-2 mb-3 text-gray-900 dark:text-white">
-                        {service.title}
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400 mb-6">
-                        {service.desc}
-                      </p>
-                      <ul className="list-disc pl-5 mb-6 space-y-2 text-gray-700 dark:text-gray-300 flex-grow">
-                        {service.features.map((feature, i) => (
-                          <li key={i}>{feature}</li>
-                        ))}
-                      </ul>
-                      <Link href="/contact">
-                        <motion.span
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className={`block w-full px-6 py-3 bg-gradient-to-r ${service.gradient} text-white rounded-full text-center font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
-                        >
-                          Discutons-en →
-                        </motion.span>
-                      </Link>
+                      <Image
+                        src={service.img}
+                        alt={service.title}
+                        width={70}
+                        height={70}
+                        className="mb-4"
+                      />
                     </motion.div>
-                  ))}
+                    <h3 className="text-2xl font-bold mt-2 mb-3 text-gray-900 dark:text-white">
+                      {service.title}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                      {service.desc}
+                    </p>
+                    <ul className="list-disc pl-5 mb-6 space-y-2 text-gray-700 dark:text-gray-300 flex-grow">
+                      {service.features.map((feature, i) => (
+                        <li key={i}>{feature}</li>
+                      ))}
+                    </ul>
+                    <Link href="/contact">
+                      <motion.span
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`block w-full px-6 py-3 bg-gradient-to-r ${service.gradient} text-white rounded-full text-center font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
+                      >
+                        Discutons-en →
+                      </motion.span>
+                    </Link>
+                  </motion.div>
+                ))}
               </div>
             </motion.div>
 
-            {/* Final CTA */}
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -467,7 +449,7 @@ export default function Home() {
                   <motion.span
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3"
+                    className="inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                   >
                     Contactez-moi
                     <Image
@@ -482,7 +464,6 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* Footer */}
           <footer className="mt-20 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 text-gray-700 dark:text-gray-300 py-8 border-t border-gray-300 dark:border-gray-700">
             <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center px-6 space-y-4 sm:space-y-0">
               <motion.div

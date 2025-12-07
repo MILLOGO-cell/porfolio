@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@nextui-org/react";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 interface Project {
   id: string;
@@ -16,75 +15,100 @@ interface Project {
   featured: boolean;
 }
 
-const gradientConfigs = [
+const gradientConfigs: {
+  container: string;
+  title: string;
+  gradient: string;
+  button: string;
+  border: string;
+}[] = [
   {
-    container: "from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 dark:border-blue-800/30",
+    container:
+      "from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 dark:border-blue-800/30",
     title: "text-blue-600 dark:text-blue-400",
     gradient: "from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400",
     button: "from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700",
-    border: "border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30",
+    border:
+      "border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30",
   },
   {
-    container: "from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 dark:border-green-800/30",
+    container:
+      "from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 dark:border-green-800/30",
     title: "text-green-600 dark:text-green-400",
-    gradient: "from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400",
-    button: "from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700",
-    border: "border-green-600 dark:border-green-400 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/30",
+    gradient:
+      "from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400",
+    button:
+      "from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700",
+    border:
+      "border-green-600 dark:border-green-400 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/30",
   },
   {
-    container: "from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20 dark:border-orange-800/30",
+    container:
+      "from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20 dark:border-orange-800/30",
     title: "text-orange-600 dark:text-orange-400",
     gradient: "from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400",
     button: "from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700",
-    border: "border-orange-600 dark:border-orange-400 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30",
+    border:
+      "border-orange-600 dark:border-orange-400 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30",
   },
   {
-    container: "from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 dark:border-purple-800/30",
+    container:
+      "from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 dark:border-purple-800/30",
     title: "text-purple-600 dark:text-purple-400",
     gradient: "from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400",
     button: "from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700",
-    border: "border-purple-600 dark:border-purple-400 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/30",
+    border:
+      "border-purple-600 dark:border-purple-400 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/30",
   },
 ];
 
-// Map des logos (vous pouvez les ajouter dans /public)
-const logoMap: { [key: string]: string } = {
+const logoMap: Record<string, string> = {
   "itouch-app": "/logo-itouch.png",
-  "agropole": "/logo-agropole.png",
-  "exclusivity": "/logo-exclusivity.png",
+  agropole: "/logo-agropole.png",
+  exclusivity: "/logo-exclusivity.png",
 };
 
-export default function FeaturedProjects() {
+const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
+
+export default function FeaturedProjects(): JSX.Element {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchProjects() {
       try {
-        const response = await fetch("/api/projects/public?featured=true&limit=3");
+        const response = await fetch(
+          "/api/projects/public?featured=true&limit=3"
+        );
         const data = await response.json();
-        if (data.success) {
-          setProjects(data.data.projects);
+        if (isMounted && data.success && Array.isArray(data.data?.projects)) {
+          setProjects(data.data.projects as Project[]);
         }
       } catch (error) {
         console.error("Erreur lors du chargement des projets:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
     fetchProjects();
-  }, []);
 
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   if (loading) {
     return (
       <div className="flex justify-center items-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-400"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-400" />
       </div>
     );
   }
@@ -133,7 +157,9 @@ export default function FeaturedProjects() {
                       className="drop-shadow-md"
                     />
                   </motion.div>
-                  <h2 className={`text-xl md:text-2xl font-bold ${config.title}`}>
+                  <h2
+                    className={`text-xl md:text-2xl font-bold ${config.title}`}
+                  >
                     {project.title}
                   </h2>
                 </div>
@@ -147,12 +173,14 @@ export default function FeaturedProjects() {
                   </motion.h3>
                 )}
 
-                <motion.p
-                  variants={fadeInUp}
-                  className="text-sm md:text-base lg:text-lg text-gray-700 dark:text-gray-300 leading-relaxed"
-                >
-                  {project.description}
-                </motion.p>
+                {project.description && (
+                  <motion.p
+                    variants={fadeInUp}
+                    className="text-sm md:text-base lg:text-lg text-gray-700 dark:text-gray-300 leading-relaxed"
+                  >
+                    {project.description}
+                  </motion.p>
+                )}
 
                 <motion.div
                   variants={fadeInUp}
@@ -163,12 +191,12 @@ export default function FeaturedProjects() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <Link href={project.url} target="_blank">
-                        <Button
-                          className={`px-6 py-3 text-sm md:text-base lg:text-lg bg-gradient-to-r ${config.button} text-white rounded-full w-full md:w-auto shadow-lg hover:shadow-xl transition-all duration-300`}
-                        >
-                          Voir les détails
-                        </Button>
+                      <Link
+                        href={project.url}
+                        target="_blank"
+                        className={`inline-block px-6 py-3 text-sm md:text-base lg:text-lg bg-gradient-to-r ${config.button} text-white rounded-full w-full md:w-auto shadow-lg hover:shadow-xl transition-all duration-300 text-center`}
+                      >
+                        Voir les détails
                       </Link>
                     </motion.div>
                   )}
@@ -176,12 +204,11 @@ export default function FeaturedProjects() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Link href="/contact">
-                      <Button
-                        className={`px-6 py-3 text-sm md:text-base lg:text-lg bg-transparent border-2 ${config.border} rounded-full w-full md:w-auto transition-all duration-300`}
-                      >
-                        Discutons-en
-                      </Button>
+                    <Link
+                      href="/contact"
+                      className={`inline-block px-6 py-3 text-sm md:text-base lg:text-lg bg-transparent border-2 ${config.border} rounded-full w-full md:w-auto transition-all duration-300 text-center`}
+                    >
+                      Discutons-en
                     </Link>
                   </motion.div>
                 </motion.div>

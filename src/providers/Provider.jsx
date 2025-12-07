@@ -1,24 +1,7 @@
 "use client";
-import * as React from "react";
-import { NextUIProvider } from "@nextui-org/react";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
+
+import { ThemeProvider } from "@/context/ThemeContext";
 
 export default function Provider({ children }) {
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
-  return (
-    <NextThemesProvider
-      attribute="class"
-      defaultTheme="dark"
-      themes={["light", "dark"]}
-    >
-      <NextUIProvider>{children}</NextUIProvider>
-    </NextThemesProvider>
-  );
+  return <ThemeProvider>{children}</ThemeProvider>;
 }

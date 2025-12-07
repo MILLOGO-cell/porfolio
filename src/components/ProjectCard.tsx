@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@nextui-org/react";
 import { motion } from "framer-motion";
 
 interface ProjectCardProps {
@@ -82,18 +81,21 @@ export default function ProjectCard({
           >
             {url && (
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link href={url} target="_blank">
-                  <Button className="px-6 py-3 text-sm md:text-base lg:text-lg bg-gradient-to-r hover:opacity-90 text-white rounded-full w-full md:w-auto shadow-lg hover:shadow-xl transition-all duration-300">
-                    Voir les détails
-                  </Button>
+                <Link 
+                  href={url} 
+                  target="_blank"
+                  className="inline-block px-6 py-3 text-sm md:text-base lg:text-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-full w-full md:w-auto shadow-lg hover:shadow-xl transition-all duration-300 text-center"
+                >
+                  Voir les détails
                 </Link>
               </motion.div>
             )}
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link href="/contact">
-                <Button className="px-6 py-3 text-sm md:text-base lg:text-lg bg-transparent border-2 hover:bg-opacity-10 rounded-full w-full md:w-auto transition-all duration-300">
-                  Discutons-en
-                </Button>
+              <Link 
+                href="/contact"
+                className="inline-block px-6 py-3 text-sm md:text-base lg:text-lg bg-transparent border-2 border-indigo-600 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded-full w-full md:w-auto transition-all duration-300 text-center"
+              >
+                Discutons-en
               </Link>
             </motion.div>
           </motion.div>
