@@ -1,17 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
 import * as bcrypt from 'bcryptjs';
 
-const pool = new Pool({
-  connectionString: "postgresql://postgres@127.0.0.1:5433/portfolio?schema=public",
-});
-
-const adapter = new PrismaPg(pool);
-
-const prisma = new PrismaClient({
-  adapter,
-});
+const prisma = new PrismaClient();
 
 async function createAdmin() {
   try {
@@ -48,7 +38,6 @@ async function createAdmin() {
     console.error('❌ Erreur:', error);
   } finally {
     await prisma.$disconnect();
-    await pool.end();
   }
 }
 
