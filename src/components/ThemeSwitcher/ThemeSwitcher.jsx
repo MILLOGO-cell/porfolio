@@ -2,32 +2,21 @@
 
 import { FaMoon, FaSun } from "react-icons/fa";
 import { Switch } from "@nextui-org/react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function ThemeSwitcher() {
-  const { resolvedTheme, setTheme } = useTheme();
-
-  const isDarkMode = resolvedTheme === "dark";
-
-  const toggleTheme = () => {
-    setTheme(isDarkMode ? "light" : "dark");
-  };
+  const { theme, toggleTheme } = useTheme();
+  const isDarkMode = theme === "dark";
 
   return (
-    <div>
-      <Switch
-        isSelected={isDarkMode}
-        size="lg"
-        color={isDarkMode ? "primary" : "default"}
-        thumbIcon={({ isSelected, className }) =>
-          isSelected ? (
-            <FaSun className={className} />
-          ) : (
-            <FaMoon className={className} />
-          )
-        }
-        onChange={toggleTheme}
-      />
-    </div>
+    <Switch
+      isSelected={isDarkMode}
+      size="lg"
+      color={isDarkMode ? "primary" : "default"}
+      thumbIcon={({ isSelected, className }) =>
+        isSelected ? <FaSun className={className} /> : <FaMoon className={className} />
+      }
+      onChange={toggleTheme}
+    />
   );
 }
