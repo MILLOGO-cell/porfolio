@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  name                  String?
+  password              String
+  profileImage          String?   @map("profile_image")
+  resetToken            String?   @map("reset_token")
+  resetTokenExpiry      DateTime? @map("reset_token_expiry")
+  
+  twoFactorEnabled      Boolean   @default(false) @map("two_factor_enabled")
+  twoFactorMethod       String?   @map("two_factor_method")
+  totpSecret            String?   @map("totp_secret")
+  emailCodeSecret       String?   @map("email_code_secret")
+  emailCodeExpiry       DateTime? @map("email_code_expiry")
+  
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  url         String?
+  imageUrl    String?  @map("image_url")
+  tags        String[]
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("projects")
+}
