@@ -83,7 +83,7 @@ export default function Contact(): JSX.Element {
 
   return (
     <Template>
-      <div className="relative isolate min-h-screen flex flex-col items-center justify-center px-6 py-12 pt-28 md:pt-32 bg-white dark:bg-black text-black dark:text-white">
+      <div className="relative isolate flex flex-col items-center justify-center px-6 py-12 pt-28 md:pt-32 bg-white dark:bg-black text-black dark:text-white overflow-hidden">
         <div
           className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
           aria-hidden="true"
@@ -113,7 +113,7 @@ export default function Contact(): JSX.Element {
             className="inline-block"
           >
             <p className="text-sm md:text-base border-2 border-indigo-500 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 px-6 py-2 rounded-full font-semibold shadow-sm mb-4">
-              UNE IDÉE ? 💡
+              UNE IDÉE ?
             </p>
           </motion.div>
 
@@ -154,7 +154,7 @@ export default function Contact(): JSX.Element {
                   exit={{ opacity: 0, y: -10 }}
                   className="text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 p-4 rounded-xl border border-red-300 dark:border-red-700 flex items-center gap-3"
                 >
-                  <span className="text-2xl">⚠️</span>
+                  <span className="text-2xl">⚠</span>
                   <span>{error}</span>
                 </motion.div>
               )}
@@ -166,7 +166,7 @@ export default function Contact(): JSX.Element {
                   exit={{ opacity: 0, y: -10 }}
                   className="text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 p-4 rounded-xl border border-green-300 dark:border-green-700 flex items-center gap-3"
                 >
-                  <span className="text-2xl">✅</span>
+                  <span className="text-2xl">✓</span>
                   <span>{success}</span>
                 </motion.div>
               )}
@@ -301,7 +301,7 @@ export default function Contact(): JSX.Element {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1 }}
-          className="mt-12 text-center"
+          className="mt-12 mb-12 text-center"
         >
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Vous préférez un autre moyen de contact ?
@@ -313,7 +313,7 @@ export default function Contact(): JSX.Element {
               href="mailto:nicolasmillogo3@gmail.com"
               className="px-6 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 flex items-center gap-2"
             >
-              <span>📧</span>
+              <span>@</span>
               Email
             </motion.a>
             <motion.a
@@ -324,27 +324,11 @@ export default function Contact(): JSX.Element {
               rel="noopener noreferrer"
               className="px-6 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 flex items-center gap-2"
             >
-              <span>💼</span>
+              <span>in</span>
               LinkedIn
             </motion.a>
           </div>
         </motion.div>
-
-        <div
-          className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"
-          aria-hidden="true"
-        >
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.3 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
-            style={{
-              clipPath:
-                "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
-            }}
-          />
-        </div>
       </div>
     </Template>
   );
