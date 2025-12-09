@@ -21,6 +21,7 @@ import {
     HiOutlineChartBar
 } from 'react-icons/hi';
 import ThemeSwitcher from '@/components/ThemeSwitcher/ThemeSwitcher';
+import { getGravatarUrl } from '@/lib/gravatar';
 
 interface Project {
     id: string;
@@ -109,6 +110,7 @@ export default function AdminDashboard() {
 
     const featuredProjects = projects.filter(p => p.featured).length;
     const recentProjects = projects.slice(0, 5);
+    const userImage = session.user?.image || (session.user?.email ? getGravatarUrl(session.user.email) : null);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black">
@@ -172,9 +174,19 @@ export default function AdminDashboard() {
                                         {session.user?.email}
                                     </p>
                                 </div>
-                                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-semibold shadow-lg ring-2 ring-indigo-500 dark:ring-indigo-400">
-                                    {session.user?.name?.charAt(0) || 'A'}
-                                </div>
+                                {userImage ? (
+                                    <Image
+                                        src={userImage}
+                                        alt="Profile"
+                                        width={40}
+                                        height={40}
+                                        className="h-10 w-10 rounded-lg object-cover ring-2 ring-indigo-500 dark:ring-indigo-400"
+                                    />
+                                ) : (
+                                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-semibold shadow-lg ring-2 ring-indigo-500 dark:ring-indigo-400">
+                                        {session.user?.name?.charAt(0) || 'A'}
+                                    </div>
+                                )}
                             </div>
 
                             <motion.button
