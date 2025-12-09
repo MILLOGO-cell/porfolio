@@ -30,7 +30,7 @@ export default function Verify2FAPage() {
 
     try {
       const password = sessionStorage.getItem('temp_password');
-      
+
       if (!password) {
         setError('Session expirée');
         router.push('/admin/login');
@@ -64,8 +64,7 @@ export default function Verify2FAPage() {
       } else {
         setError(data.error || 'Code invalide');
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
+    } catch {
       setError('Une erreur est survenue');
     } finally {
       setLoading(false);
@@ -79,7 +78,7 @@ export default function Verify2FAPage() {
 
     try {
       const password = sessionStorage.getItem('temp_password');
-      
+
       if (!password) {
         setError('Session expirée');
         router.push('/admin/login');
@@ -97,11 +96,10 @@ export default function Verify2FAPage() {
       if (data.success) {
         setResendMessage('Code renvoyé avec succès');
       } else {
-        setError(data.error || 'Erreur lors de l\'envoi');
+        setError(data.error || "Erreur lors de l'envoi");
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      setError('Erreur lors de l\'envoi');
+    } catch {
+      setError("Erreur lors de l'envoi");
     } finally {
       setResendLoading(false);
     }
@@ -109,43 +107,42 @@ export default function Verify2FAPage() {
 
   if (!email || !method) {
     return null;
-  }
+    }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+    <div className="min-h-screen flex items-center justify-center bg-[#f5f2ff] dark:bg-[#090016] py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white/90 dark:bg-[#0f041f] border border-[#9e91d0]/40 dark:border-[#4e2c9f] rounded-2xl shadow-lg px-8 py-10">
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl font-extrabold text-[#1f1238] dark:text-white">
             Vérification 2FA
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            {method === 'totp' 
-              ? 'Entrez le code de votre application d\'authentification'
-              : 'Entrez le code reçu par email'
-            }
+          <p className="text-sm text-[#4b3a7a] dark:text-[#c4b9f0]">
+            {method === 'totp'
+              ? "Entrez le code de votre application d'authentification"
+              : 'Entrez le code reçu par email'}
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleVerify}>
+        <form className="mt-6 space-y-6" onSubmit={handleVerify}>
           {error && (
-            <div className="rounded-md bg-red-50 border border-red-200 p-4">
-              <div className="flex">
-                <svg className="h-5 w-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-                <p className="text-sm text-red-800">{error}</p>
-              </div>
+            <div className="rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-500/70 px-4 py-3">
+              <p className="text-sm text-red-800 dark:text-red-100">{error}</p>
             </div>
           )}
 
           {resendMessage && (
-            <div className="rounded-md bg-green-50 border border-green-200 p-4">
-              <p className="text-sm text-green-800">{resendMessage}</p>
+            <div className="rounded-lg bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-500/70 px-4 py-3">
+              <p className="text-sm text-green-800 dark:text-green-100">
+                {resendMessage}
+              </p>
             </div>
           )}
 
           <div>
-            <label htmlFor="code" className="sr-only">
+            <label
+              htmlFor="code"
+              className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1"
+            >
               Code de vérification
             </label>
             <input
@@ -154,7 +151,7 @@ export default function Verify2FAPage() {
               type="text"
               required
               maxLength={6}
-              className="appearance-none rounded-md relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 text-center text-2xl tracking-widest focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-3xl"
+              className="mt-1 block w-full px-3 py-3 rounded-lg border border-[#d4c9f5] dark:border-[#4e2c9f] bg-white dark:bg-[#140727] text-[#1f1238] dark:text-white placeholder-[#9e91d0] text-center text-2xl tracking-[0.4em] focus:outline-none focus:ring-2 focus:ring-[#5f2eba] focus:border-[#5f2eba]"
               placeholder="000000"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
@@ -166,7 +163,7 @@ export default function Verify2FAPage() {
             <button
               type="submit"
               disabled={loading || code.length !== 6}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-2.5 px-4 text-sm font-semibold rounded-lg text-white bg-[#5f2eba] hover:bg-[#4e2c9f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5f2eba] focus:ring-offset-[#f5f2ff] dark:focus:ring-offset-[#090016] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Vérification...' : 'Vérifier'}
             </button>
@@ -178,7 +175,7 @@ export default function Verify2FAPage() {
                 type="button"
                 onClick={handleResendCode}
                 disabled={resendLoading}
-                className="text-sm font-medium text-indigo-600 hover:text-indigo-500 disabled:opacity-50"
+                className="text-sm font-medium text-[#5f2eba] hover:text-[#4e2c9f] dark:text-[#c4b9f0] dark:hover:text-white disabled:opacity-60"
               >
                 {resendLoading ? 'Envoi...' : 'Renvoyer le code'}
               </button>
@@ -188,9 +185,9 @@ export default function Verify2FAPage() {
           <div className="text-center">
             <Link
               href="/admin/login"
-              className="text-sm font-medium text-gray-600 hover:text-gray-500"
+              className="text-sm font-medium text-[#5f2eba] hover:text-[#4e2c9f] dark:text-[#c4b9f0] dark:hover:text-white"
             >
-              ← Retour à la connexion
+              Retour à la connexion
             </Link>
           </div>
         </form>

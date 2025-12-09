@@ -1,12 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from "next/image";
-
+import Image from 'next/image';
 import { getGravatarUrl } from '@/lib/gravatar';
 import { motion } from 'framer-motion';
 import { HiArrowLeft, HiUser, HiShieldCheck, HiLockClosed, HiCamera, HiMail, HiDeviceMobile, HiCheck, HiX } from 'react-icons/hi';
@@ -21,10 +19,13 @@ interface UserProfile {
   createdAt: string;
 }
 
+type TabType = 'profile' | 'security' | '2fa';
+type Step2FA = 'choose' | 'totp-setup' | 'totp-verify' | 'email-setup' | 'email-verify';
+
 export default function SettingsPage() {
   const { status, update } = useSession();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | '2fa'>('profile');
+  const [activeTab, setActiveTab] = useState<TabType>('profile');
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -41,7 +42,7 @@ export default function SettingsPage() {
   const [totpSecret, setTotpSecret] = useState('');
   const [totpToken, setTotpToken] = useState('');
   const [emailCode, setEmailCode] = useState('');
-  const [step2FA, setStep2FA] = useState<'choose' | 'totp-setup' | 'totp-verify' | 'email-setup' | 'email-verify'>('choose');
+  const [step2FA, setStep2FA] = useState<Step2FA>('choose');
 
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -331,7 +332,7 @@ export default function SettingsPage() {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="rounded-full h-16 w-16 border-4 border-indigo-200 dark:border-indigo-800 border-t-indigo-600 dark:border-t-indigo-400"
+          className="rounded-lg h-16 w-16 border-4 border-indigo-200 dark:border-indigo-800 border-t-indigo-600 dark:border-t-indigo-400"
         />
       </div>
     );
@@ -342,7 +343,6 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black">
-      {/* Header */}
       <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -368,7 +368,7 @@ export default function SettingsPage() {
                 alt="Profile"
                 width={40}
                 height={40}
-                className="h-10 w-10 rounded-full ring-2 ring-indigo-500 dark:ring-indigo-400"
+                className="h-10 w-10 rounded-lg ring-2 ring-indigo-500 dark:ring-indigo-400"
               />
             </div>
           </div>
@@ -376,12 +376,11 @@ export default function SettingsPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Messages */}
         {message && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 flex items-center gap-3"
+            className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 flex items-center gap-3"
           >
             <HiCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
             <p className="text-sm text-green-800 dark:text-green-300 font-medium">{message}</p>
@@ -392,7 +391,7 @@ export default function SettingsPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-center gap-3"
+            className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-center gap-3"
           >
             <HiX className="h-5 w-5 text-red-600 dark:text-red-400" />
             <p className="text-sm text-red-800 dark:text-red-300 font-medium">{error}</p>
@@ -400,7 +399,6 @@ export default function SettingsPage() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar Navigation */}
           <motion.div
             initial="hidden"
             animate="visible"
@@ -408,7 +406,7 @@ export default function SettingsPage() {
             transition={{ duration: 0.5 }}
             className="lg:col-span-1"
           >
-            <nav className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2">
+            <nav className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2">
               {[
                 { id: 'profile', label: 'Profil', icon: HiUser },
                 { id: 'security', label: 'Sécurité', icon: HiLockClosed },
@@ -418,10 +416,10 @@ export default function SettingsPage() {
                 return (
                   <motion.button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
+                    onClick={() => setActiveTab(tab.id as TabType)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
                       activeTab === tab.id
                         ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -435,7 +433,6 @@ export default function SettingsPage() {
             </nav>
           </motion.div>
 
-          {/* Main Content */}
           <motion.div
             initial="hidden"
             animate="visible"
@@ -443,8 +440,7 @@ export default function SettingsPage() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="lg:col-span-3"
           >
-            <div className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8">
-              {/* Profile Tab */}
+            <div className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8">
               {activeTab === 'profile' && (
                 <div className="space-y-8">
                   <div>
@@ -459,15 +455,15 @@ export default function SettingsPage() {
                           alt="Profile"
                           width={120}
                           height={120}
-                          className="h-28 w-28 md:h-32 md:w-32 rounded-2xl object-cover ring-4 ring-indigo-500 dark:ring-indigo-400 shadow-xl"
+                          className="h-28 w-28 md:h-32 md:w-32 rounded-lg object-cover ring-4 ring-indigo-500 dark:ring-indigo-400 shadow-xl"
                         />
-                        <div className="absolute -bottom-2 -right-2 bg-indigo-600 dark:bg-indigo-500 rounded-full p-2 shadow-lg">
+                        <div className="absolute -bottom-2 -right-2 bg-indigo-600 dark:bg-indigo-500 rounded-lg p-2 shadow-lg">
                           <HiCamera className="h-5 w-5 text-white" />
                         </div>
                       </div>
                       <div className="flex-1 w-full">
                         <div className="space-y-4">
-                          <div className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600">
+                          <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600">
                             <input
                               type="radio"
                               id="gravatar"
@@ -479,7 +475,7 @@ export default function SettingsPage() {
                               Utiliser Gravatar
                             </label>
                           </div>
-                          <div className="space-y-3 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600">
+                          <div className="space-y-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600">
                             <div className="flex items-center gap-3">
                               <input
                                 type="radio"
@@ -523,7 +519,7 @@ export default function SettingsPage() {
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
+                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
                         placeholder="Votre nom"
                       />
                     </div>
@@ -538,7 +534,7 @@ export default function SettingsPage() {
                           type="email"
                           value={profile.email}
                           disabled
-                          className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 rounded-xl cursor-not-allowed"
+                          className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 rounded-lg cursor-not-allowed"
                         />
                       </div>
                     </div>
@@ -547,7 +543,7 @@ export default function SettingsPage() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleSaveProfile}
-                      className="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                      className="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                     >
                       Enregistrer les modifications
                     </motion.button>
@@ -555,7 +551,6 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              {/* Security Tab */}
               {activeTab === 'security' && (
                 <div className="space-y-6">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
@@ -571,7 +566,7 @@ export default function SettingsPage() {
                       type="password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
+                      className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
                       placeholder="••••••••"
                     />
                   </div>
@@ -584,7 +579,7 @@ export default function SettingsPage() {
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
+                      className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
                       placeholder="••••••••"
                     />
                   </div>
@@ -597,7 +592,7 @@ export default function SettingsPage() {
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
+                      className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
                       placeholder="••••••••"
                     />
                   </div>
@@ -606,14 +601,13 @@ export default function SettingsPage() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleChangePassword}
-                    className="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                   >
                     Changer le mot de passe
                   </motion.button>
                 </div>
               )}
 
-              {/* 2FA Tab */}
               {activeTab === '2fa' && (
                 <div className="space-y-6">
                   <div>
@@ -622,9 +616,9 @@ export default function SettingsPage() {
                       Authentification à deux facteurs
                     </h2>
                     {profile.twoFactorEnabled ? (
-                      <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl p-6 mt-4">
+                      <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-lg p-6 mt-4">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="bg-green-500 rounded-full p-2">
+                          <div className="bg-green-500 rounded-lg p-2">
                             <HiCheck className="h-5 w-5 text-white" />
                           </div>
                           <div>
@@ -646,7 +640,7 @@ export default function SettingsPage() {
                         </motion.button>
                       </div>
                     ) : (
-                      <div className="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 rounded-xl p-6 mt-4">
+                      <div className="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 rounded-lg p-6 mt-4">
                         <p className="text-sm text-yellow-800 dark:text-yellow-300">
                           Renforcez la sécurité de votre compte en activant l&apos;authentification à deux facteurs.
                         </p>
@@ -662,10 +656,10 @@ export default function SettingsPage() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={handleSetupTOTP}
-                            className="w-full flex items-center justify-between p-6 border-2 border-gray-200 dark:border-gray-600 rounded-2xl hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-300 group"
+                            className="w-full flex items-center justify-between p-6 border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-300 group"
                           >
                             <div className="flex items-center gap-4">
-                              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-4 group-hover:scale-110 transition-transform">
+                              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg p-4 group-hover:scale-110 transition-transform">
                                 <HiDeviceMobile className="h-7 w-7 text-white" />
                               </div>
                               <div className="text-left">
@@ -682,10 +676,10 @@ export default function SettingsPage() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={handleSetupEmail2FA}
-                            className="w-full flex items-center justify-between p-6 border-2 border-gray-200 dark:border-gray-600 rounded-2xl hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-300 group"
+                            className="w-full flex items-center justify-between p-6 border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-300 group"
                           >
                             <div className="flex items-center gap-4">
-                              <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-4 group-hover:scale-110 transition-transform">
+                              <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg p-4 group-hover:scale-110 transition-transform">
                                 <HiMail className="h-7 w-7 text-white" />
                               </div>
                               <div className="text-left">
@@ -710,13 +704,13 @@ export default function SettingsPage() {
                             Retour
                           </button>
                           
-                          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-6 border-2 border-indigo-200 dark:border-indigo-800">
+                          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-6 border-2 border-indigo-200 dark:border-indigo-800">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-4 text-lg">
                               Scannez ce QR code
                             </h3>
                             {qrCode && (
                               <div className="flex justify-center mb-4">
-                                <div className="bg-white p-4 rounded-xl shadow-lg">
+                                <div className="bg-white p-4 rounded-lg shadow-lg">
                                   <Image
                                     src={qrCode}
                                     alt="QR Code"
@@ -726,7 +720,7 @@ export default function SettingsPage() {
                                 </div>
                               </div>
                             )}
-                            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl">
+                            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
                               <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                                 Clé manuelle :
                               </p>
@@ -745,7 +739,7 @@ export default function SettingsPage() {
                               value={totpToken}
                               onChange={(e) => setTotpToken(e.target.value)}
                               maxLength={6}
-                              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300 text-center text-2xl font-mono tracking-widest"
+                              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300 text-center text-2xl font-mono tracking-widest"
                               placeholder="000000"
                             />
                           </div>
@@ -754,7 +748,7 @@ export default function SettingsPage() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={handleVerifyTOTP}
-                            className="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                            className="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                           >
                             Vérifier et activer
                           </motion.button>
@@ -771,7 +765,7 @@ export default function SettingsPage() {
                             Retour
                           </button>
 
-                          <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 border-2 border-green-200 dark:border-green-800">
+                          <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 border-2 border-green-200 dark:border-green-800">
                             <div className="flex items-center gap-3 mb-3">
                               <HiMail className="h-6 w-6 text-green-600 dark:text-green-400" />
                               <h3 className="font-bold text-gray-900 dark:text-white text-lg">
@@ -792,7 +786,7 @@ export default function SettingsPage() {
                               value={emailCode}
                               onChange={(e) => setEmailCode(e.target.value)}
                               maxLength={6}
-                              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent transition-all duration-300 text-center text-2xl font-mono tracking-widest"
+                              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent transition-all duration-300 text-center text-2xl font-mono tracking-widest"
                               placeholder="000000"
                             />
                           </div>
@@ -801,7 +795,7 @@ export default function SettingsPage() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={handleVerifyEmail2FA}
-                            className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                            className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                           >
                             Vérifier et activer
                           </motion.button>
@@ -810,7 +804,7 @@ export default function SettingsPage() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={handleSetupEmail2FA}
-                            className="w-full px-6 py-3 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-xl font-semibold border-2 border-green-200 dark:border-green-800 transition-all duration-300"
+                            className="w-full px-6 py-3 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg font-semibold border-2 border-green-200 dark:border-green-800 transition-all duration-300"
                           >
                             Renvoyer le code
                           </motion.button>

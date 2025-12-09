@@ -97,7 +97,7 @@ export default function AdminDashboard() {
                 <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    className="rounded-full h-16 w-16 border-4 border-indigo-200 dark:border-indigo-800 border-t-indigo-600 dark:border-t-indigo-400"
+                    className="rounded-lg h-16 w-16 border-4 border-indigo-200 dark:border-indigo-800 border-t-indigo-600 dark:border-t-indigo-400"
                 />
             </div>
         );
@@ -112,7 +112,6 @@ export default function AdminDashboard() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black">
-            {/* Navigation */}
             <nav className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
@@ -121,7 +120,7 @@ export default function AdminDashboard() {
                                 <motion.div
                                     whileHover={{ rotate: 360 }}
                                     transition={{ duration: 0.5 }}
-                                    className="h-10 w-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg"
+                                    className="h-10 w-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg"
                                 >
                                     <span className="text-white font-bold text-xl">P</span>
                                 </motion.div>
@@ -155,7 +154,6 @@ export default function AdminDashboard() {
                                     Paramètres
                                 </Link>
 
-                                {/* ThemeSwitcher avec un fond */}
                                 <div className="ml-4 pl-4 border-l border-gray-300 dark:border-gray-700">
                                     <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
                                         <ThemeSwitcher />
@@ -174,7 +172,7 @@ export default function AdminDashboard() {
                                         {session.user?.email}
                                     </p>
                                 </div>
-                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-semibold shadow-lg ring-2 ring-indigo-500 dark:ring-indigo-400">
+                                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-semibold shadow-lg ring-2 ring-indigo-500 dark:ring-indigo-400">
                                     {session.user?.name?.charAt(0) || 'A'}
                                 </div>
                             </div>
@@ -183,7 +181,7 @@ export default function AdminDashboard() {
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => signOut({ callbackUrl: '/admin/login' })}
-                                className="inline-flex items-center px-4 py-2 border-2 border-red-500 dark:border-red-400 text-sm font-semibold rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300"
+                                className="inline-flex items-center px-4 py-2 border-2 border-red-500 dark:border-red-400 text-sm font-semibold rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300"
                             >
                                 <HiOutlineLogout className="h-4 w-4 mr-2" />
                                 <span className="hidden sm:inline">Déconnexion</span>
@@ -194,13 +192,12 @@ export default function AdminDashboard() {
             </nav>
 
             <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-                {/* Welcome Banner */}
                 <motion.div
                     initial="hidden"
                     animate="visible"
                     variants={fadeIn}
                     transition={{ duration: 0.5 }}
-                    className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 rounded-2xl shadow-2xl p-8 mb-8 relative overflow-hidden"
+                    className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 rounded-lg shadow-2xl p-8 mb-8 relative overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-black/10"></div>
                     <div className="relative z-10 flex items-center justify-between">
@@ -211,7 +208,7 @@ export default function AdminDashboard() {
                                 transition={{ delay: 0.2 }}
                                 className="text-3xl font-extrabold text-white mb-2"
                             >
-                                Bienvenue, {session.user?.name || 'Admin'} ! 👋
+                                Bienvenue, {session.user?.name || 'Admin'}
                             </motion.h2>
                             <motion.p
                                 initial={{ opacity: 0, x: -20 }}
@@ -233,7 +230,6 @@ export default function AdminDashboard() {
                     </div>
                 </motion.div>
 
-                {/* Stats Grid */}
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
                     {[
                         {
@@ -270,12 +266,12 @@ export default function AdminDashboard() {
                                 variants={fadeIn}
                                 transition={{ duration: 0.5, delay: stat.delay }}
                                 whileHover={{ scale: 1.05, y: -5 }}
-                                className="bg-white dark:bg-gray-800/50 backdrop-blur-lg overflow-hidden shadow-xl rounded-2xl border border-gray-200 dark:border-gray-700"
+                                className="bg-white dark:bg-gray-800/50 backdrop-blur-lg overflow-hidden shadow-xl rounded-lg border border-gray-200 dark:border-gray-700"
                             >
                                 <div className="p-6">
                                     <div className="flex items-center">
                                         <div className="flex-shrink-0">
-                                            <div className={`rounded-xl bg-gradient-to-br ${stat.color} p-4 shadow-lg`}>
+                                            <div className={`rounded-lg bg-gradient-to-br ${stat.color} p-4 shadow-lg`}>
                                                 <Icon className="h-8 w-8 text-white" />
                                             </div>
                                         </div>
@@ -309,15 +305,13 @@ export default function AdminDashboard() {
                     })}
                 </div>
 
-                {/* Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    {/* Statistics */}
                     <motion.div
                         initial="hidden"
                         animate="visible"
                         variants={fadeIn}
                         transition={{ duration: 0.5, delay: 0.4 }}
-                        className="lg:col-span-2 bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6"
+                        className="lg:col-span-2 bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-6"
                     >
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                             <HiOutlineChartBar className="h-6 w-6" />
@@ -376,13 +370,12 @@ export default function AdminDashboard() {
                         </div>
                     </motion.div>
 
-                    {/* Quick Actions */}
                     <motion.div
                         initial="hidden"
                         animate="visible"
                         variants={fadeIn}
                         transition={{ duration: 0.5, delay: 0.5 }}
-                        className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6"
+                        className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-6"
                     >
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
                             Actions Rapides
@@ -429,9 +422,9 @@ export default function AdminDashboard() {
                                         <Link
                                             href={action.href}
                                             target={action.external ? '_blank' : undefined}
-                                            className="flex items-center p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-700/30 rounded-xl hover:shadow-lg transition-all duration-300 group border border-gray-200 dark:border-gray-600"
+                                            className="flex items-center p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-700/30 rounded-lg hover:shadow-lg transition-all duration-300 group border border-gray-200 dark:border-gray-600"
                                         >
-                                            <div className={`bg-gradient-to-br ${action.color} ${action.hoverColor} rounded-xl p-3 group-hover:shadow-lg transition-all duration-300`}>
+                                            <div className={`bg-gradient-to-br ${action.color} ${action.hoverColor} rounded-lg p-3 group-hover:shadow-lg transition-all duration-300`}>
                                                 <Icon className="h-6 w-6 text-white" />
                                             </div>
                                             <span className="ml-4 text-sm font-semibold text-gray-900 dark:text-white">
@@ -448,13 +441,12 @@ export default function AdminDashboard() {
                     </motion.div>
                 </div>
 
-                {/* Recent Projects Table */}
                 <motion.div
                     initial="hidden"
                     animate="visible"
                     variants={fadeIn}
                     transition={{ duration: 0.5, delay: 0.6 }}
-                    className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+                    className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
                 >
                     <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -489,7 +481,7 @@ export default function AdminDashboard() {
                             >
                                 <Link
                                     href="/admin/projects"
-                                    className="inline-flex items-center px-6 py-3 border border-transparent shadow-lg text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300"
+                                    className="inline-flex items-center px-6 py-3 border border-transparent shadow-lg text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300"
                                 >
                                     <HiOutlinePlus className="h-5 w-5 mr-2" />
                                     Créer un projet
@@ -526,14 +518,14 @@ export default function AdminDashboard() {
                                         >
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center">
-                                                    <div className="h-12 w-12 flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                                                    <div className="h-12 w-12 flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
                                                         {project.imageUrl ? (
                                                             <Image
                                                                 src={project.imageUrl}
                                                                 alt={project.title}
                                                                 width={48}
                                                                 height={48}
-                                                                className="h-12 w-12 rounded-xl object-cover"
+                                                                className="h-12 w-12 rounded-lg object-cover"
                                                             />
                                                         ) : (
                                                             <HiOutlineCollection className="h-7 w-7 text-white" />
@@ -544,8 +536,8 @@ export default function AdminDashboard() {
                                                             {project.title}
                                                         </div>
                                                         {project.featured && (
-                                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 mt-1">
-                                                                ⭐ Vedette
+                                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 mt-1">
+                                                                Vedette
                                                             </span>
                                                         )}
                                                     </div>
@@ -556,7 +548,7 @@ export default function AdminDashboard() {
                                                     {project.tags.slice(0, 3).map((tag, idx) => (
                                                         <span
                                                             key={idx}
-                                                            className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-400"
+                                                            className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-400"
                                                         >
                                                             {tag}
                                                         </span>
