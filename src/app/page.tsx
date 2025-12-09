@@ -63,7 +63,7 @@ export default function Home() {
                   transition={{ delay: 0.2 }}
                   className="text-xs md:text-sm border-2 border-indigo-500 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 px-4 py-2 rounded-full font-medium shadow-sm"
                 >
-                  Salut je suis Nicolas 👋
+                  Salut je suis Nicolas
                 </motion.p>
                 <motion.h1
                   variants={fadeInUp}
@@ -142,10 +142,7 @@ export default function Home() {
                 className="flex justify-center items-center mt-8"
               >
                 <div className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
-                  Mes travaux{" "}
-                  <span role="img" aria-label="briefcase">
-                    💼
-                  </span>
+                  Mes travaux
                 </div>
               </motion.div>
             </motion.div>
@@ -182,9 +179,6 @@ export default function Home() {
             >
               <div className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
                 Mes outils favoris
-                <span role="img" aria-label="tools">
-                  🛠️
-                </span>
               </div>
             </motion.div>
 
@@ -247,9 +241,6 @@ export default function Home() {
             >
               <div className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
                 Méthodes de travail
-                <span role="img" aria-label="lightbulb">
-                  💡
-                </span>
               </div>
             </motion.div>
 
@@ -349,9 +340,6 @@ export default function Home() {
             >
               <div className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
                 Mes services
-                <span role="img" aria-label="money">
-                  💰
-                </span>
               </div>
             </motion.div>
 
@@ -463,64 +451,32 @@ export default function Home() {
               </div>
             </motion.div>
           </div>
-
-          <footer className="mt-20 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 text-gray-700 dark:text-gray-300 py-8 border-t border-gray-300 dark:border-gray-700">
-            <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center px-6 space-y-4 sm:space-y-0">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                className="text-sm"
-              >
-                NDev © {new Date().getFullYear()}. Designed by O.Nicolas MILLOGO
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="flex items-center space-x-3"
-              >
-                <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-                  <Image src="/logo.png" alt="Logo" width={24} height={24} />
-                  <span className="font-bold text-sm">NDev</span>
-                </Link>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                className="flex items-center space-x-6"
-              >
-                <Link
-                  href="https://dribbble.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                >
-                  Dribbble
-                </Link>
-                <Link
-                  href="https://behance.net"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                >
-                  Behance
-                </Link>
-                <Link
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                >
-                  LinkedIn
-                </Link>
-              </motion.div>
-            </div>
-          </footer>
         </div>
+
+        <footer className="w-full bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 text-gray-700 dark:text-gray-300 py-8 border-t border-gray-300 dark:border-gray-700">
+          <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center px-6 space-y-4 sm:space-y-0">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="text-sm"
+            >
+              NDev © {new Date().getFullYear()}. Designed by O.Nicolas MILLOGO
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="flex items-center space-x-3"
+            >
+              <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+                <Image src="/logo.png" alt="Logo" width={24} height={24} />
+                <span className="font-bold text-sm">NDev</span>
+              </Link>
+            </motion.div>
+          </div>
+        </footer>
       </div>
     </Template>
   );
