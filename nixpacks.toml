@@ -1,0 +1,7 @@
+[phases.install]
+dependsOn = ['setup']
+cmds = ['npm install']
+
+[phases.build]
+dependsOn = ['install']
+cmds = ['npx prisma generate', 'npm run build']
