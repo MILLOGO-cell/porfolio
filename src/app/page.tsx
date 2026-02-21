@@ -6,6 +6,7 @@ import Template from "./Template";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import FeaturedProjects from "@/components/FeaturedProjects";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 export default function Home() {
   const router = useRouter();
@@ -147,7 +148,9 @@ export default function Home() {
               </motion.div>
             </motion.div>
 
-            <FeaturedProjects />
+            <ScrollReveal>
+              <FeaturedProjects />
+            </ScrollReveal>
 
             <motion.div
               initial="hidden"
@@ -168,19 +171,13 @@ export default function Home() {
               </Link>
             </motion.div>
 
-            <motion.div
-              id="outils"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={scaleIn}
-              transition={{ duration: 0.5 }}
-              className="flex justify-center items-center mt-20"
-            >
-              <div className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
-                Mes outils favoris
+            <ScrollReveal>
+              <div id="outils" className="flex justify-center items-center mt-20">
+                <div className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
+                  Mes outils favoris
+                </div>
               </div>
-            </motion.div>
+            </ScrollReveal>
 
             <motion.div
               initial="hidden"
@@ -230,19 +227,13 @@ export default function Home() {
               </div>
             </motion.div>
 
-            <motion.div
-              id="competences"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={scaleIn}
-              transition={{ duration: 0.5 }}
-              className="flex justify-center items-center mt-20"
-            >
-              <div className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
-                Méthodes de travail
+            <ScrollReveal>
+              <div id="competences" className="flex justify-center items-center mt-20">
+                <div className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
+                  Méthodes de travail
+                </div>
               </div>
-            </motion.div>
+            </ScrollReveal>
 
             <motion.div
               initial="hidden"
@@ -329,19 +320,13 @@ export default function Home() {
               </div>
             </motion.div>
 
-            <motion.div
-              id="services"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={scaleIn}
-              transition={{ duration: 0.5 }}
-              className="flex justify-center items-center mt-20"
-            >
-              <div className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
-                Mes services
+            <ScrollReveal>
+              <div id="services" className="flex justify-center items-center mt-20">
+                <div className="px-8 py-4 text-lg font-semibold rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 border border-indigo-200 dark:border-indigo-700">
+                  Mes services
+                </div>
               </div>
-            </motion.div>
+            </ScrollReveal>
 
             <motion.div
               initial="hidden"

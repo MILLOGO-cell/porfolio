@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
-import * as nodemailer from 'nodemailer'; 
+import * as nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import { successResponse, errorResponse, handleApiError } from '@/lib/api-response';
 
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Envoyer l'email
-    const resetUrl = `${process.env.NEXTAUTH_URL}/admin/reset-password?token=${resetToken}`;
+    const resetUrl = `${process.env.NEXTAUTH_URL}/protected_access/reset-password?token=${resetToken}`;
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,

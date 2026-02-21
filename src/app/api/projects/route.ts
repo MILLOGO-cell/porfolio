@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { projectSchema } from '@/lib/validations';
-import { successResponse, validationErrorResponse, handleApiError } from '@/lib/api-response';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { errorResponse, successResponse, validationErrorResponse, handleApiError } from '@/lib/api-response';
 
 // ====================================
 // GET /api/projects
@@ -17,11 +18,11 @@ export async function GET(request: NextRequest) {
 
     // Construire les filtres
     const where: any = {};
-    
+
     if (featured === 'true') {
       where.featured = true;
     }
-    
+
     if (tag) {
       where.tags = {
         has: tag,
@@ -52,11 +53,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Vérifier l'authentification admin
-    // const session = await getServerSession(authOptions);
-    // if (!session) {
-    //   return errorResponse('Non autorisé', 401);
-    // }
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return errorResponse('Non autorisé', 401);
+    }
 
     // Récupérer et valider les données
     const body = await request.json();

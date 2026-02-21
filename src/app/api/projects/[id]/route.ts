@@ -1,15 +1,17 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { projectSchema } from '@/lib/validations';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { successResponse, errorResponse, validationErrorResponse, handleApiError } from '@/lib/api-response';
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    
+
     const project = await prisma.project.findUnique({
       where: { id },
     });
@@ -29,6 +31,11 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return errorResponse('Non autorisé', 401);
+    }
+
     const { id } = await params;
 
     const existingProject = await prisma.project.findUnique({
@@ -66,10 +73,15 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return errorResponse('Non autorisé', 401);
+    }
+
     const { id } = await params;
 
     const existingProject = await prisma.project.findUnique({

@@ -49,7 +49,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/admin/login');
+      router.push('/protected_access/login');
     }
   }, [status, router]);
 
@@ -64,7 +64,7 @@ export default function SettingsPage() {
       setLoading(true);
       const response = await fetch('/api/user/profile');
       const data = await response.json();
-      
+
       if (data.success) {
         setProfile(data.data);
         setName(data.data.name || '');
@@ -419,11 +419,10 @@ export default function SettingsPage() {
                     onClick={() => setActiveTab(tab.id as TabType)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
-                      activeTab === tab.id
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === tab.id
                         ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
+                      }`}
                   >
                     <Icon className="h-5 w-5" />
                     {tab.label}
@@ -557,7 +556,7 @@ export default function SettingsPage() {
                     <HiLockClosed className="h-6 w-6" />
                     Changer le mot de passe
                   </h2>
-                  
+
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Mot de passe actuel
@@ -703,7 +702,7 @@ export default function SettingsPage() {
                             <HiArrowLeft className="h-4 w-4" />
                             Retour
                           </button>
-                          
+
                           <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-6 border-2 border-indigo-200 dark:border-indigo-800">
                             <h3 className="font-bold text-gray-900 dark:text-white mb-4 text-lg">
                               Scannez ce QR code

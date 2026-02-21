@@ -35,35 +35,79 @@ interface Project {
     updatedAt: string;
 }
 
+interface AdminStats {
+    projects: {
+        total: number;
+        featured: number;
+    };
+    visitors: {
+        totalVisible: number;
+        totalVisits: number;
+        today: number;
+        visitsToday: number;
+    };
+    topPages: Array<{
+        path: string;
+        _count: {
+            id: number;
+        };
+    }>;
+}
+
+interface Visitor {
+    id: string;
+    lastIp: string;
+    userAgent: string;
+    createdAt: string;
+    updatedAt: string;
+    lastVisitPath: string;
+    totalVisits: number;
+}
+
 export default function AdminDashboard() {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const [stats, setStats] = useState<AdminStats | null>(null);
     const [projects, setProjects] = useState<Project[]>([]);
+    const [visitors, setVisitors] = useState<Visitor[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (status === 'unauthenticated') {
-            router.push('/admin/login');
+            router.push('/protected_access/login');
         }
     }, [status, router]);
 
     useEffect(() => {
         if (status === 'authenticated') {
-            fetchProjects();
+            fetchDashboardData();
         }
     }, [status]);
 
-    const fetchProjects = async () => {
+    const fetchDashboardData = async () => {
         try {
             setLoading(true);
-            const response = await fetch('/api/projects');
-            const data = await response.json();
+            const [projectsRes, statsRes, visitorsRes] = await Promise.all([
+                fetch('/api/projects'),
+                fetch('/api/protected_access/stats'),
+                fetch('/api/protected_access/visitors')
+            ]);
 
-            if (data.success) {
-                setProjects(data.data.projects);
+            const projectsData = await projectsRes.json();
+            const statsData = await statsRes.json();
+            const visitorsData = await visitorsRes.json();
+
+            if (projectsData.success) {
+                setProjects(projectsData.data.projects);
+            }
+            if (statsData.success) {
+                setStats(statsData.data);
+            }
+            if (visitorsData.success) {
+                setVisitors(visitorsData.data.visitors);
             }
         } catch (error) {
-            console.error('Erreur lors du chargement des projets:', error);
+            console.error('Erreur lors du chargement des données:', error);
         } finally {
             setLoading(false);
         }
@@ -80,7 +124,7 @@ export default function AdminDashboard() {
             });
 
             if (response.ok) {
-                fetchProjects();
+                fetchDashboardData();
             }
         } catch (error) {
             console.error('Erreur lors de la suppression:', error);
@@ -138,19 +182,19 @@ export default function AdminDashboard() {
 
                             <div className="hidden md:ml-10 md:flex md:items-center md:space-x-4">
                                 <Link
-                                    href="/admin"
+                                    href="/protected_access"
                                     className="px-3 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium text-sm shadow-lg"
                                 >
                                     Dashboard
                                 </Link>
                                 <Link
-                                    href="/admin/projects"
+                                    href="/protected_access/projects"
                                     className="px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium text-sm transition-colors"
                                 >
                                     Projets
                                 </Link>
                                 <Link
-                                    href="/admin/settings"
+                                    href="/protected_access/settings"
                                     className="px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium text-sm transition-colors"
                                 >
                                     Paramètres
@@ -192,7 +236,7 @@ export default function AdminDashboard() {
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                onClick={() => signOut({ callbackUrl: '/admin/login' })}
+                                onClick={() => signOut({ callbackUrl: '/protected_access/login' })}
                                 className="inline-flex items-center px-4 py-2 border-2 border-red-500 dark:border-red-400 text-sm font-semibold rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300"
                             >
                                 <HiOutlineLogout className="h-4 w-4 mr-2" />
@@ -303,7 +347,7 @@ export default function AdminDashboard() {
                                 </div>
                                 <div className="bg-gray-50 dark:bg-gray-700/50 px-6 py-3">
                                     <Link
-                                        href="/admin/projects"
+                                        href="/protected_access/projects"
                                         className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1"
                                     >
                                         Gérer
@@ -317,17 +361,112 @@ export default function AdminDashboard() {
                     })}
                 </div>
 
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+                    {[
+                        {
+                            title: 'Visiteurs Aujourd\'hui',
+                            value: stats?.visitors?.today || 0,
+                            icon: HiOutlineChartBar,
+                            color: 'from-blue-500 to-blue-600',
+                            delay: 0.4
+                        },
+                        {
+                            title: 'Visites Aujourd\'hui',
+                            value: stats?.visitors?.visitsToday || 0,
+                            icon: HiOutlineCollection,
+                            color: 'from-green-500 to-green-600',
+                            delay: 0.5
+                        },
+                        {
+                            title: 'Total Visiteurs',
+                            value: stats?.visitors?.totalVisible || 0,
+                            icon: HiOutlinePhotograph,
+                            color: 'from-purple-500 to-purple-600',
+                            delay: 0.6
+                        },
+                        {
+                            title: 'Total Visites',
+                            value: stats?.visitors?.totalVisits || 0,
+                            icon: HiOutlineLink,
+                            color: 'from-pink-500 to-pink-600',
+                            delay: 0.7
+                        }
+                    ].map((stat, index) => {
+                        const Icon = stat.icon;
+                        return (
+                            <motion.div
+                                key={index}
+                                initial="hidden"
+                                animate="visible"
+                                variants={fadeIn}
+                                transition={{ duration: 0.5, delay: stat.delay }}
+                                whileHover={{ scale: 1.05, y: -5 }}
+                                className="bg-white dark:bg-gray-800/50 backdrop-blur-lg overflow-hidden shadow-xl rounded-lg border border-gray-200 dark:border-gray-700"
+                            >
+                                <div className="p-6">
+                                    <div className="flex items-center">
+                                        <div className="flex-shrink-0">
+                                            <div className={`rounded-lg bg-gradient-to-br ${stat.color} p-4 shadow-lg`}>
+                                                <Icon className="h-8 w-8 text-white" />
+                                            </div>
+                                        </div>
+                                        <div className="ml-5 w-0 flex-1">
+                                            <dl>
+                                                <dt className="text-sm font-semibold text-gray-500 dark:text-gray-400 truncate">
+                                                    {stat.title}
+                                                </dt>
+                                                <dd className="flex items-baseline">
+                                                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                                                        {stat.value}
+                                                    </div>
+                                                </dd>
+                                            </dl>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                     <motion.div
                         initial="hidden"
                         animate="visible"
                         variants={fadeIn}
-                        transition={{ duration: 0.5, delay: 0.4 }}
+                        transition={{ duration: 0.5, delay: 0.8 }}
                         className="lg:col-span-2 bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-6"
                     >
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                             <HiOutlineChartBar className="h-6 w-6" />
-                            Statistiques
+                            Pages les plus visitées
+                        </h3>
+                        <div className="space-y-4 mb-10">
+                            {(stats?.topPages || []).map((page: any, index: number) => (
+                                <div key={index} className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <span className="flex items-center justify-center h-6 w-6 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold">
+                                            {index + 1}
+                                        </span>
+                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {page.path}
+                                        </span>
+                                    </div>
+                                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                                        {page._count.id} visites
+                                    </span>
+                                </div>
+                            ))}
+                            {(!stats?.topPages || stats?.topPages.length === 0) && (
+                                <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                                    Aucune donnée de visite pour le moment.
+                                </p>
+                            )}
+                        </div>
+
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2 border-t border-gray-100 dark:border-gray-700 pt-6">
+                            <HiOutlineChartBar className="h-6 w-6" />
+                            Statistiques des projets
                         </h3>
                         <div className="space-y-6">
                             {[
@@ -395,21 +534,21 @@ export default function AdminDashboard() {
                         <div className="space-y-3">
                             {[
                                 {
-                                    href: '/admin/projects',
+                                    href: '/protected_access/projects',
                                     label: 'Nouveau Projet',
                                     icon: HiOutlinePlus,
                                     color: 'from-indigo-500 to-indigo-600',
                                     hoverColor: 'hover:from-indigo-600 hover:to-indigo-700'
                                 },
                                 {
-                                    href: '/admin/projects',
+                                    href: '/protected_access/projects',
                                     label: 'Gérer Projets',
                                     icon: HiOutlineCollection,
                                     color: 'from-gray-500 to-gray-600',
                                     hoverColor: 'hover:from-gray-600 hover:to-gray-700'
                                 },
                                 {
-                                    href: '/admin/settings',
+                                    href: '/protected_access/settings',
                                     label: 'Paramètres',
                                     icon: HiOutlineCog,
                                     color: 'from-green-500 to-green-600',
@@ -466,7 +605,7 @@ export default function AdminDashboard() {
                             Projets Récents
                         </h3>
                         <Link
-                            href="/admin/projects"
+                            href="/protected_access/projects"
                             className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1"
                         >
                             Voir tout
@@ -492,7 +631,7 @@ export default function AdminDashboard() {
                                 whileTap={{ scale: 0.95 }}
                             >
                                 <Link
-                                    href="/admin/projects"
+                                    href="/protected_access/projects"
                                     className="inline-flex items-center px-6 py-3 border border-transparent shadow-lg text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300"
                                 >
                                     <HiOutlinePlus className="h-5 w-5 mr-2" />
@@ -579,7 +718,7 @@ export default function AdminDashboard() {
                                                 <motion.button
                                                     whileHover={{ scale: 1.1 }}
                                                     whileTap={{ scale: 0.9 }}
-                                                    onClick={() => router.push('/admin/projects')}
+                                                    onClick={() => router.push('/protected_access/projects')}
                                                     className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 inline-flex items-center gap-1"
                                                 >
                                                     <HiOutlinePencil className="h-4 w-4" />
@@ -602,7 +741,79 @@ export default function AdminDashboard() {
                         </div>
                     )}
                 </motion.div>
-            </main>
-        </div>
+
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    transition={{ duration: 0.5, delay: 0.7 }}
+                    className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8"
+                >
+                    <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <HiOutlineChartBar className="h-6 w-6" />
+                            Visiteurs Récents
+                        </h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead className="bg-gray-50 dark:bg-gray-700/50">
+                                <tr>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Adresse IP
+                                    </th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Dernière Page
+                                    </th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Navigateur
+                                    </th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Date
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white dark:bg-gray-800/30 divide-y divide-gray-200 dark:divide-gray-700">
+                                {visitors.map((visitor, index) => (
+                                    <motion.tr
+                                        key={visitor.id}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.05 * index }}
+                                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                                    >
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="text-sm font-mono text-gray-600 dark:text-gray-400">
+                                                {visitor.lastIp}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                                                {visitor.lastVisitPath}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 max-w-xs overflow-hidden text-ellipsis">
+                                            <span className="text-xs text-gray-500 dark:text-gray-500 truncate block">
+                                                {visitor.userAgent}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">
+                                            {new Date(visitor.updatedAt).toLocaleString('fr-FR')}
+                                        </td>
+                                    </motion.tr>
+                                ))}
+                                {visitors.length === 0 && (
+                                    <tr>
+                                        <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-500 italic">
+                                            Aucun visiteur enregistré.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </motion.div>
+            </main >
+        </div >
     );
 }

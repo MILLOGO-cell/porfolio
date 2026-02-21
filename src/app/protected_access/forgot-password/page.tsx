@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
 
           <div className="space-y-3">
             <Link
-              href="/admin/login"
+              href="/protected_access/login"
               className="w-full flex justify-center items-center py-2.5 px-4 text-sm font-semibold rounded-lg text-white bg-[#5f2eba] hover:bg-[#4e2c9f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5f2eba] focus:ring-offset-[#f5f2ff] dark:focus:ring-offset-[#090016] transition-colors"
             >
               Retour à la connexion
@@ -123,7 +123,7 @@ export default function ForgotPasswordPage() {
 
           <div className="text-center">
             <Link
-              href="/admin/login"
+              href="/protected_access/login"
               className="text-sm font-medium text-[#5f2eba] hover:text-[#4e2c9f] dark:text-[#c4b9f0] dark:hover:text-white"
             >
               Retour à la connexion

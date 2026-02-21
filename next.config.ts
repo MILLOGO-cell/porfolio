@@ -15,14 +15,20 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "via.placeholder.com",
-        pathname: "/**", // Autorise tous les chemins sous ce domaine
+        pathname: "/**",
       },
       {
         protocol: "https",
         hostname: "placehold.co",
-        pathname: "/**", // Autorise tous les chemins sous ce domaine
+        pathname: "/**",
       },
     ],
+  },
+  webpack: (config) => {
+    config.externals.push({
+      'canvas': 'commonjs canvas',
+    });
+    return config;
   },
 };
 

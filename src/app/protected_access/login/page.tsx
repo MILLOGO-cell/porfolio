@@ -45,7 +45,7 @@ export default function LoginPage() {
         }
 
         router.push(
-          `/admin/verify-2fa?email=${encodeURIComponent(
+          `/protected_access/verify-2fa?email=${encodeURIComponent(
             email,
           )}&method=${userData.data.twoFactorMethod}`,
         );
@@ -64,7 +64,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push('/admin');
+      router.push('/protected_access');
       router.refresh();
     } catch {
       setError('Une erreur est survenue');
@@ -144,7 +144,7 @@ export default function LoginPage() {
 
           <div className="text-sm text-center">
             <Link
-              href="/admin/forgot-password"
+              href="/protected_access/forgot-password"
               className="font-medium text-[#5f2eba] hover:text-[#4e2c9f] dark:text-[#c4b9f0] dark:hover:text-white"
             >
               Mot de passe oublié ?
@@ -173,7 +173,7 @@ export default function LoginPage() {
             <div className="mt-5">
               <button
                 type="button"
-                onClick={() => signIn('github', { callbackUrl: '/admin' })}
+                onClick={() => signIn('github', { callbackUrl: '/protected_access' })}
                 className="w-full flex justify-center items-center py-2.5 px-4 border border-[#d4c9f5] dark:border-[#4e2c9f] rounded-lg bg-white dark:bg-[#140727] text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] hover:bg-[#f0eaff] dark:hover:bg-[#1b0b33] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5f2eba] focus:ring-offset-[#f5f2ff] dark:focus:ring-offset-[#090016] transition-colors"
               >
                 Continuer avec GitHub

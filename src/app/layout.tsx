@@ -3,6 +3,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/context/ThemeContext";
+import VisitorTracker from "@/components/VisitorTracker";
+import CookieConsent from '@/components/CookieConsent';
+import { ScrollProgress } from "@/components/ScrollProgress";
+import { PageLoader } from "@/components/PageLoader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +34,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden max-w-full`}
       >
         <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <PageLoader />
+            <ScrollProgress />
+            <VisitorTracker />
+            <CookieConsent />
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

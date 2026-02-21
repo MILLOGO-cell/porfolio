@@ -7,6 +7,7 @@ import Link from "next/link";
 import Template from "../../Template";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiX, HiExternalLink, HiTag, HiCalendar, HiStar } from "react-icons/hi";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 interface Project {
   id: string;
@@ -19,11 +20,11 @@ interface Project {
   createdAt: string;
 }
 
-function ProjectModal({ 
-  project, 
-  onClose 
-}: { 
-  project: Project; 
+function ProjectModal({
+  project,
+  onClose
+}: {
+  project: Project;
   onClose: () => void;
 }) {
   const [mounted, setMounted] = useState(false);
@@ -70,7 +71,7 @@ function ProjectModal({
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-              
+
               <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
                 <div className="flex items-start gap-3">
                   <h2 className="flex-1 text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight">
@@ -218,7 +219,7 @@ export default function Projets() {
       setLoading(true);
       const response = await fetch('/api/projects/public');
       const data = await response.json();
-      
+
       if (data.success) {
         setProjects(data.data.projects);
         setFilteredProjects(data.data.projects);
@@ -249,7 +250,7 @@ export default function Projets() {
 
   return (
     <Template>
-      <div className="relative isolate px-4 sm:px-6 md:px-10 lg:px-16 pt-8 sm:pt-10 md:pt-14 pb-16 bg-white dark:bg-black text-black dark:text-white overflow-hidden">
+      <div className="relative isolate min-h-screen px-4 sm:px-6 md:px-10 lg:px-16 pt-8 sm:pt-10 md:pt-14 pb-16 bg-white dark:bg-black text-black dark:text-white overflow-hidden">
         <div
           className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
           aria-hidden="true"
@@ -266,65 +267,55 @@ export default function Projets() {
           />
         </div>
 
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={fadeInUp}
-          transition={{ duration: 0.6 }}
-          className="text-center py-12 max-w-4xl mx-auto"
-        >
-          <motion.h1
-            variants={fadeInUp}
-            transition={{ delay: 0.2 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400"
-          >
-            Mes Projets
-          </motion.h1>
-          <motion.p
-            variants={fadeInUp}
-            transition={{ delay: 0.3 }}
-            className="text-lg md:text-xl text-gray-600 dark:text-gray-300"
-          >
-            Découvrez mes réalisations et créations
-          </motion.p>
-        </motion.div>
+        <ScrollReveal>
+          <div className="text-center py-12 max-w-4xl mx-auto">
+            <motion.h1
+              variants={fadeInUp}
+              transition={{ delay: 0.2 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400"
+            >
+              Mes Projets
+            </motion.h1>
+            <motion.p
+              variants={fadeInUp}
+              transition={{ delay: 0.3 }}
+              className="text-lg md:text-xl text-gray-600 dark:text-gray-300"
+            >
+              Découvrez mes réalisations et créations
+            </motion.p>
+          </div>
+        </ScrollReveal>
 
         {allTags.length > 0 && (
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={fadeInUp}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-wrap justify-center gap-3 mb-12 max-w-4xl mx-auto"
-          >
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setSelectedTag(null)}
-              className={`px-6 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
-                selectedTag === null
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-              }`}
-            >
-              Tous ({projects.length})
-            </motion.button>
-            {allTags.map((tag) => (
+          <ScrollReveal delay={0.4}>
+            <div className="flex flex-wrap justify-center gap-3 mb-12 max-w-4xl mx-auto">
               <motion.button
-                key={tag}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setSelectedTag(tag)}
-                className={`px-6 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
-                  selectedTag === tag
+                onClick={() => setSelectedTag(null)}
+                className={`px-6 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${selectedTag === null
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  }`}
+              >
+                Tous ({projects.length})
+              </motion.button>
+              {allTags.map((tag) => (
+                <motion.button
+                  key={tag}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setSelectedTag(tag)}
+                  className={`px-6 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${selectedTag === tag
                     ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                }`}
-              >
-                {tag}
-              </motion.button>
-            ))}
-          </motion.div>
+                    }`}
+                >
+                  {tag}
+                </motion.button>
+              ))}
+            </div>
+          </ScrollReveal>
         )}
 
         {loading && (
@@ -348,7 +339,7 @@ export default function Projets() {
               Aucun projet trouvé
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              {selectedTag 
+              {selectedTag
                 ? `Aucun projet avec le tag "${selectedTag}"`
                 : "Aucun projet disponible pour le moment"}
             </p>
@@ -366,106 +357,101 @@ export default function Projets() {
         )}
 
         {!loading && filteredProjects.length > 0 && (
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto"
-          >
-            {filteredProjects.map((project) => (
-              <motion.div
-                key={project.id}
-                variants={fadeInUp}
-                whileHover={{ y: -10 }}
-                className="group relative bg-white dark:bg-gray-800/50 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 backdrop-blur-lg"
-              >
-                {project.featured && (
-                  <div className="absolute top-4 right-4 z-10">
-                    <div className="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
-                      <HiStar className="h-4 w-4" />
-                      Vedette
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {filteredProjects.map((project, index) => (
+              <ScrollReveal key={project.id} delay={index * 0.1}>
+                <motion.div
+                  whileHover={{ y: -10 }}
+                  className="group relative bg-white dark:bg-gray-800/50 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 backdrop-blur-lg h-full"
+                >
+                  {project.featured && (
+                    <div className="absolute top-4 right-4 z-10">
+                      <div className="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
+                        <HiStar className="h-4 w-4" />
+                        Vedette
+                      </div>
                     </div>
+                  )}
+
+                  <div className="relative h-56 overflow-hidden bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30">
+                    {project.imageUrl ? (
+                      <Image
+                        src={project.imageUrl}
+                        alt={project.title}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-6xl">
+                        📁
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
-                )}
 
-                <div className="relative h-56 overflow-hidden bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30">
-                  {project.imageUrl ? (
-                    <Image
-                      src={project.imageUrl}
-                      alt={project.title}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-6xl">
-                      📁
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2">
+                      {project.title}
+                    </h3>
 
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2">
-                    {project.title}
-                  </h3>
+                    {project.description && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
+                        {project.description}
+                      </p>
+                    )}
 
-                  {project.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
-                      {project.description}
-                    </p>
-                  )}
+                    {project.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {project.tags.slice(0, 3).map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-full text-xs font-semibold"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                        {project.tags.length > 3 && (
+                          <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full text-xs font-semibold">
+                            +{project.tags.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    )}
 
-                  {project.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {project.tags.slice(0, 3).map((tag, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-full text-xs font-semibold"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                      {project.tags.length > 3 && (
-                        <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full text-xs font-semibold">
-                          +{project.tags.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="flex gap-3">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setSelectedProject(project)}
-                      className="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-semibold text-sm shadow-lg transition-all duration-300"
-                    >
-                      Détails
-                    </motion.button>
-                    {project.url && (
-                      <motion.a
+                    <div className="flex gap-3">
+                      <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        href={project.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center gap-2"
+                        onClick={() => setSelectedProject(project)}
+                        className="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-semibold text-sm shadow-lg transition-all duration-300"
                       >
-                        <HiExternalLink className="h-4 w-4" />
-                      </motion.a>
-                    )}
+                        Détails
+                      </motion.button>
+                      {project.url && (
+                        <motion.a
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          href={project.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center gap-2"
+                        >
+                          <HiExternalLink className="h-4 w-4" />
+                        </motion.a>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              </ScrollReveal>
             ))}
-          </motion.div>
+          </div>
         )}
 
         <AnimatePresence>
           {selectedProject && (
-            <ProjectModal 
-              project={selectedProject} 
-              onClose={() => setSelectedProject(null)} 
+            <ProjectModal
+              project={selectedProject}
+              onClose={() => setSelectedProject(null)}
             />
           )}
         </AnimatePresence>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Template from "../../Template";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 export default function Contact(): JSX.Element {
   const [formData, setFormData] = useState({
@@ -15,11 +16,7 @@ export default function Contact(): JSX.Element {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -77,13 +74,10 @@ export default function Contact(): JSX.Element {
     visible: { opacity: 1, scale: 1 },
   };
 
-  if (!isMounted) {
-    return <></>;
-  }
 
   return (
     <Template>
-      <div className="relative isolate flex flex-col items-center justify-center px-6 py-12 pt-28 md:pt-32 bg-white dark:bg-black text-black dark:text-white overflow-hidden">
+      <div className="relative isolate w-full flex flex-col items-center justify-center min-h-screen px-6 py-20 md:py-32 bg-white dark:bg-black text-black dark:text-white">
         <div
           className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
           aria-hidden="true"
@@ -100,235 +94,223 @@ export default function Contact(): JSX.Element {
           />
         </div>
 
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={fadeIn}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-8"
-        >
-          <motion.div
-            variants={fadeInUp}
-            transition={{ delay: 0.2 }}
-            className="inline-block"
-          >
-            <p className="text-sm md:text-base border-2 border-indigo-500 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 px-6 py-2 rounded-full font-semibold shadow-sm mb-4">
-              UNE IDÉE ?
-            </p>
-          </motion.div>
+        <ScrollReveal width="100%">
+          <div className="text-center mb-8">
+            <motion.div
+              variants={fadeInUp}
+              transition={{ delay: 0.2 }}
+              className="inline-block"
+            >
+              <p className="text-sm md:text-base border-2 border-indigo-500 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 px-6 py-2 rounded-full font-semibold shadow-sm mb-4">
+                UNE IDÉE ?
+              </p>
+            </motion.div>
 
-          <motion.h1
-            variants={fadeInUp}
-            transition={{ delay: 0.3 }}
-            className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400"
-          >
-            Parlons de votre projet
-          </motion.h1>
+            <motion.h1
+              variants={fadeInUp}
+              transition={{ delay: 0.3 }}
+              className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400"
+            >
+              Parlons de votre projet
+            </motion.h1>
 
-          <motion.p
-            variants={fadeInUp}
-            transition={{ delay: 0.4 }}
-            className="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
-          >
-            Envoie-moi un message, je te répondrai sous{" "}
-            <span className="font-bold text-indigo-600 dark:text-indigo-400">
-              48 heures maximum
-            </span>
-            .
-          </motion.p>
-        </motion.div>
+            <motion.p
+              variants={fadeInUp}
+              transition={{ delay: 0.4 }}
+              className="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
+            >
+              Envoie-moi un message, je te répondrai sous{" "}
+              <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                48 heures maximum
+              </span>
+              .
+            </motion.p>
+          </div>
+        </ScrollReveal>
 
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={scaleIn}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="w-full max-w-2xl"
-        >
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900/50 dark:to-indigo-900/20 backdrop-blur-md p-8 md:p-10 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-800">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
+        <ScrollReveal delay={0.5} width="100%">
+          <div className="w-full max-w-2xl mx-auto">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900/50 dark:to-indigo-900/20 backdrop-blur-md p-8 md:p-10 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-800">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 p-4 rounded-xl border border-red-300 dark:border-red-700 flex items-center gap-3"
+                  >
+                    <span className="text-2xl">⚠</span>
+                    <span>{error}</span>
+                  </motion.div>
+                )}
+
+                {success && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 p-4 rounded-xl border border-green-300 dark:border-green-700 flex items-center gap-3"
+                  >
+                    <span className="text-2xl">✓</span>
+                    <span>{success}</span>
+                  </motion.div>
+                )}
+
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 p-4 rounded-xl border border-red-300 dark:border-red-700 flex items-center gap-3"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 }}
                 >
-                  <span className="text-2xl">⚠</span>
-                  <span>{error}</span>
+                  <label
+                    htmlFor="name"
+                    className="block font-semibold mb-2 text-gray-900 dark:text-white"
+                  >
+                    Nom complet
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="John Doe"
+                    required
+                    className="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
+                  />
                 </motion.div>
-              )}
 
-              {success && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 p-4 rounded-xl border border-green-300 dark:border-green-700 flex items-center gap-3"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.7 }}
                 >
-                  <span className="text-2xl">✓</span>
-                  <span>{success}</span>
+                  <label
+                    htmlFor="email"
+                    className="block font-semibold mb-2 text-gray-900 dark:text-white"
+                  >
+                    Adresse email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="johndoe@gmail.com"
+                    required
+                    className="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
+                  />
                 </motion.div>
-              )}
 
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 }}
-              >
-                <label
-                  htmlFor="name"
-                  className="block font-semibold mb-2 text-gray-900 dark:text-white"
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.8 }}
                 >
-                  Nom complet
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="John Doe"
-                  required
-                  className="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
-                />
-              </motion.div>
+                  <label
+                    htmlFor="message"
+                    className="block font-semibold mb-2 text-gray-900 dark:text-white"
+                  >
+                    Votre message
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    placeholder="Fais-moi savoir ce que tu as en tête. Parle-moi de ton projet, tes objectifs, ton budget..."
+                    rows={6}
+                    required
+                    className="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300 resize-none"
+                  />
+                </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7 }}
-              >
-                <label
-                  htmlFor="email"
-                  className="block font-semibold mb-2 text-gray-900 dark:text-white"
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9 }}
                 >
-                  Adresse email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="johndoe@gmail.com"
-                  required
-                  className="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
-                />
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8 }}
-              >
-                <label
-                  htmlFor="message"
-                  className="block font-semibold mb-2 text-gray-900 dark:text-white"
-                >
-                  Votre message
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder="Fais-moi savoir ce que tu as en tête. Parle-moi de ton projet, tes objectifs, ton budget..."
-                  rows={6}
-                  required
-                  className="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300 resize-none"
-                />
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9 }}
-              >
-                <motion.button
-                  type="submit"
-                  disabled={isSubmitting}
-                  whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-                  whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                  className={`w-full py-4 rounded-full font-bold text-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-3 ${
-                    isSubmitting
+                  <motion.button
+                    type="submit"
+                    disabled={isSubmitting}
+                    whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                    whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                    className={`w-full py-4 rounded-full font-bold text-lg shadow-lg transition-all duration-300 flex items-center justify-center gap-3 ${isSubmitting
                       ? "bg-gray-400 dark:bg-gray-600 text-gray-200 cursor-not-allowed"
                       : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-xl hover:shadow-2xl"
-                  }`}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <svg
-                        className="animate-spin h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      Envoi en cours...
-                    </>
-                  ) : (
-                    <>
-                      Discutons ensemble
-                      <Image
-                        src="/smiley.png"
-                        alt="Smiley"
-                        width={24}
-                        height={24}
-                      />
-                    </>
-                  )}
-                </motion.button>
-              </motion.div>
-            </form>
+                      }`}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <svg
+                          className="animate-spin h-5 w-5 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Envoi en cours...
+                      </>
+                    ) : (
+                      <>
+                        Discutons ensemble
+                        <Image
+                          src="/smiley.png"
+                          alt="Smiley"
+                          width={24}
+                          height={24}
+                        />
+                      </>
+                    )}
+                  </motion.button>
+                </motion.div>
+              </form>
+            </div>
           </div>
-        </motion.div>
+        </ScrollReveal>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1 }}
-          className="mt-12 mb-12 text-center"
-        >
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            Vous préférez un autre moyen de contact ?
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <motion.a
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              href="mailto:nicolasmillogo3@gmail.com"
-              className="px-6 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 flex items-center gap-2"
-            >
-              <span>@</span>
-              Email
-            </motion.a>
-            <motion.a
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 flex items-center gap-2"
-            >
-              <span>in</span>
-              LinkedIn
-            </motion.a>
+        <ScrollReveal delay={1}>
+          <div className="mt-12 mb-12 text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Vous préférez un autre moyen de contact ?
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <motion.a
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                href="mailto:nicolasmillogo3@gmail.com"
+                className="px-6 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 flex items-center gap-2"
+              >
+                <span>@</span>
+                Email
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 flex items-center gap-2"
+              >
+                <span>in</span>
+                LinkedIn
+              </motion.a>
+            </div>
           </div>
-        </motion.div>
+        </ScrollReveal>
       </div>
     </Template>
   );

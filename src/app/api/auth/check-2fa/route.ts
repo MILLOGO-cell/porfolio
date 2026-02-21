@@ -12,6 +12,19 @@ export async function POST(request: NextRequest) {
       return errorResponse('Email et mot de passe requis', 400);
     }
 
+    // Check against environment variables (Default Admin)
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (adminEmail && adminPassword &&
+      email === adminEmail &&
+      password === adminPassword) {
+      return successResponse({
+        twoFactorEnabled: false, // Default admin has no 2FA via env
+        twoFactorMethod: null,
+      });
+    }
+
     const user = await prisma.user.findUnique({
       where: { email },
       select: {
@@ -26,7 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     const isValidPassword = await compare(password, user.password);
-    
+
     if (!isValidPassword) {
       return errorResponse('Identifiants invalides', 401);
     }

@@ -4,7 +4,7 @@ import { successResponse, handleApiError } from '@/lib/api-response';
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = request.nextUrl;
     const featured = searchParams.get('featured');
     const tag = searchParams.get('tag');
     const limit = searchParams.get('limit');

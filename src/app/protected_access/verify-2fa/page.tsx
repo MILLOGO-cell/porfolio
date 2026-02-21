@@ -19,7 +19,7 @@ export default function Verify2FAPage() {
 
   useEffect(() => {
     if (!email || !method) {
-      router.push('/admin/login');
+      router.push('/protected_access/login');
     }
   }, [email, method, router]);
 
@@ -33,7 +33,7 @@ export default function Verify2FAPage() {
 
       if (!password) {
         setError('Session expirée');
-        router.push('/admin/login');
+        router.push('/protected_access/login');
         return;
       }
 
@@ -81,7 +81,7 @@ export default function Verify2FAPage() {
 
       if (!password) {
         setError('Session expirée');
-        router.push('/admin/login');
+        router.push('/protected_access/login');
         return;
       }
 
@@ -107,7 +107,7 @@ export default function Verify2FAPage() {
 
   if (!email || !method) {
     return null;
-    }
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f5f2ff] dark:bg-[#090016] py-12 px-4 sm:px-6 lg:px-8">
@@ -184,7 +184,7 @@ export default function Verify2FAPage() {
 
           <div className="text-center">
             <Link
-              href="/admin/login"
+              href="/protected_access/login"
               className="text-sm font-medium text-[#5f2eba] hover:text-[#4e2c9f] dark:text-[#c4b9f0] dark:hover:text-white"
             >
               Retour à la connexion

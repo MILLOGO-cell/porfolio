@@ -41,7 +41,7 @@ export default function ProjectsPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/admin/login');
+      router.push('/protected_access/login');
     }
   }, [status, router]);
 
@@ -49,7 +49,7 @@ export default function ProjectsPage() {
     if (status === 'authenticated') {
       fetchProjects();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, filter, searchTag]);
 
   const fetchProjects = async () => {
@@ -265,21 +265,19 @@ export default function ProjectsPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setFilter('all')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold ${
-                    filter === 'all'
-                      ? 'bg-[#5f2eba] text-white'
-                      : 'bg-white dark:bg-[#140727] text-[#3b2b6a] dark:text-[#e7e0ff] border border-[#d4c9f5] dark:border-[#4e2c9f] hover:bg-[#f0eaff] dark:hover:bg-[#1b0b33]'
-                  }`}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold ${filter === 'all'
+                    ? 'bg-[#5f2eba] text-white'
+                    : 'bg-white dark:bg-[#140727] text-[#3b2b6a] dark:text-[#e7e0ff] border border-[#d4c9f5] dark:border-[#4e2c9f] hover:bg-[#f0eaff] dark:hover:bg-[#1b0b33]'
+                    }`}
                 >
                   Tous ({projects.length})
                 </button>
                 <button
                   onClick={() => setFilter('featured')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold ${
-                    filter === 'featured'
-                      ? 'bg-[#5f2eba] text-white'
-                      : 'bg-white dark:bg-[#140727] text-[#3b2b6a] dark:text-[#e7e0ff] border border-[#d4c9f5] dark:border-[#4e2c9f] hover:bg-[#f0eaff] dark:hover:bg-[#1b0b33]'
-                  }`}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold ${filter === 'featured'
+                    ? 'bg-[#5f2eba] text-white'
+                    : 'bg-white dark:bg-[#140727] text-[#3b2b6a] dark:text-[#e7e0ff] border border-[#d4c9f5] dark:border-[#4e2c9f] hover:bg-[#f0eaff] dark:hover:bg-[#1b0b33]'
+                    }`}
                 >
                   En vedette
                 </button>
@@ -452,22 +450,20 @@ export default function ProjectsPage() {
                   <button
                     type="button"
                     onClick={() => setImageInputType('upload')}
-                    className={`px-4 py-2 text-xs font-semibold rounded-lg ${
-                      imageInputType === 'upload'
-                        ? 'bg-[#5f2eba] text-white'
-                        : 'bg-[#f5f2ff] text-[#3b2b6a] hover:bg-[#e3dcff] dark:bg-[#140727] dark:text-[#e7e0ff] dark:hover:bg-[#1b0b33]'
-                    }`}
+                    className={`px-4 py-2 text-xs font-semibold rounded-lg ${imageInputType === 'upload'
+                      ? 'bg-[#5f2eba] text-white'
+                      : 'bg-[#f5f2ff] text-[#3b2b6a] hover:bg-[#e3dcff] dark:bg-[#140727] dark:text-[#e7e0ff] dark:hover:bg-[#1b0b33]'
+                      }`}
                   >
                     Upload fichier
                   </button>
                   <button
                     type="button"
                     onClick={() => setImageInputType('url')}
-                    className={`px-4 py-2 text-xs font-semibold rounded-lg ${
-                      imageInputType === 'url'
-                        ? 'bg-[#5f2eba] text-white'
-                        : 'bg-[#f5f2ff] text-[#3b2b6a] hover:bg-[#e3dcff] dark:bg-[#140727] dark:text-[#e7e0ff] dark:hover:bg-[#1b0b33]'
-                    }`}
+                    className={`px-4 py-2 text-xs font-semibold rounded-lg ${imageInputType === 'url'
+                      ? 'bg-[#5f2eba] text-white'
+                      : 'bg-[#f5f2ff] text-[#3b2b6a] hover:bg-[#e3dcff] dark:bg-[#140727] dark:text-[#e7e0ff] dark:hover:bg-[#1b0b33]'
+                      }`}
                   >
                     URL externe
                   </button>

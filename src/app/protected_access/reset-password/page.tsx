@@ -72,14 +72,14 @@ export default function ResetPasswordPage() {
           </div>
 
           <Link
-            href="/admin/forgot-password"
+            href="/protected_access/forgot-password"
             className="w-full flex justify-center py-2.5 px-4 text-sm font-semibold rounded-lg text-white bg-[#5f2eba] hover:bg-[#4e2c9f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5f2eba] focus:ring-offset-[#f5f2ff] dark:focus:ring-offset-[#090016] transition-colors"
           >
             Demander un nouveau lien
           </Link>
 
           <Link
-            href="/admin/login"
+            href="/protected_access/login"
             className="w-full flex justify-center py-2.5 px-4 border border-[#d4c9f5] dark:border-[#4e2c9f] text-sm font-medium rounded-lg text-[#3b2b6a] dark:text-[#e7e0ff] bg-white dark:bg-[#140727] hover:bg-[#f0eaff] dark:hover:bg-[#1b0b33] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5f2eba] focus:ring-offset-[#f5f2ff] dark:focus:ring-offset-[#090016] transition-colors"
           >
             Retour à la connexion
@@ -106,7 +106,7 @@ export default function ResetPasswordPage() {
           </div>
 
           <Link
-            href="/admin/login"
+            href="/protected_access/login"
             className="w-full flex justify-center items-center gap-2 py-2.5 px-4 text-sm font-semibold rounded-lg text-white bg-[#5f2eba] hover:bg-[#4e2c9f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5f2eba] focus:ring-offset-[#f5f2ff] dark:focus:ring-offset-[#090016] transition-colors"
           >
             Se connecter maintenant
@@ -194,7 +194,7 @@ export default function ResetPasswordPage() {
 
           <div className="text-center">
             <Link
-              href="/admin/login"
+              href="/protected_access/login"
               className="text-sm font-medium text-[#5f2eba] hover:text-[#4e2c9f] dark:text-[#c4b9f0] dark:hover:text-white"
             >
               Retour à la connexion
