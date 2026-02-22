@@ -21,11 +21,9 @@ COPY . .
 # Generate Prisma Client
 RUN npx prisma generate
 
-# Build Next.js
-RUN npm run build
-
-# Switch back to production for runtime
+# Build Next.js (must use NODE_ENV=production to avoid prerender issues)
 ENV NODE_ENV=production
+RUN npm run build
 EXPOSE 3000
 ENV PORT=3000
 
