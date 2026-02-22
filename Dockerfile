@@ -2,17 +2,15 @@ FROM node:20-slim
 
 WORKDIR /app
 
-# Install dependencies
+# Install dependencies using standard install (safer than ci for folder locking)
 COPY package.json package-lock.json ./
 RUN npm install
 
-# Copy source code
+# Copy source
 COPY . .
 
-# Generate Prisma client
+# Generate Client & Build
 RUN npx prisma generate
-
-# Build the application (using forced webpack to match local success)
 RUN npm run build
 
 EXPOSE 3000
