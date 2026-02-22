@@ -1,14 +1,18 @@
-FROM node:20-slim
+FROM node:20
 
-# Install system dependencies for Prisma and Next.js
+# Install system dependencies for Prisma
 RUN apt-get update -y && \
     apt-get install -y openssl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Install all dependencies (including devDeps for build)
+# Copy package files
 COPY package.json package-lock.json ./
+
+# CRITICAL: Force development mode during install and build 
+# so that devDependencies (like TypeScript) are NOT skipped.
+ENV NODE_ENV=development
 RUN npm install
 
 # Copy source
@@ -17,15 +21,12 @@ COPY . .
 # Generate Prisma Client
 RUN npx prisma generate
 
-# Build Next.js (requires typescript for next.config.ts)
+# Build Next.js
 RUN npm run build
 
-# Final cleanup to reduce image size (optional but good)
-# RUN npm prune --production
-
-EXPOSE 3000
-
+# Switch back to production for runtime
 ENV NODE_ENV=production
+EXPOSE 3000
 ENV PORT=3000
 
 CMD ["npm", "run", "start"]
