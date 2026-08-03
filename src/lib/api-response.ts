@@ -24,6 +24,20 @@ export function errorResponse(message: string, status: number = 400) {
   );
 }
 
+export function unauthorizedResponse() {
+  return errorResponse('Non autorisé', 401);
+}
+
+export function rateLimitResponse(retryAfter: number) {
+  return NextResponse.json(
+    {
+      success: false,
+      error: 'Trop de tentatives. Réessayez dans quelques instants.',
+    },
+    { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+  );
+}
+
 export function validationErrorResponse(errors: Record<string, string[]>) {
   return NextResponse.json(
     {
@@ -39,12 +53,24 @@ export function validationErrorResponse(errors: Record<string, string[]>) {
 // ERROR HANDLING
 // ====================================
 
+/**
+ * Le détail de l'erreur reste dans les logs serveur. Le renvoyer au client
+ * exposait les messages Prisma (noms de tables, contraintes) à n'importe quel
+ * appelant.
+ */
 export function handleApiError(error: unknown) {
   console.error('API Error:', error);
-
-  if (error instanceof Error) {
-    return errorResponse(error.message, 500);
-  }
-
   return errorResponse('Une erreur interne est survenue', 500);
+}
+
+/** Formate les erreurs Zod pour `validationErrorResponse`. */
+export function zodErrorsToRecord(
+  issues: { path: PropertyKey[]; message: string }[]
+): Record<string, string[]> {
+  const errors: Record<string, string[]> = {};
+  for (const issue of issues) {
+    const path = issue.path.map(String).join('.') || '_';
+    (errors[path] ??= []).push(issue.message);
+  }
+  return errors;
 }

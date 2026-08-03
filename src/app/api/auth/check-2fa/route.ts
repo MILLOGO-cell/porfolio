@@ -1,28 +1,35 @@
 import { NextRequest } from 'next/server';
 import { compare } from 'bcryptjs';
 import { prisma } from '@/lib/db';
-import { successResponse, errorResponse, handleApiError } from '@/lib/api-response';
+import { rateLimit } from '@/lib/rate-limit';
+import {
+  successResponse,
+  errorResponse,
+  rateLimitResponse,
+  handleApiError,
+} from '@/lib/api-response';
 
+/**
+ * Indique au formulaire s'il doit demander un second facteur.
+ *
+ * Cette route valide le mot de passe : elle partage donc volontairement le
+ * compteur `login:` de `authorize()`, sinon elle offrirait un canal de force
+ * brute échappant à la limite de connexion.
+ */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password } = body;
+    const email =
+      typeof body?.email === 'string' ? body.email.toLowerCase().trim() : '';
+    const password = typeof body?.password === 'string' ? body.password : '';
 
     if (!email || !password) {
       return errorResponse('Email et mot de passe requis', 400);
     }
 
-    // Check against environment variables (Default Admin)
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPassword = process.env.ADMIN_PASSWORD;
-
-    if (adminEmail && adminPassword &&
-      email === adminEmail &&
-      password === adminPassword) {
-      return successResponse({
-        twoFactorEnabled: false, // Default admin has no 2FA via env
-        twoFactorMethod: null,
-      });
+    const limit = rateLimit(`login:${email}`, 8, 15 * 60 * 1000);
+    if (!limit.allowed) {
+      return rateLimitResponse(limit.retryAfter);
     }
 
     const user = await prisma.user.findUnique({

@@ -1,15 +1,26 @@
 import { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
 import speakeasy from 'speakeasy';
 import { prisma } from '@/lib/db';
-import { successResponse, errorResponse, handleApiError } from '@/lib/api-response';
+import { getAdminSession } from '@/lib/dal';
+import { rateLimit } from '@/lib/rate-limit';
+import {
+  successResponse,
+  errorResponse,
+  unauthorizedResponse,
+  rateLimitResponse,
+  handleApiError,
+} from '@/lib/api-response';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    
-    if (!session?.user?.email) {
-      return errorResponse('Non autorisé', 401);
+    const admin = await getAdminSession();
+    if (!admin) {
+      return unauthorizedResponse();
+    }
+
+    const limit = rateLimit(`2fa-verify:${admin.id}`, 10, 15 * 60 * 1000);
+    if (!limit.allowed) {
+      return rateLimitResponse(limit.retryAfter);
     }
 
     const body = await request.json();
@@ -20,7 +31,8 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+      where: { id: admin.id },
+      select: { totpSecret: true },
     });
 
     if (!user?.totpSecret) {
@@ -31,7 +43,7 @@ export async function POST(request: NextRequest) {
       secret: user.totpSecret,
       encoding: 'base32',
       token,
-      window: 2,
+      window: 1,
     });
 
     if (!verified) {
@@ -39,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     await prisma.user.update({
-      where: { email: session.user.email },
+      where: { id: admin.id },
       data: {
         twoFactorEnabled: true,
         twoFactorMethod: 'totp',

@@ -30,15 +30,45 @@ model User {
 
 model Project {
   id          String   @id @default(cuid())
+  /// Identifiant d'URL lisible : /projets/mobile-banking-amplitude
+  slug        String   @unique
   title       String
+  /// Accroche d'une ou deux phrases : carte de liste et meta description.
+  summary     String?
+  /// Présentation générale, conservée depuis l'ancien modèle.
   description String?
+
+  // --- Étude de cas : ce qui distingue une fiche projet d'une vignette ---
+  /// Le besoin métier et les contraintes de départ.
+  context     String?
+  /// Le périmètre réellement tenu : conception, développement, intégration…
+  role        String?
+  /// Décisions techniques structurantes et difficultés rencontrées.
+  challenges  String?
+  /// Ce qui a été livré et ce que cela a changé.
+  outcome     String?
+
+  /// Client ou secteur (« banque de détail ») si le nom est confidentiel.
+  client      String?
+  /// Période libre : « 2024 — 2025 ».
+  period      String?
+  /// Technologies mises en œuvre — distinct de `tags`, qui sert au filtrage.
+  stack       String[]
+
   url         String?
+  repoUrl     String?  @map("repo_url")
   imageUrl    String?  @map("image_url")
   tags        String[]
   featured    Boolean  @default(false)
+  /// Ordre d'affichage maîtrisé ; à défaut, tri par date de création.
+  position    Int      @default(0)
+  /// Permet de préparer une fiche sans la publier.
+  published   Boolean  @default(true)
+
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-  
+
+  @@index([published, featured])
   @@map("projects")
 }
 

@@ -1,34 +1,43 @@
-import { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
 import * as nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import { prisma } from '@/lib/db';
-import { successResponse, errorResponse, handleApiError } from '@/lib/api-response';
+import { getAdminSession } from '@/lib/dal';
+import { rateLimit } from '@/lib/rate-limit';
+import {
+  successResponse,
+  unauthorizedResponse,
+  rateLimitResponse,
+  handleApiError,
+} from '@/lib/api-response';
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: Number(process.env.EMAIL_PORT) || 587,
-  secure: false,
+  secure: Number(process.env.EMAIL_PORT) === 465,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
-    const session = await getServerSession();
-    
-    if (!session?.user?.email) {
-      return errorResponse('Non autorisé', 401);
+    const admin = await getAdminSession();
+    if (!admin) {
+      return unauthorizedResponse();
     }
 
-    const code = crypto.randomInt(100000, 999999).toString();
+    const limit = rateLimit(`2fa-setup-send:${admin.id}`, 5, 15 * 60 * 1000);
+    if (!limit.allowed) {
+      return rateLimitResponse(limit.retryAfter);
+    }
+
+    // randomInt exclut la borne haute : 1000000 pour couvrir 999999.
+    const code = crypto.randomInt(100000, 1000000).toString();
     const expiry = new Date(Date.now() + 10 * 60 * 1000);
 
     await prisma.user.update({
-      where: { email: session.user.email },
+      where: { id: admin.id },
       data: {
         emailCodeSecret: code,
         emailCodeExpiry: expiry,
@@ -37,8 +46,8 @@ export async function POST(request: NextRequest) {
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: session.user.email,
-      subject: 'Code de vérification 2FA',
+      to: admin.email,
+      subject: 'Code de vérification',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>Code de vérification</h2>

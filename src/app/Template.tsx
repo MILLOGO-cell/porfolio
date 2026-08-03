@@ -1,35 +1,16 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import Header from "@/components/Header/Header";
+import Footer from "@/components/Footer";
 
+/**
+ * Coquille commune aux pages publiques : header fixe, contenu, footer partagé.
+ * Le `pt-20` compense la hauteur du header en position fixed.
+ */
 export default function Template({ children }: { children: React.ReactNode }) {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) {
-    return (
-      <>
-        <Header />
-        <div>{children}</div>
-      </>
-    );
-  }
-
   return (
-    <>
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <Header />
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        {children}
-      </motion.div>
-    </>
+      <main className="flex-1 pt-20">{children}</main>
+      <Footer />
+    </div>
   );
 }

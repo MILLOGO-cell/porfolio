@@ -1,0 +1,34 @@
+/**
+ * Classes de bouton partagées. Un helper plutôt qu'un composant : les boutons du
+ * site sont tantôt des <button>, tantôt des <Link>, tantôt des <a>.
+ *
+ * Le dégradé est réservé à la variante `primary` — c'est, avec le titre h1, le
+ * seul endroit du site où il apparaît.
+ */
+export type ButtonVariant = "primary" | "secondary" | "ghost";
+export type ButtonSize = "sm" | "md" | "lg";
+
+const base =
+  "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60";
+
+const variants: Record<ButtonVariant, string> = {
+  primary:
+    "bg-gradient-to-r from-accent to-purple-500 text-white shadow-raised hover:shadow-float hover:brightness-110",
+  secondary:
+    "border border-border bg-surface text-foreground hover:border-accent/40 hover:bg-surface-muted",
+  ghost: "text-muted hover:bg-surface-muted hover:text-foreground",
+};
+
+const sizes: Record<ButtonSize, string> = {
+  sm: "px-4 py-2 text-sm",
+  md: "px-5 py-2.5 text-sm",
+  lg: "px-7 py-3.5 text-base",
+};
+
+export function buttonClass(
+  variant: ButtonVariant = "primary",
+  size: ButtonSize = "md",
+  extra = ""
+): string {
+  return [base, variants[variant], sizes[size], extra].filter(Boolean).join(" ");
+}

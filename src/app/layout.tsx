@@ -7,6 +7,7 @@ import VisitorTracker from "@/components/VisitorTracker";
 import CookieConsent from '@/components/CookieConsent';
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { PageLoader } from "@/components/PageLoader";
+import { site } from "@/lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,8 +20,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio",
-  description: "Mon portfolio professionnel",
+  title: {
+    default: `${site.name} — ${site.role}`,
+    template: `%s — ${site.name}`,
+  },
+  description: site.tagline,
+  openGraph: {
+    title: `${site.name} — ${site.role}`,
+    description: site.tagline,
+    type: "website",
+    locale: "fr_FR",
+  },
 };
 
 export default function RootLayout({

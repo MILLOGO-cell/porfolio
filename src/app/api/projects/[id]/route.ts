@@ -1,12 +1,19 @@
 import { NextRequest } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db';
+import { getAdminSession } from '@/lib/dal';
 import { projectSchema } from '@/lib/validations';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { successResponse, errorResponse, validationErrorResponse, handleApiError } from '@/lib/api-response';
+import {
+  successResponse,
+  errorResponse,
+  unauthorizedResponse,
+  validationErrorResponse,
+  handleApiError,
+  zodErrorsToRecord,
+} from '@/lib/api-response';
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -31,15 +38,16 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return errorResponse('Non autorisé', 401);
+    const admin = await getAdminSession();
+    if (!admin) {
+      return unauthorizedResponse();
     }
 
     const { id } = await params;
 
     const existingProject = await prisma.project.findUnique({
       where: { id },
+      select: { id: true },
     });
 
     if (!existingProject) {
@@ -50,15 +58,7 @@ export async function PUT(
     const validation = projectSchema.safeParse(body);
 
     if (!validation.success) {
-      const errors: Record<string, string[]> = {};
-      validation.error.issues.forEach((err) => {
-        const path = err.path.join('.');
-        if (!errors[path]) {
-          errors[path] = [];
-        }
-        errors[path].push(err.message);
-      });
-      return validationErrorResponse(errors);
+      return validationErrorResponse(zodErrorsToRecord(validation.error.issues));
     }
 
     const project = await prisma.project.update({
@@ -68,33 +68,40 @@ export async function PUT(
 
     return successResponse(project);
   } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      return validationErrorResponse({
+        slug: ['Ce slug est déjà utilisé par un autre projet'],
+      });
+    }
     return handleApiError(error);
   }
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return errorResponse('Non autorisé', 401);
+    const admin = await getAdminSession();
+    if (!admin) {
+      return unauthorizedResponse();
     }
 
     const { id } = await params;
 
     const existingProject = await prisma.project.findUnique({
       where: { id },
+      select: { id: true },
     });
 
     if (!existingProject) {
       return errorResponse('Projet non trouvé', 404);
     }
 
-    await prisma.project.delete({
-      where: { id },
-    });
+    await prisma.project.delete({ where: { id } });
 
     return successResponse({ message: 'Projet supprimé avec succès' });
   } catch (error) {

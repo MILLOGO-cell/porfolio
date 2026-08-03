@@ -27,4 +27,9 @@ RUN npm run build
 EXPOSE 3000
 ENV PORT=3000
 
-CMD ["npm", "run", "start"]
+# Les migrations sont appliquées au démarrage, pas au build : au build, la base
+# de production n'est pas joignable. Sans cette étape, le conteneur démarre sur
+# un schéma périmé et toute requête sur une colonne récente échoue.
+# `migrate deploy` est idempotent et pose un verrou consultatif : plusieurs
+# instances qui démarrent en même temps ne se marchent pas dessus.
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]

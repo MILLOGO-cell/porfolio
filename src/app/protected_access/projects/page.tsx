@@ -8,15 +8,82 @@ import Image from 'next/image';
 
 interface Project {
   id: string;
+  slug: string;
   title: string;
+  summary: string | null;
   description: string | null;
+  context: string | null;
+  role: string | null;
+  challenges: string | null;
+  outcome: string | null;
+  client: string | null;
+  period: string | null;
+  stack: string[];
   url: string | null;
+  repoUrl: string | null;
   imageUrl: string | null;
   tags: string[];
   featured: boolean;
+  published: boolean;
+  position: number;
   createdAt: string;
   updatedAt: string;
 }
+
+const EMPTY_FORM = {
+  slug: '',
+  title: '',
+  summary: '',
+  description: '',
+  context: '',
+  role: '',
+  challenges: '',
+  outcome: '',
+  client: '',
+  period: '',
+  stack: '',
+  url: '',
+  repoUrl: '',
+  imageUrl: '',
+  tags: '',
+  featured: false,
+  published: true,
+  position: 0,
+};
+
+/** « React, Django, PostgreSQL » -> ['React', 'Django', 'PostgreSQL'] */
+const splitList = (value: string) =>
+  value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+const FIELD_CLASS =
+  'w-full px-3 py-2 rounded-lg border border-[#d4c9f5] dark:border-[#4e2c9f] bg-white dark:bg-[#140727] text-sm text-[#1f1238] dark:text-white placeholder-[#9e91d0] focus:outline-none focus:ring-2 focus:ring-[#5f2eba] focus:border-[#5f2eba]';
+
+/** Les quatre blocs qui font la différence entre une vignette et une étude de cas. */
+const CASE_STUDY_FIELDS = [
+  {
+    key: 'context' as const,
+    label: 'Contexte',
+    hint: "Le besoin métier et les contraintes de départ.",
+  },
+  {
+    key: 'role' as const,
+    label: 'Mon rôle',
+    hint: 'Le périmètre réellement tenu : conception, développement, intégration, encadrement.',
+  },
+  {
+    key: 'challenges' as const,
+    label: 'Enjeux techniques',
+    hint: 'Décisions structurantes et difficultés rencontrées — et pourquoi ces choix.',
+  },
+  {
+    key: 'outcome' as const,
+    label: 'Résultat',
+    hint: 'Ce qui a été livré et ce que cela a changé.',
+  },
+];
 
 export default function ProjectsPage() {
   const { data: session, status } = useSession();
@@ -29,14 +96,7 @@ export default function ProjectsPage() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [imageInputType, setImageInputType] = useState<'upload' | 'url'>('upload');
   const [uploading, setUploading] = useState(false);
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    url: '',
-    imageUrl: '',
-    tags: '',
-    featured: false,
-  });
+  const [formData, setFormData] = useState(EMPTY_FORM);
   const [formErrors, setFormErrors] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
@@ -116,18 +176,26 @@ export default function ProjectsPage() {
     e.preventDefault();
     setFormErrors({});
 
-    const tags = formData.tags
-      .split(',')
-      .map((tag) => tag.trim())
-      .filter(Boolean);
-
     const payload = {
+      // Laissé vide, le slug est dérivé du titre côté serveur.
+      slug: formData.slug || undefined,
       title: formData.title,
+      summary: formData.summary || null,
       description: formData.description || null,
+      context: formData.context || null,
+      role: formData.role || null,
+      challenges: formData.challenges || null,
+      outcome: formData.outcome || null,
+      client: formData.client || null,
+      period: formData.period || null,
+      stack: splitList(formData.stack),
       url: formData.url || null,
+      repoUrl: formData.repoUrl || null,
       imageUrl: formData.imageUrl || null,
-      tags,
+      tags: splitList(formData.tags),
       featured: formData.featured,
+      published: formData.published,
+      position: Number(formData.position) || 0,
     };
 
     try {
@@ -145,14 +213,7 @@ export default function ProjectsPage() {
       if (response.ok && data.success) {
         setShowModal(false);
         setEditingProject(null);
-        setFormData({
-          title: '',
-          description: '',
-          url: '',
-          imageUrl: '',
-          tags: '',
-          featured: false,
-        });
+        setFormData(EMPTY_FORM);
         fetchProjects();
       } else if (data.errors) {
         setFormErrors(data.errors);
@@ -183,12 +244,24 @@ export default function ProjectsPage() {
   const openEditModal = (project: Project) => {
     setEditingProject(project);
     setFormData({
+      slug: project.slug ?? '',
       title: project.title,
+      summary: project.summary || '',
       description: project.description || '',
+      context: project.context || '',
+      role: project.role || '',
+      challenges: project.challenges || '',
+      outcome: project.outcome || '',
+      client: project.client || '',
+      period: project.period || '',
+      stack: (project.stack ?? []).join(', '),
       url: project.url || '',
+      repoUrl: project.repoUrl || '',
       imageUrl: project.imageUrl || '',
       tags: project.tags.join(', '),
       featured: project.featured,
+      published: project.published ?? true,
+      position: project.position ?? 0,
     });
     setImageInputType(project.imageUrl?.startsWith('/uploads') ? 'upload' : 'url');
     setShowModal(true);
@@ -196,14 +269,7 @@ export default function ProjectsPage() {
 
   const openCreateModal = () => {
     setEditingProject(null);
-    setFormData({
-      title: '',
-      description: '',
-      url: '',
-      imageUrl: '',
-      tags: '',
-      featured: false,
-    });
+    setFormData(EMPTY_FORM);
     setFormErrors({});
     setImageInputType('upload');
     setShowModal(true);
@@ -418,27 +484,154 @@ export default function ProjectsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                  Slug (URL)
+                </label>
+                <input
+                  type="text"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  placeholder="laissez vide pour le dériver du titre"
+                  className={FIELD_CLASS}
+                />
+                <p className="mt-1 text-xs text-[#8a7abf] dark:text-[#c4b9f0]">
+                  Adresse de la fiche : /projets/{formData.slug || 'mon-projet'}
+                </p>
+                {formErrors.slug && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-300">
+                    {formErrors.slug[0]}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                  Accroche
+                </label>
+                <textarea
+                  rows={2}
+                  maxLength={300}
+                  value={formData.summary}
+                  onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+                  placeholder="Une ou deux phrases : ce qui apparaît sur la carte et dans les résultats de recherche."
+                  className={FIELD_CLASS}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
                   Description
                 </label>
                 <textarea
                   rows={4}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-[#d4c9f5] dark:border-[#4e2c9f] bg.white dark:bg-[#140727] text-sm text-[#1f1238] dark:text.white placeholder-[#9e91d0] focus:outline-none focus:ring-2 focus:ring-[#5f2eba] focus:border-[#5f2eba]"
+                  className={FIELD_CLASS}
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
-                  URL du projet
-                </label>
-                <input
-                  type="url"
-                  value={formData.url}
-                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 rounded-lg border border-[#d4c9f5] dark:border-[#4e2c9f] bg-white dark:bg-[#140727] text-sm text-[#1f1238] dark:text-white placeholder-[#9e91d0] focus:outline-none focus:ring-2 focus:ring-[#5f2eba] focus:border-[#5f2eba]"
-                />
+              <fieldset className="border-t border-[#d4c9f5] dark:border-[#3b285f] pt-4 space-y-4">
+                <legend className="text-xs font-semibold uppercase tracking-[0.14em] text-[#5f2eba] dark:text-[#c4b9f0]">
+                  Étude de cas
+                </legend>
+
+                {CASE_STUDY_FIELDS.map(({ key, label, hint }) => (
+                  <div key={key}>
+                    <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                      {label}
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={formData[key]}
+                      onChange={(e) =>
+                        setFormData({ ...formData, [key]: e.target.value })
+                      }
+                      className={FIELD_CLASS}
+                    />
+                    <p className="mt-1 text-xs text-[#8a7abf] dark:text-[#c4b9f0]">
+                      {hint}
+                    </p>
+                  </div>
+                ))}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                      Client ou secteur
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.client}
+                      onChange={(e) =>
+                        setFormData({ ...formData, client: e.target.value })
+                      }
+                      placeholder="Banque de détail"
+                      className={FIELD_CLASS}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                      Période
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.period}
+                      onChange={(e) =>
+                        setFormData({ ...formData, period: e.target.value })
+                      }
+                      placeholder="2024 — 2025"
+                      className={FIELD_CLASS}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                    Stack technique
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.stack}
+                    onChange={(e) =>
+                      setFormData({ ...formData, stack: e.target.value })
+                    }
+                    placeholder="Django REST, PostgreSQL, Docker, SOAP"
+                    className={FIELD_CLASS}
+                  />
+                  <p className="mt-1 text-xs text-[#8a7abf] dark:text-[#c4b9f0]">
+                    Séparées par des virgules. Distinct des tags, qui servent au filtrage.
+                  </p>
+                </div>
+              </fieldset>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                    URL du projet
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.url}
+                    onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                    placeholder="https://..."
+                    className={FIELD_CLASS}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                    Code source
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.repoUrl}
+                    onChange={(e) =>
+                      setFormData({ ...formData, repoUrl: e.target.value })
+                    }
+                    placeholder="https://github.com/..."
+                    className={FIELD_CLASS}
+                  />
+                </div>
               </div>
 
               <div>
@@ -546,6 +739,45 @@ export default function ProjectsPage() {
                 >
                   Projet en vedette
                 </label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="published"
+                  checked={formData.published}
+                  onChange={(e) =>
+                    setFormData({ ...formData, published: e.target.checked })
+                  }
+                  className="h-4 w-4 text-[#5f2eba] focus:ring-[#5f2eba] border-[#d4c9f5] rounded"
+                />
+                <label
+                  htmlFor="published"
+                  className="text-sm text-[#3b2b6a] dark:text-[#e7e0ff]"
+                >
+                  Publié{' '}
+                  <span className="text-xs text-[#8a7abf] dark:text-[#c4b9f0]">
+                    (décochez pour préparer une fiche sans la rendre visible)
+                  </span>
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                  Ordre d&apos;affichage
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={formData.position}
+                  onChange={(e) =>
+                    setFormData({ ...formData, position: Number(e.target.value) })
+                  }
+                  className={`${FIELD_CLASS} max-w-[8rem]`}
+                />
+                <p className="mt-1 text-xs text-[#8a7abf] dark:text-[#c4b9f0]">
+                  Croissant : 0 apparaît en premier. À égalité, tri par date.
+                </p>
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-[#d4c9f5] dark:border-[#3b285f]">

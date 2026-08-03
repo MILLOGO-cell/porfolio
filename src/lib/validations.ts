@@ -1,30 +1,131 @@
 import { z } from 'zod';
 
-export const projectSchema = z.object({
-  title: z.string().min(1, 'Le titre est requis').max(200),
-  description: z.string().nullable().optional(),
-  url: z.string().nullable().optional(),
-  imageUrl: z.string().nullable().optional(),
-  tags: z.array(z.string()).default([]),
-  featured: z.boolean().default(false),
-}).transform((data) => ({
-  ...data,
-  url: data.url && data.url.trim() !== '' ? data.url : null,
-  imageUrl: data.imageUrl && data.imageUrl.trim() !== '' ? data.imageUrl : null,
-  description: data.description && data.description.trim() !== '' ? data.description : null,
-}));
+/**
+ * Les URL de projet sont rendues dans des <a href>. Sans restriction de schéma,
+ * une valeur `javascript:…` stockée en base devient un XSS au clic.
+ */
+const httpUrl = z
+  .string()
+  .trim()
+  .url('URL invalide')
+  .refine(
+    (value) => /^https?:\/\//i.test(value),
+    'Seules les URL http(s) sont acceptées'
+  );
+
+const optionalHttpUrl = z.union([httpUrl, z.literal(''), z.null()]).optional();
+
+/**
+ * Chemin servi depuis /public : les uploads (/uploads/…) comme les visuels
+ * placés à la racine (/portfolio.png). Le `..` est refusé, et le schéma exclut
+ * de fait `javascript:` et `data:`.
+ */
+export const relativeAssetPath = z
+  .string()
+  .trim()
+  .regex(/^\/[\w./-]*$/, 'Chemin d’image invalide')
+  .refine((value) => !value.includes('..'), 'Chemin d’image invalide');
+
+/** Une image vient soit d'une URL externe http(s), soit d'un fichier local. */
+const optionalImageUrl = z
+  .union([httpUrl, relativeAssetPath, z.literal(''), z.null()])
+  .optional();
+
+/** Bloc de texte libre d'une étude de cas. */
+const caseStudyText = z.string().trim().max(5000).nullable().optional();
+
+/**
+ * Dérive un identifiant d'URL depuis un titre. Utilisé côté serveur quand
+ * l'administrateur laisse le champ vide, et côté formulaire pour la
+ * prévisualisation — d'où l'export.
+ */
+export function slugify(value: string): string {
+  return value
+    .normalize('NFD')
+    // Retire les diacritiques : « Réclamations » -> « reclamations ».
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
+
+export const slugSchema = z
+  .string()
+  .trim()
+  .min(1, 'Le slug est requis')
+  .max(80)
+  .regex(
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+    'Le slug ne peut contenir que des minuscules, des chiffres et des tirets'
+  );
+
+export const projectSchema = z
+  .object({
+    // Optionnel en entrée : dérivé du titre s'il est absent.
+    slug: z.union([slugSchema, z.literal('')]).optional(),
+    title: z.string().trim().min(1, 'Le titre est requis').max(200),
+    summary: z.string().trim().max(300).nullable().optional(),
+    description: caseStudyText,
+
+    context: caseStudyText,
+    role: caseStudyText,
+    challenges: caseStudyText,
+    outcome: caseStudyText,
+
+    client: z.string().trim().max(200).nullable().optional(),
+    period: z.string().trim().max(60).nullable().optional(),
+    stack: z.array(z.string().trim().min(1).max(40)).max(40).default([]),
+
+    url: optionalHttpUrl,
+    repoUrl: optionalHttpUrl,
+    imageUrl: optionalImageUrl,
+    tags: z.array(z.string().trim().min(1).max(40)).max(20).default([]),
+    featured: z.boolean().default(false),
+    published: z.boolean().default(true),
+    position: z.number().int().min(0).max(9999).default(0),
+  })
+  .transform((data) => {
+    /** Une chaîne vide en base vaut « non renseigné » : on stocke NULL. */
+    const emptyToNull = (value: string | null | undefined) =>
+      value && value.trim() !== '' ? value : null;
+
+    return {
+      ...data,
+      slug: data.slug && data.slug !== '' ? data.slug : slugify(data.title),
+      summary: emptyToNull(data.summary),
+      description: emptyToNull(data.description),
+      context: emptyToNull(data.context),
+      role: emptyToNull(data.role),
+      challenges: emptyToNull(data.challenges),
+      outcome: emptyToNull(data.outcome),
+      client: emptyToNull(data.client),
+      period: emptyToNull(data.period),
+      url: emptyToNull(data.url),
+      repoUrl: emptyToNull(data.repoUrl),
+      imageUrl: emptyToNull(data.imageUrl),
+    };
+  })
+  .refine((data) => data.slug.length > 0, {
+    message: 'Impossible de dériver un slug depuis ce titre',
+    path: ['slug'],
+  });
 
 export const contactSchema = z.object({
-  name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
-  email: z.string().email('Email invalide'),
-  message: z.string().min(10, 'Le message doit contenir au moins 10 caractères'),
+  name: z.string().trim().min(2, 'Le nom doit contenir au moins 2 caractères').max(120),
+  email: z.string().trim().email('Email invalide').max(200),
+  message: z
+    .string()
+    .trim()
+    .min(10, 'Le message doit contenir au moins 10 caractères')
+    .max(5000),
 });
 
-export const loginSchema = z.object({
-  email: z.string().email('Email invalide'),
-  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères'),
-});
+/** Compte d'administration : 12 caractères minimum, pas 6. */
+export const passwordSchema = z
+  .string()
+  .min(12, 'Le mot de passe doit contenir au moins 12 caractères')
+  .max(200);
 
 export type ProjectInput = z.infer<typeof projectSchema>;
 export type ContactInput = z.infer<typeof contactSchema>;
-export type LoginInput = z.infer<typeof loginSchema>;

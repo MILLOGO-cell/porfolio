@@ -1,13 +1,20 @@
 import { NextRequest } from 'next/server';
-import { prisma } from '@/lib/db';
 import * as nodemailer from 'nodemailer';
 import crypto from 'crypto';
-import { successResponse, errorResponse, handleApiError } from '@/lib/api-response';
+import { prisma } from '@/lib/db';
+import { hashResetToken } from '@/lib/reset-token';
+import { clientKey, rateLimit } from '@/lib/rate-limit';
+import {
+  successResponse,
+  errorResponse,
+  rateLimitResponse,
+  handleApiError,
+} from '@/lib/api-response';
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: Number(process.env.EMAIL_PORT) || 587,
-  secure: false,
+  secure: Number(process.env.EMAIL_PORT) === 465,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -16,39 +23,53 @@ const transporter = nodemailer.createTransport({
 
 export async function POST(request: NextRequest) {
   try {
-    const { email } = await request.json();
+    const body = await request.json();
+    const email =
+      typeof body?.email === 'string' ? body.email.toLowerCase().trim() : '';
 
     if (!email) {
       return errorResponse('Email requis', 400);
     }
 
-    // Vérifier que l'utilisateur existe
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    // Toujours retourner succès (sécurité - ne pas révéler si l'email existe)
-    if (!user) {
-      return successResponse({
-        message: 'Si cet email existe, un lien de réinitialisation a été envoyé',
-      });
+    const ipLimit = rateLimit(clientKey(request, 'forgot'), 5, 60 * 60 * 1000);
+    if (!ipLimit.allowed) {
+      return rateLimitResponse(ipLimit.retryAfter);
     }
 
-    // Générer un token
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 heure
+    const emailLimit = rateLimit(`forgot:${email}`, 3, 60 * 60 * 1000);
+    if (!emailLimit.allowed) {
+      return rateLimitResponse(emailLimit.retryAfter);
+    }
 
-    // Sauvegarder le token
-    await prisma.user.update({
+    const user = await prisma.user.findUnique({
       where: { email },
+      select: { id: true },
+    });
+
+    // Réponse identique dans tous les cas : ne pas révéler si l'email existe.
+    const genericResponse = successResponse({
+      message: 'Si cet email existe, un lien de réinitialisation a été envoyé',
+    });
+
+    if (!user) {
+      return genericResponse;
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
+
+    // Seul le condensé est stocké : une fuite de la table `users` ne permet
+    // plus de forger un lien de réinitialisation valide.
+    await prisma.user.update({
+      where: { id: user.id },
       data: {
-        resetToken,
+        resetToken: hashResetToken(resetToken),
         resetTokenExpiry,
       },
     });
 
-    // Envoyer l'email
-    const resetUrl = `${process.env.NEXTAUTH_URL}/protected_access/reset-password?token=${resetToken}`;
+    const baseUrl = process.env.NEXTAUTH_URL ?? '';
+    const resetUrl = `${baseUrl}/protected_access/reset-password?token=${resetToken}`;
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
@@ -68,9 +89,7 @@ export async function POST(request: NextRequest) {
       `,
     });
 
-    return successResponse({
-      message: 'Si cet email existe, un lien de réinitialisation a été envoyé',
-    });
+    return genericResponse;
   } catch (error) {
     return handleApiError(error);
   }

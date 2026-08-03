@@ -2,17 +2,90 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Jetons de design — une seule source de vérité pour la palette.
+ * Format « canaux RGB » pour que les modificateurs d'opacité Tailwind
+ * (bg-surface/50) continuent de fonctionner.
+ *
+ * Parti pris : surfaces neutres, un seul accent, aucun dégradé décoratif.
+ * Le dégradé ne subsiste que sur le titre h1 et le bouton d'action principal.
+ */
 @layer base {
+  :root {
+    --background: 255 255 255;
+    --surface: 255 255 255;
+    --surface-muted: 250 250 250;
+    --border: 228 228 231;
+    --foreground: 24 24 27;
+    --muted: 113 113 122;
+    --accent: 79 70 229;
+    --accent-soft: 238 242 255;
+  }
+
+  .dark {
+    --background: 9 9 11;
+    --surface: 24 24 27;
+    --surface-muted: 19 19 22;
+    --border: 39 39 42;
+    --foreground: 250 250 250;
+    --muted: 161 161 170;
+    --accent: 129 140 248;
+    --accent-soft: 30 27 75;
+  }
+
   html {
     overflow-x: hidden;
+    scroll-behavior: smooth;
+    /* Compense le header fixe quand on cible une ancre de section. */
+    scroll-padding-top: 6rem;
   }
-  
+
   body {
     overflow-x: hidden;
     max-width: 100vw;
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
   }
-  
+
   * {
     box-sizing: border-box;
+  }
+
+  ::selection {
+    background-color: rgb(var(--accent) / 0.2);
+  }
+}
+
+@layer components {
+  /* Réservé au titre h1 : le seul endroit du site avec le CTA principal. */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      110deg,
+      rgb(var(--accent)),
+      rgb(168 85 247)
+    );
+  }
+}
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgb(var(--border));
+    border-radius: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--muted) / 0.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }

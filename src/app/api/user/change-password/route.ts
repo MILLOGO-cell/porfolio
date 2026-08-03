@@ -1,15 +1,20 @@
 import { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { compare, hash } from 'bcryptjs';
 import { prisma } from '@/lib/db';
-import { successResponse, errorResponse, handleApiError } from '@/lib/api-response';
+import { getAdminSession } from '@/lib/dal';
+import { passwordSchema } from '@/lib/validations';
+import {
+  successResponse,
+  errorResponse,
+  unauthorizedResponse,
+  handleApiError,
+} from '@/lib/api-response';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    
-    if (!session?.user?.email) {
-      return errorResponse('Non autorisé', 401);
+    const admin = await getAdminSession();
+    if (!admin) {
+      return unauthorizedResponse();
     }
 
     const body = await request.json();
@@ -19,12 +24,17 @@ export async function POST(request: NextRequest) {
       return errorResponse('Tous les champs sont requis', 400);
     }
 
-    if (newPassword.length < 6) {
-      return errorResponse('Le nouveau mot de passe doit contenir au moins 6 caractères', 400);
+    const validation = passwordSchema.safeParse(newPassword);
+    if (!validation.success) {
+      return errorResponse(
+        validation.error.issues[0]?.message ?? 'Mot de passe invalide',
+        400
+      );
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+      where: { id: admin.id },
+      select: { password: true },
     });
 
     if (!user) {
@@ -32,16 +42,14 @@ export async function POST(request: NextRequest) {
     }
 
     const isValidPassword = await compare(currentPassword, user.password);
-    
+
     if (!isValidPassword) {
       return errorResponse('Mot de passe actuel incorrect', 400);
     }
 
-    const hashedPassword = await hash(newPassword, 10);
-
     await prisma.user.update({
-      where: { email: session.user.email },
-      data: { password: hashedPassword },
+      where: { id: admin.id },
+      data: { password: await hash(validation.data, 12) },
     });
 
     return successResponse({ message: 'Mot de passe modifié avec succès' });

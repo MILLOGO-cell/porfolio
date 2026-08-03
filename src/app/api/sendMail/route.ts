@@ -1,28 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { contactSchema } from "@/lib/validations";
+import { clientKey, rateLimit } from "@/lib/rate-limit";
+
+/** Les champs du formulaire sont réinjectés dans le HTML de l'email : on échappe. */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, message } = await req.json();
-
-    // Validation des champs
-    if (!name || !email || !message) {
+    // Le formulaire est public et déclenche un envoi de mail : sans plafond,
+    // c'est un relais de spam gratuit.
+    const limit = rateLimit(clientKey(req, "contact"), 5, 60 * 60 * 1000);
+    if (!limit.allowed) {
       return NextResponse.json(
-        { success: false, message: "Tous les champs sont requis." },
+        {
+          success: false,
+          message: "Trop de messages envoyés. Réessayez dans une heure.",
+        },
+        { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
+      );
+    }
+
+    const body = await req.json();
+    const validation = contactSchema.safeParse(body);
+
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: validation.error.issues[0]?.message ?? "Données invalides.",
+        },
         { status: 400 }
       );
     }
 
-    // Validation de l'email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { success: false, message: "Email invalide." },
-        { status: 400 }
-      );
-    }
+    const { name, email, message } = validation.data;
 
-    // Vérification des variables d'environnement
     if (
       !process.env.EMAIL_HOST ||
       !process.env.EMAIL_PORT ||
@@ -39,126 +59,104 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Configuration du transporteur avec Gmail
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: Number(process.env.EMAIL_PORT),
-      secure: false, // true pour le port 465, false pour les autres ports
+      secure: Number(process.env.EMAIL_PORT) === 465,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      tls: {
-        rejectUnauthorized: false, // Accepte les certificats auto-signés (utile en dev)
-      },
     });
 
-    // Vérification de la connexion
     await transporter.verify();
 
-    // Configuration de l'email
-    const mailOptions = {
-      from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`, // Expéditeur
-      to: process.env.EMAIL_TO || process.env.EMAIL_USER, // Destinataire
-      replyTo: email, // L'utilisateur peut répondre directement
-      subject: `📬 Nouveau message de ${name}`,
-      text: `
-Nom: ${name}
-Email: ${email}
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safeMessage = escapeHtml(message).replace(/\n/g, "<br>");
+    const receivedAt = new Date().toLocaleDateString("fr-FR", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
 
-Message:
-${message}
-      `,
+    const info = await transporter.sendMail({
+      from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_TO || process.env.EMAIL_USER,
+      replyTo: email,
+      subject: `Nouveau message de ${name}`,
+      text: `Nom : ${name}\nEmail : ${email}\n\nMessage :\n${message}\n`,
       html: `
         <!DOCTYPE html>
-        <html>
+        <html lang="fr">
         <head>
+          <meta charset="utf-8">
           <style>
             body {
-              font-family: 'Arial', sans-serif;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
               line-height: 1.6;
-              color: #333;
+              color: #18181b;
               max-width: 600px;
               margin: 0 auto;
-              padding: 20px;
+              padding: 24px;
+              background: #ffffff;
             }
             .header {
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              color: white;
-              padding: 30px;
-              border-radius: 10px 10px 0 0;
-              text-align: center;
+              border-bottom: 2px solid #4f46e5;
+              padding-bottom: 16px;
+              margin-bottom: 24px;
             }
-            .content {
-              background: #f9fafb;
-              padding: 30px;
-              border-radius: 0 0 10px 10px;
-            }
-            .info-box {
-              background: white;
-              padding: 20px;
-              border-radius: 8px;
-              margin: 20px 0;
-              border-left: 4px solid #667eea;
-            }
+            .header h1 { margin: 0; font-size: 20px; font-weight: 700; }
+            .header p { margin: 4px 0 0; font-size: 13px; color: #71717a; }
+            .field { margin-bottom: 20px; }
             .label {
-              font-weight: bold;
-              color: #667eea;
-              margin-bottom: 5px;
+              font-size: 11px;
+              font-weight: 700;
+              letter-spacing: 0.08em;
+              text-transform: uppercase;
+              color: #4f46e5;
+              margin-bottom: 4px;
             }
-            .message-box {
-              background: white;
-              padding: 20px;
+            .value { font-size: 15px; }
+            .message {
+              background: #fafafa;
+              border: 1px solid #e4e4e7;
               border-radius: 8px;
-              margin-top: 20px;
-              border: 1px solid #e5e7eb;
+              padding: 16px;
+              font-size: 15px;
             }
             .footer {
-              text-align: center;
-              margin-top: 20px;
-              color: #6b7280;
+              margin-top: 32px;
+              padding-top: 16px;
+              border-top: 1px solid #e4e4e7;
               font-size: 12px;
+              color: #71717a;
             }
           </style>
         </head>
         <body>
           <div class="header">
-            <h1>📬 Nouveau message de contact</h1>
+            <h1>Nouveau message de contact</h1>
+            <p>Re&ccedil;u le ${receivedAt}</p>
           </div>
-          <div class="content">
-            <div class="info-box">
-              <div class="label">👤 Nom :</div>
-              <div>${name}</div>
-            </div>
-            <div class="info-box">
-              <div class="label">📧 Email :</div>
-              <div><a href="mailto:${email}">${email}</a></div>
-            </div>
-            <div class="message-box">
-              <div class="label">💬 Message :</div>
-              <p>${message.replace(/\n/g, "<br>")}</p>
-            </div>
-            <div class="footer">
-              <p>Message reçu depuis votre portfolio - ${new Date().toLocaleDateString(
-                "fr-FR",
-                {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                }
-              )}</p>
-            </div>
+          <div class="field">
+            <div class="label">Nom</div>
+            <div class="value">${safeName}</div>
           </div>
+          <div class="field">
+            <div class="label">Email</div>
+            <div class="value"><a href="mailto:${safeEmail}">${safeEmail}</a></div>
+          </div>
+          <div class="field">
+            <div class="label">Message</div>
+            <div class="message">${safeMessage}</div>
+          </div>
+          <div class="footer">Message envoy&eacute; depuis le formulaire de contact du portfolio.</div>
         </body>
         </html>
       `,
-    };
-
-    // Envoi de l'email
-    const info = await transporter.sendMail(mailOptions);
-
-    console.log("Email envoyé avec succès:", info.messageId);
+    });
 
     return NextResponse.json(
       {
@@ -171,7 +169,6 @@ ${message}
   } catch (error) {
     console.error("Erreur lors de l'envoi de l'email:", error);
 
-    // Gestion des erreurs spécifiques
     if (error instanceof Error) {
       if (error.message.includes("Invalid login")) {
         return NextResponse.json(
