@@ -22,6 +22,10 @@ export const site = {
     "Je conçois et développe des applications métiers : systèmes bancaires, contrôle interne, conformité et détection de fraude.",
   email: "nicolasmillogo3@gmail.com",
   location: "Ouagadougou, Burkina Faso",
+  employer: {
+    name: "LICELI Technologies",
+    url: "https://liceli-technologies.com",
+  },
 } as const;
 
 export type NavItem = {

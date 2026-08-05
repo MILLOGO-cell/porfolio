@@ -2,10 +2,11 @@ import Link from "next/link";
 import type { IconType } from "react-icons";
 import {
   LuArrowRight,
-  LuBuilding2,
+  LuArrowUpRight,
   LuMail,
+  LuPencilRuler,
+  LuServer,
   LuShieldCheck,
-  LuTriangleAlert,
 } from "react-icons/lu";
 import Template from "./Template";
 import FeaturedProjects from "@/components/FeaturedProjects";
@@ -20,7 +21,12 @@ import { site } from "@/lib/site";
  * prestations. Trois entrées, volontairement : au-delà, ça redevient une
  * plaquette commerciale.
  */
-/** Chaque domaine porte sa propre teinte, pour distinguer les cartes au premier coup d'œil. */
+/**
+ * Domaines d'intervention. Formulés par métier plutôt que par secteur : le
+ * détail du contexte bancaire est renvoyé à la mention de LICELI plus bas,
+ * ce qui évite d'enfermer le profil dans une seule industrie.
+ * Chaque carte porte sa teinte pour se distinguer au premier coup d'œil.
+ */
 const expertise: {
   icon: IconType;
   title: string;
@@ -28,24 +34,24 @@ const expertise: {
   tint: string;
 }[] = [
   {
-    icon: LuBuilding2,
-    title: "Systèmes bancaires et paiements",
+    icon: LuServer,
+    title: "Applications métiers et API",
     description:
-      "Services backend, intégration de core banking et de plateformes de paiement, échanges REST et SOAP, recette et suivi des anomalies.",
+      "Conception et développement de services backend, d'API REST et d'intégrations entre systèmes existants, jusqu'à la recette et la mise en production.",
     tint: "bg-info-soft text-info",
   },
   {
     icon: LuShieldCheck,
     title: "Contrôle interne, audit et risques",
     description:
-      "Cartographie des risques, plans de contrôle, missions d'audit, incidents et actions correctives, de la conception des parcours à la mise en production.",
+      "Cartographie des risques, plans de contrôle, missions d'audit, suivi des incidents et des actions correctives.",
     tint: "bg-accent-soft text-accent",
   },
   {
-    icon: LuTriangleAlert,
-    title: "Conformité et détection de fraude",
+    icon: LuPencilRuler,
+    title: "Interfaces et parcours utilisateur",
     description:
-      "Filtrage des clients, listes de sanctions, qualification des alertes et règles de surveillance des opérations, avec traçabilité et contrôle des accès.",
+      "Wireframes, maquettes haute fidélité et prototypes sous Figma, puis développement des interfaces en React et Next.js.",
     tint: "bg-warning-soft text-warning",
   },
 ];
@@ -104,7 +110,10 @@ export default function Home() {
       {/* ---------------------------------------------------------------- */}
       {/* Projets — la section la plus haute de la page, volontairement.   */}
       {/* ---------------------------------------------------------------- */}
-      <section className="border-t border-border">
+      {/* Fonds de section alternés, teintés très légèrement : ils rythment la
+          lecture sans que la couleur devienne le sujet. En sombre, les teintes
+          sont atténuées pour ne pas écraser le texte. */}
+      <section className="border-t border-border bg-surface-muted">
         <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
           <SectionHeader
             id="projets"
@@ -134,7 +143,7 @@ export default function Home() {
       {/* ---------------------------------------------------------------- */}
       {/* Expertise                                                         */}
       {/* ---------------------------------------------------------------- */}
-      <section className="border-t border-border bg-surface-muted">
+      <section className="border-t border-border bg-accent-soft/50 dark:bg-accent-soft/25">
         <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
           <SectionHeader
             id="expertise"
@@ -162,6 +171,25 @@ export default function Home() {
               </ScrollReveal>
             ))}
           </div>
+
+          {/* Le contexte bancaire et conformité tient en une phrase, rattaché à
+              l'employeur : mentionné sans occuper toute la section. */}
+          <ScrollReveal delay={0.3} y={16}>
+            <p className="mt-8 text-sm leading-relaxed text-muted">
+              Ces travaux sont menés chez{" "}
+              <a
+                href={site.employer.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-0.5 font-medium text-accent transition-opacity hover:opacity-80"
+              >
+                {site.employer.name}
+                <LuArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+              </a>
+              , notamment sur des projets bancaires, de conformité et de
+              détection de fraude.
+            </p>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -199,11 +227,11 @@ export default function Home() {
       {/* ---------------------------------------------------------------- */}
       {/* Contact                                                           */}
       {/* ---------------------------------------------------------------- */}
-      <section className="border-t border-border">
+      <section className="border-t border-border bg-info-soft/40 dark:bg-info-soft/20">
         <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
           <ScrollReveal y={24}>
             <div className="flex flex-col items-start gap-6 rounded-2xl border border-border bg-surface p-10">
-              <h2 className="max-w-xl text-balance text-2xl font-semibold tracking-tight md:text-3xl">
+              <h2 className="max-w-xl text-balance font-display text-3xl font-normal tracking-tight md:text-4xl">
                 Un projet, un poste, une question technique ?
               </h2>
               <p className="max-w-xl text-pretty leading-relaxed text-muted">
