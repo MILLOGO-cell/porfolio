@@ -19,7 +19,7 @@ export const site = {
   shortName: "NM",
   role: "Ingénieur logiciel",
   tagline:
-    "Je conçois et développe des applications métiers : systèmes bancaires, contrôle interne, conformité et détection de fraude.",
+    "J'accompagne des projets logiciels du cadrage du besoin jusqu'à la mise en production, sur des domaines où l'exactitude et la traçabilité ne se négocient pas.",
   email: "nicolasmillogo3@gmail.com",
   location: "Ouagadougou, Burkina Faso",
   employer: {
