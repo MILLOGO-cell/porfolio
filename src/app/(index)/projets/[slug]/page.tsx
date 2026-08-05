@@ -150,7 +150,7 @@ export default async function ProjectPage({ params }: PageProps) {
         <div className="mt-12 space-y-8">
           <CaseSection label="Contexte">{project.context}</CaseSection>
           <CaseSection label="Mon rôle">{project.role}</CaseSection>
-          <CaseSection label="Enjeux techniques">{project.challenges}</CaseSection>
+          <CaseSection label="Approche technique">{project.challenges}</CaseSection>
           <CaseSection label="Résultat">{project.outcome}</CaseSection>
           {/* Repli : les fiches créées avant l'étude de cas n'ont qu'une description. */}
           {!hasCaseStudy && (

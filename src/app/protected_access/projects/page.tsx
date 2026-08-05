@@ -88,8 +88,8 @@ const CASE_STUDY_FIELDS = [
   },
   {
     key: 'challenges' as const,
-    label: 'Enjeux techniques',
-    hint: 'Décisions structurantes et difficultés rencontrées — et pourquoi ces choix.',
+    label: 'Approche technique',
+    hint: 'Les décisions structurantes et ce qui les a motivées.',
   },
   {
     key: 'outcome' as const,
