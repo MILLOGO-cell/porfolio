@@ -135,6 +135,8 @@ export default async function ProjectPage({ params }: PageProps) {
           )}
         </header>
 
+        {/* 16/9, cadré sur le haut : une capture de site est reconnaissable par
+            son en-tête et sa bannière, pas par son pied de page. */}
         {project.imageUrl && (
           <div className="relative mt-10 aspect-[16/9] overflow-hidden rounded-xl border border-border bg-surface-muted">
             <Image
@@ -142,7 +144,7 @@ export default async function ProjectPage({ params }: PageProps) {
               alt={project.title}
               fill
               sizes="(min-width: 768px) 768px, 100vw"
-              className="object-cover"
+              className="object-cover object-top"
               priority
             />
           </div>

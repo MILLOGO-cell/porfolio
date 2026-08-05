@@ -146,9 +146,12 @@ export default function FeaturedProjects() {
               </Link>
             </div>
 
+            {/* 16/10 : les captures de sites arrivent en format large (autour
+                de 2:1). Un cadre 4/3 les amputait de moitié. `object-top`
+                conserve l'en-tête et la bannière, la partie reconnaissable. */}
             {project.imageUrl && (
               <div
-                className={`relative hidden aspect-[4/3] overflow-hidden rounded-xl border border-border bg-surface-muted lg:block ${
+                className={`relative hidden aspect-[16/10] overflow-hidden rounded-xl border border-border bg-surface-muted lg:block ${
                   index % 2 === 1 ? "lg:order-1" : ""
                 }`}
               >
@@ -157,7 +160,7 @@ export default function FeaturedProjects() {
                   alt={project.title}
                   fill
                   sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-cover"
+                  className="object-cover object-top"
                 />
               </div>
             )}

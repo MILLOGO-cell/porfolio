@@ -1,0 +1,12 @@
+# Visuels des fiches projet.
+#
+# Convention : un fichier par projet, nommé d'après son slug.
+#   public/projets/ficod-burkina.png  ->  champ image : /projets/ficod-burkina.png
+#
+# Les images vivent dans le dépôt plutôt que dans un dossier d'upload :
+# elles survivent aux déploiements (le conteneur est reconstruit à chaque fois),
+# elles sont versionnées, et next/image peut les optimiser et les servir en
+# WebP à la bonne taille.
+#
+# Format conseillé : capture de la page d'accueil en 1600x1200 environ
+# (rapport 4/3, c'est celui des vignettes), en PNG ou JPEG sous 500 Ko.
