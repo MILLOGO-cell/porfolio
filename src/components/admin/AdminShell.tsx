@@ -50,7 +50,7 @@ export default function AdminShell({
             <div className="flex items-center gap-8">
               <Link
                 href="/protected_access"
-                className="text-sm font-semibold tracking-tight text-foreground"
+                className="text-sm font-bold tracking-tight text-foreground"
               >
                 Administration
               </Link>
@@ -60,7 +60,7 @@ export default function AdminShell({
                   <Link
                     key={href}
                     href={href}
-                    className={`rounded-full px-3.5 py-2 text-sm transition-colors duration-200 ${
+                    className={`rounded-full px-3.5 py-2 text-sm font-semibold transition-colors duration-200 ${
                       isActive(href)
                         ? 'bg-accent-soft text-accent'
                         : 'text-muted hover:bg-surface-muted hover:text-foreground'

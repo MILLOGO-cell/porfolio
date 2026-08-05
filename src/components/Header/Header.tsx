@@ -51,10 +51,10 @@ export default function Header() {
       >
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3.5 md:px-8">
           <Link href="/" aria-label="Accueil" className="flex items-baseline gap-2.5">
-            <span className="text-[15px] font-semibold tracking-tight text-foreground">
+            <span className="text-[15px] font-bold tracking-tight text-foreground">
               {site.name}
             </span>
-            <span className="hidden text-xs text-muted sm:inline">
+            <span className="hidden text-xs font-medium text-muted sm:inline">
               {site.role}
             </span>
           </Link>
@@ -64,7 +64,7 @@ export default function Header() {
               <Link
                 key={href}
                 href={href}
-                className={`rounded-full px-3.5 py-2 text-sm transition-colors duration-200 ${
+                className={`rounded-full px-3.5 py-2 text-sm font-semibold transition-colors duration-200 ${
                   isActive(href)
                     ? "bg-accent-soft text-accent"
                     : "text-muted hover:bg-surface-muted hover:text-foreground"
@@ -141,7 +141,7 @@ export default function Header() {
                     className="flex items-center gap-3 rounded-xl px-4 py-3 text-foreground transition-colors hover:bg-surface-muted"
                   >
                     <Icon className="h-4 w-4 text-accent" aria-hidden />
-                    <span className="text-sm font-medium">{label}</span>
+                    <span className="text-sm font-semibold">{label}</span>
                   </Link>
                 ))}
 

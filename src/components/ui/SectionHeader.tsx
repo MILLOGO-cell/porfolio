@@ -23,7 +23,7 @@ export default function SectionHeader({
   return (
     <ScrollReveal y={24}>
       <header id={id} className={`flex scroll-mt-28 flex-col gap-3 ${alignment}`}>
-        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+        <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">
           {eyebrow}
         </span>
 

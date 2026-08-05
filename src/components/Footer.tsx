@@ -26,14 +26,14 @@ export default function Footer() {
               <Link
                 key={href}
                 href={href}
-                className="text-sm text-muted transition-colors hover:text-accent"
+                className="text-sm font-medium text-muted transition-colors hover:text-accent"
               >
                 {label}
               </Link>
             ))}
             <Link
               href="/contact"
-              className="text-sm text-muted transition-colors hover:text-accent"
+              className="text-sm font-medium text-muted transition-colors hover:text-accent"
             >
               Contact
             </Link>
