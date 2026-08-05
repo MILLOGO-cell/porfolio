@@ -52,8 +52,6 @@ export const socialLinks: SocialLink[] = [
     url: "https://www.linkedin.com/in/ouettéré-nicolas-millogo-5966b2252/",
     icon: LuLinkedin,
   },
-  // TODO : remplacer par le vrai profil. L'adresse générique renvoie vers
-  // l'accueil de GitHub, ce qui donne un lien mort de sens sur un portfolio.
-  { name: "GitHub", url: "https://github.com", icon: LuGithub },
+  { name: "GitHub", url: "https://github.com/MILLOGO-cell", icon: LuGithub },
   { name: "Email", url: `mailto:${site.email}`, icon: LuMail },
 ];
