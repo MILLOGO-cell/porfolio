@@ -74,8 +74,10 @@ function CaseSection({
       <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
         {label}
       </h2>
-      {/* whitespace-pre-line : les sauts de ligne saisis en admin sont conservés. */}
-      <p className="whitespace-pre-line leading-relaxed text-foreground">
+      {/* whitespace-pre-line : les sauts de ligne saisis en admin sont conservés.
+          `hyphens-auto` accompagne la justification : sans césure, un texte
+          justifié en français creuse des rivières de blanc entre les mots. */}
+      <p className="hyphens-auto whitespace-pre-line text-justify leading-relaxed text-foreground">
         {children}
       </p>
     </section>
@@ -116,7 +118,7 @@ export default async function ProjectPage({ params }: PageProps) {
           </h1>
 
           {project.summary && (
-            <p className="mt-4 text-pretty text-lg leading-relaxed text-muted">
+            <p className="mt-4 hyphens-auto text-justify text-lg leading-relaxed text-muted">
               {project.summary}
             </p>
           )}

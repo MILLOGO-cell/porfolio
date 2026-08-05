@@ -119,7 +119,7 @@ export default function FeaturedProjects() {
               </h3>
 
               {teaser && (
-                <p className="text-pretty leading-relaxed text-muted">
+                <p className="hyphens-auto text-justify leading-relaxed text-muted">
                   {teaser}
                 </p>
               )}
@@ -151,7 +151,7 @@ export default function FeaturedProjects() {
                 conserve l'en-tête et la bannière, la partie reconnaissable. */}
             {project.imageUrl && (
               <div
-                className={`relative hidden aspect-[16/10] overflow-hidden rounded-xl border border-border bg-surface-muted lg:block ${
+                className={`relative aspect-[16/10] overflow-hidden rounded-xl border border-border bg-surface-muted ${
                   index % 2 === 1 ? "lg:order-1" : ""
                 }`}
               >
