@@ -15,6 +15,24 @@ import { buttonClass } from '@/components/ui/button-styles';
 
 type Step = 'credentials' | 'code';
 
+/**
+ * Au-delà, on considère que le serveur ne répondra pas. Un formulaire qui
+ * tourne sans fin n'apprend rien à l'utilisateur ; un message d'erreur, si.
+ */
+const REQUEST_TIMEOUT_MS = 20_000;
+
+const TIMEOUT_MESSAGE =
+  "Le serveur n'a pas répondu. Vérifiez que la base de données est joignable, puis réessayez.";
+
+/** `AbortSignal.timeout` lève une TimeoutError ; notre Promise.race, une Error. */
+function isTimeout(error: unknown): boolean {
+  return (
+    error instanceof DOMException
+      ? error.name === 'TimeoutError'
+      : error instanceof Error && error.message === 'timeout'
+  );
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -35,12 +53,20 @@ export default function LoginPage() {
   const oauthError = searchParams?.get('error');
 
   const completeSignIn = async (twoFactorCode?: string) => {
-    const result = await signIn('credentials', {
-      email,
-      password,
-      code: twoFactorCode ?? '',
-      redirect: false,
-    });
+    // `signIn` n'accepte pas de signal d'annulation : on borne l'attente
+    // nous-mêmes. Sans cela, une base injoignable laisse Prisma attendre
+    // indéfiniment et le formulaire tourne sans jamais rien afficher.
+    const result = await Promise.race([
+      signIn('credentials', {
+        email,
+        password,
+        code: twoFactorCode ?? '',
+        redirect: false,
+      }),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), REQUEST_TIMEOUT_MS)
+      ),
+    ]);
 
     if (result?.error) {
       setError(
@@ -67,6 +93,7 @@ export default function LoginPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
 
       const payload = await response.json();
@@ -89,13 +116,14 @@ export default function LoginPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
         });
       }
 
       setStep('code');
       setLoading(false);
-    } catch {
-      setError('Une erreur est survenue');
+    } catch (err) {
+      setError(isTimeout(err) ? TIMEOUT_MESSAGE : 'Une erreur est survenue');
       setLoading(false);
     }
   };
@@ -108,8 +136,8 @@ export default function LoginPage() {
 
     try {
       await completeSignIn(code);
-    } catch {
-      setError('Une erreur est survenue');
+    } catch (err) {
+      setError(isTimeout(err) ? TIMEOUT_MESSAGE : 'Une erreur est survenue');
       setLoading(false);
     }
   };
