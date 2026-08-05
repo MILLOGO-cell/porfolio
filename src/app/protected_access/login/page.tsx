@@ -250,7 +250,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !email.trim() || !password}
             className={buttonClass('primary', 'md', 'w-full')}
           >
             {loading && (

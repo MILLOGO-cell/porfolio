@@ -162,7 +162,11 @@ export default function ResetPasswordPage() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={
+            loading ||
+            password.length < MIN_PASSWORD_LENGTH ||
+            password !== confirmPassword
+          }
           className={buttonClass('primary', 'md', 'w-full')}
         >
           {loading && (

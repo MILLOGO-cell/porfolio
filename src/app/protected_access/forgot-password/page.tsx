@@ -100,7 +100,7 @@ export default function ForgotPasswordPage() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !email.trim()}
           className={buttonClass('primary', 'md', 'w-full')}
         >
           {loading && (

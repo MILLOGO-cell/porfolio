@@ -68,6 +68,16 @@ export default function Contact() {
   const inputClass =
     "w-full rounded-xl border border-border bg-surface px-4 py-3 text-foreground placeholder:text-muted/70 transition-colors duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
 
+  /**
+   * Le bouton reste inactif tant que la saisie ne peut pas aboutir. Les seuils
+   * reprennent ceux du serveur (contactSchema) : un bouton actif qui renvoie
+   * une erreur de validation fait perdre du temps à l'utilisateur.
+   */
+  const isFormValid =
+    formData.name.trim().length >= 2 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim()) &&
+    formData.message.trim().length >= 10;
+
   return (
     <Template>
       <div className="mx-auto grid max-w-5xl gap-12 px-4 py-16 md:px-8 md:py-20 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
@@ -183,7 +193,7 @@ export default function Contact() {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isFormValid}
                 className={buttonClass("primary", "lg", "w-full")}
               >
                 {isSubmitting ? (

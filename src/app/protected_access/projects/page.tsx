@@ -848,7 +848,7 @@ export default function ProjectsPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={uploading}
+                  disabled={uploading || !formData.title.trim()}
                   className={buttonClass('primary', 'md')}
                 >
                   {editingProject ? 'Enregistrer' : 'Créer'}

@@ -530,6 +530,11 @@ export default function SettingsPage() {
                   <button
                     type="button"
                     onClick={handleChangePassword}
+                    disabled={
+                      !currentPassword ||
+                      newPassword.length < MIN_PASSWORD_LENGTH ||
+                      newPassword !== confirmPassword
+                    }
                     className={buttonClass('primary', 'md')}
                   >
                     Modifier le mot de passe

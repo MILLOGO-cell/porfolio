@@ -91,7 +91,7 @@ export default function Home() {
         />
 
         <div className="mx-auto max-w-5xl px-4 py-20 md:px-8 md:py-28">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+        <p className="inline-flex items-center rounded-full bg-accent-soft px-4 py-1.5 text-sm font-bold uppercase tracking-[0.14em] text-accent">
           {site.role}
         </p>
 
