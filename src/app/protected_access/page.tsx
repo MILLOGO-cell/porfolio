@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   LuArrowUpRight,
+  LuCircleCheck,
   LuExternalLink,
   LuEye,
   LuFolder,
@@ -14,11 +15,13 @@ import {
   LuSettings,
   LuStar,
   LuTag,
+  LuTriangleAlert,
   LuUsers,
 } from 'react-icons/lu';
 import AdminShell from '@/components/admin/AdminShell';
 import StatCard from '@/components/admin/StatCard';
 import { buttonClass } from '@/components/ui/button-styles';
+import Badge from '@/components/ui/Badge';
 
 interface Project {
   id: string;
@@ -225,20 +228,22 @@ export default function AdminDashboard() {
                       </div>
 
                       <div className="flex shrink-0 items-center gap-2">
-                        {!project.published && (
-                          <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted">
-                            Brouillon
-                          </span>
+                        {project.published ? (
+                          <Badge tone="success" icon={LuCircleCheck}>
+                            Publié
+                          </Badge>
+                        ) : (
+                          <Badge tone="neutral">Brouillon</Badge>
                         )}
                         {project.featured && (
-                          <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent">
+                          <Badge tone="info" icon={LuStar}>
                             Vedette
-                          </span>
+                          </Badge>
                         )}
                         {!isComplete(project) && (
-                          <span className="rounded-full border border-amber-500/40 px-2 py-0.5 text-xs text-amber-600 dark:text-amber-400">
+                          <Badge tone="warning" icon={LuTriangleAlert}>
                             À compléter
-                          </span>
+                          </Badge>
                         )}
                       </div>
                     </li>

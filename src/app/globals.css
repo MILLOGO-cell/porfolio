@@ -20,6 +20,15 @@
     --muted: 113 113 122;
     --accent: 79 70 229;
     --accent-soft: 238 242 255;
+
+    /* Couleurs porteuses de sens : chacune signale un état, elles ne servent
+       jamais de décoration. */
+    --success: 5 150 105;
+    --success-soft: 209 250 229;
+    --warning: 217 119 6;
+    --warning-soft: 254 243 199;
+    --info: 2 132 199;
+    --info-soft: 224 242 254;
   }
 
   .dark {
@@ -31,6 +40,13 @@
     --muted: 161 161 170;
     --accent: 129 140 248;
     --accent-soft: 30 27 75;
+
+    --success: 52 211 153;
+    --success-soft: 6 46 37;
+    --warning: 251 191 36;
+    --warning-soft: 60 39 6;
+    --info: 56 189 248;
+    --info-soft: 8 47 73;
   }
 
   html {

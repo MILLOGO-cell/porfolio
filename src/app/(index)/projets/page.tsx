@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { LuArrowRight, LuImageOff, LuSearchX } from "react-icons/lu";
+import { LuArrowRight, LuImageOff, LuSearchX, LuStar } from "react-icons/lu";
 import Template from "../../Template";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import Badge, { Chip } from "@/components/ui/Badge";
 
 interface Project {
   id: string;
@@ -73,10 +74,10 @@ export default function Projets() {
     : projects;
 
   const filterClass = (active: boolean) =>
-    `rounded-full px-4 py-1.5 text-sm transition-colors duration-200 ${
+    `rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-200 ${
       active
-        ? "bg-accent text-white"
-        : "border border-border text-muted hover:border-accent/40 hover:text-foreground"
+        ? "bg-accent text-white shadow-subtle"
+        : "bg-accent-soft/60 text-accent hover:bg-accent-soft"
     }`;
 
   return (
@@ -177,6 +178,14 @@ export default function Projets() {
                           <LuImageOff className="h-6 w-6 text-muted" aria-hidden />
                         </div>
                       )}
+
+                      {project.featured && (
+                        <div className="absolute right-3 top-3">
+                          <Badge tone="warning" icon={LuStar}>
+                            Vedette
+                          </Badge>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex flex-1 flex-col p-6">
@@ -204,11 +213,8 @@ export default function Projets() {
                       {project.stack.length > 0 && (
                         <ul className="mt-4 flex flex-wrap gap-1.5">
                           {project.stack.slice(0, 3).map((item) => (
-                            <li
-                              key={item}
-                              className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted"
-                            >
-                              {item}
+                            <li key={item}>
+                              <Chip>{item}</Chip>
                             </li>
                           ))}
                         </ul>

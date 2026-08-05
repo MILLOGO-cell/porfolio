@@ -5,16 +5,20 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {
+  LuCircleCheck,
   LuExternalLink,
   LuFolderPlus,
   LuImageOff,
   LuPencil,
   LuPlus,
+  LuStar,
   LuTrash2,
+  LuTriangleAlert,
   LuX,
 } from 'react-icons/lu';
 import AdminShell from '@/components/admin/AdminShell';
 import { buttonClass } from '@/components/ui/button-styles';
+import Badge from '@/components/ui/Badge';
 
 interface Project {
   id: string;
@@ -396,20 +400,22 @@ export default function ProjectsPage() {
 
               <div className="flex flex-1 flex-col p-5">
                 <div className="mb-2 flex flex-wrap items-center gap-1.5">
-                  {!project.published && (
-                    <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted">
-                      Brouillon
-                    </span>
+                  {project.published ? (
+                    <Badge tone="success" icon={LuCircleCheck}>
+                      Publié
+                    </Badge>
+                  ) : (
+                    <Badge tone="neutral">Brouillon</Badge>
                   )}
                   {project.featured && (
-                    <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent">
+                    <Badge tone="info" icon={LuStar}>
                       Vedette
-                    </span>
+                    </Badge>
                   )}
                   {!isComplete(project) && (
-                    <span className="rounded-full border border-amber-500/40 px-2 py-0.5 text-xs text-amber-600 dark:text-amber-400">
+                    <Badge tone="warning" icon={LuTriangleAlert}>
                       À compléter
-                    </span>
+                    </Badge>
                   )}
                 </div>
 
@@ -624,7 +630,7 @@ export default function ProjectsPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, period: e.target.value })
                       }
-                      placeholder="2024 — 2025"
+                      placeholder="2024 à 2025"
                       className={FIELD}
                     />
                   </div>

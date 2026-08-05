@@ -6,6 +6,7 @@ import { LuArrowLeft, LuArrowUpRight, LuGithub } from 'react-icons/lu';
 import Template from '../../../Template';
 import { prisma } from '@/lib/db';
 import { buttonClass } from '@/components/ui/button-styles';
+import { Chip } from '@/components/ui/Badge';
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -165,11 +166,8 @@ export default async function ProjectPage({ params }: PageProps) {
             </h2>
             <ul className="flex flex-wrap gap-2">
               {project.stack.map((item) => (
-                <li
-                  key={item}
-                  className="rounded-full border border-border px-3 py-1 text-sm text-foreground"
-                >
-                  {item}
+                <li key={item}>
+                  <Chip>{item}</Chip>
                 </li>
               ))}
             </ul>

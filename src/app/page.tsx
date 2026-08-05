@@ -12,6 +12,7 @@ import FeaturedProjects from "@/components/FeaturedProjects";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { buttonClass } from "@/components/ui/button-styles";
+import { Chip } from "@/components/ui/Badge";
 import { site } from "@/lib/site";
 
 /**
@@ -19,24 +20,33 @@ import { site } from "@/lib/site";
  * prestations. Trois entrées, volontairement : au-delà, ça redevient une
  * plaquette commerciale.
  */
-const expertise: { icon: IconType; title: string; description: string }[] = [
+/** Chaque domaine porte sa propre teinte, pour distinguer les cartes au premier coup d'œil. */
+const expertise: {
+  icon: IconType;
+  title: string;
+  description: string;
+  tint: string;
+}[] = [
   {
     icon: LuBuilding2,
     title: "Systèmes bancaires et paiements",
     description:
       "Services backend, intégration de core banking et de plateformes de paiement, échanges REST et SOAP, recette et suivi des anomalies.",
+    tint: "bg-info-soft text-info",
   },
   {
     icon: LuShieldCheck,
     title: "Contrôle interne, audit et risques",
     description:
-      "Cartographie des risques, plans de contrôle, missions d'audit, incidents et actions correctives — de la conception des parcours à la mise en production.",
+      "Cartographie des risques, plans de contrôle, missions d'audit, incidents et actions correctives, de la conception des parcours à la mise en production.",
+    tint: "bg-accent-soft text-accent",
   },
   {
     icon: LuTriangleAlert,
     title: "Conformité et détection de fraude",
     description:
       "Filtrage des clients, listes de sanctions, qualification des alertes et règles de surveillance des opérations, avec traçabilité et contrôle des accès.",
+    tint: "bg-warning-soft text-warning",
   },
 ];
 
@@ -134,10 +144,12 @@ export default function Home() {
           />
 
           <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
-            {expertise.map(({ icon: Icon, title, description }, index) => (
+            {expertise.map(({ icon: Icon, title, description, tint }, index) => (
               <ScrollReveal key={title} delay={0.1 + index * 0.08} y={24}>
                 <article className="flex h-full flex-col rounded-2xl border border-border bg-surface p-6 transition-colors duration-200 hover:border-accent/40">
-                  <span className="mb-5 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent">
+                  <span
+                    className={`mb-5 inline-flex h-10 w-10 items-center justify-center rounded-xl ${tint}`}
+                  >
                     <Icon className="h-5 w-5" aria-hidden />
                   </span>
                   <h3 className="text-base font-semibold text-foreground">
@@ -174,12 +186,7 @@ export default function Home() {
                   </dt>
                   <dd className="mt-3 flex flex-wrap gap-2">
                     {items.map((item) => (
-                      <span
-                        key={item}
-                        className="rounded-full border border-border px-3 py-1 text-sm text-foreground"
-                      >
-                        {item}
-                      </span>
+                      <Chip key={item}>{item}</Chip>
                     ))}
                   </dd>
                 </div>

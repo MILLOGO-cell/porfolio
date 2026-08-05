@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { LuArrowRight, LuImageOff } from "react-icons/lu";
+import { Chip } from "@/components/ui/Badge";
 
 interface Project {
   id: string;
@@ -126,11 +127,8 @@ export default function FeaturedProjects() {
               {project.stack.length > 0 && (
                 <ul className="flex flex-wrap gap-2 pt-1">
                   {project.stack.slice(0, 5).map((item) => (
-                    <li
-                      key={item}
-                      className="rounded-full border border-border px-3 py-1 text-xs text-muted"
-                    >
-                      {item}
+                    <li key={item}>
+                      <Chip>{item}</Chip>
                     </li>
                   ))}
                 </ul>

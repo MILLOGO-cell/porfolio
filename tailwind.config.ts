@@ -24,6 +24,18 @@ const config: Config = {
           DEFAULT: token("accent"),
           soft: token("accent-soft"),
         },
+        success: {
+          DEFAULT: token("success"),
+          soft: token("success-soft"),
+        },
+        warning: {
+          DEFAULT: token("warning"),
+          soft: token("warning-soft"),
+        },
+        info: {
+          DEFAULT: token("info"),
+          soft: token("info-soft"),
+        },
       },
       boxShadow: {
         // Une seule échelle, discrète : la profondeur vient des bordures.
