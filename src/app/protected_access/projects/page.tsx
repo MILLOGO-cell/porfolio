@@ -707,7 +707,7 @@ export default function ProjectsPage() {
                     onClick={() => setImageInputType('url')}
                     className={filterButton(imageInputType === 'url')}
                   >
-                    URL externe
+                    Saisir un chemin
                   </button>
                 </div>
 
@@ -725,15 +725,28 @@ export default function ProjectsPage() {
                     )}
                   </div>
                 ) : (
+                  // `type="text"` et non `type="url"` : la validation native du
+                  // navigateur rejette les chemins relatifs comme
+                  // /projets/mon-projet.webp et bloque alors tout le formulaire,
+                  // ce qui obligeait a vider le champ pour pouvoir enregistrer.
                   <input
-                    type="url"
+                    type="text"
                     value={formData.imageUrl}
                     onChange={(e) =>
                       setFormData({ ...formData, imageUrl: e.target.value })
                     }
-                    placeholder="https://..."
+                    placeholder="/projets/mon-projet.webp ou https://..."
                     className={FIELD}
                   />
+                )}
+
+                {/* Le chemin reste lisible même quand l'onglet « Envoyer un
+                    fichier » masque le champ de saisie : sans cela, on croit
+                    la fiche sans image alors qu'elle en a une. */}
+                {formData.imageUrl && (
+                  <p className={`${HINT} break-all`}>
+                    Image actuelle : <code>{formData.imageUrl}</code>
+                  </p>
                 )}
 
                 {formData.imageUrl && (
@@ -743,7 +756,7 @@ export default function ProjectsPage() {
                       alt="Aperçu"
                       width={400}
                       height={200}
-                      className="h-40 w-full rounded-xl border border-border object-cover"
+                      className="h-40 w-full rounded-xl border border-border object-cover object-top"
                     />
                     <button
                       type="button"
