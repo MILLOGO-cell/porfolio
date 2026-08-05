@@ -33,6 +33,22 @@ export default function Badge({
   );
 }
 
+/** Teinte associée à chaque état d'avancement. */
+const statusTones: Record<string, BadgeTone> = {
+  'En cours': 'warning',
+  Proposition: 'info',
+  Maintenu: 'success',
+};
+
+/**
+ * Badge d'état d'avancement. Ne rend rien pour un projet livré : la plupart
+ * le sont, et une pastille partout ne signalerait plus rien.
+ */
+export function StatusBadge({ status }: { status: string | null }) {
+  if (!status) return null;
+  return <Badge tone={statusTones[status] ?? 'neutral'}>{status}</Badge>;
+}
+
 /** Puce de technologie, teintée pour se distinguer du texte courant. */
 export function Chip({ children }: { children: React.ReactNode }) {
   return (

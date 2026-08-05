@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { LuArrowLeft, LuArrowUpRight, LuGithub } from 'react-icons/lu';
+import { LuArrowLeft, LuArrowUpRight, LuGithub, LuLock } from 'react-icons/lu';
 import Template from '../../../Template';
 import { prisma } from '@/lib/db';
 import { buttonClass } from '@/components/ui/button-styles';
-import { Chip } from '@/components/ui/Badge';
+import { Chip, StatusBadge } from '@/components/ui/Badge';
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -34,6 +34,8 @@ async function getProject(slug: string) {
       repoUrl: true,
       imageUrl: true,
       gallery: true,
+      confidential: true,
+      status: true,
     },
   });
 }
@@ -137,6 +139,12 @@ export default async function ProjectPage({ params }: PageProps) {
         </Link>
 
         <header className="mt-8">
+          {project.status && (
+            <div className="mb-4">
+              <StatusBadge status={project.status} />
+            </div>
+          )}
+
           <h1 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">
             {project.title}
           </h1>
@@ -161,9 +169,23 @@ export default async function ProjectPage({ params }: PageProps) {
           )}
         </header>
 
+        {/* Produit non diffusable : on l'annonce plutôt que de laisser un vide
+            qui ressemblerait à une fiche incomplète. */}
+        {project.confidential && (
+          <div className="mt-10 flex items-start gap-3 rounded-xl border border-border bg-surface-muted p-5">
+            <LuLock className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden />
+            <p className="text-sm leading-relaxed text-muted">
+              Les écrans de cette application ne sont pas diffusés. Il s&apos;agit
+              d&apos;un produit exploité en entreprise, dont les interfaces et les
+              données relèvent de la confidentialité. La fiche décrit la
+              conception et les choix techniques, sans visuel.
+            </p>
+          </div>
+        )}
+
         {/* 16/9, cadré sur le haut : une capture de site est reconnaissable par
             son en-tête et sa bannière, pas par son pied de page. */}
-        {project.imageUrl && (
+        {!project.confidential && project.imageUrl && (
           <div className="relative mt-10 aspect-[16/9] overflow-hidden rounded-xl border border-border bg-surface-muted">
             <Image
               src={project.imageUrl}
@@ -187,7 +209,7 @@ export default async function ProjectPage({ params }: PageProps) {
           )}
         </div>
 
-        {project.gallery.length > 0 && (
+        {!project.confidential && project.gallery.length > 0 && (
           <section className="mt-10 border-t border-border pt-8">
             <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-accent">
               Aperçus

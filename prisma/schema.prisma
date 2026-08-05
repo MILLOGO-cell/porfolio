@@ -73,6 +73,12 @@ model Project {
   position    Int      @default(0)
   /// Permet de préparer une fiche sans la publier.
   published   Boolean  @default(true)
+  /// Produit dont les écrans ne peuvent pas être diffusés. La fiche décrit
+  /// alors la conception et les choix techniques, sans visuel.
+  confidential Boolean @default(false)
+  /// État d'avancement affiché en badge (voir PROJECT_STATUSES).
+  /// Vide pour un projet livré, cas le plus courant.
+  status      String?
 
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")

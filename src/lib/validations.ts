@@ -50,6 +50,19 @@ export const PROJECT_CATEGORIES = [
 export type ProjectCategory = (typeof PROJECT_CATEGORIES)[number];
 
 /**
+ * États d'avancement. Un projet livré n'affiche aucun badge : le signaler
+ * reviendrait à mettre une pastille sur presque toutes les fiches, ce qui
+ * n'apprendrait plus rien.
+ */
+export const PROJECT_STATUSES = [
+  'En cours',
+  'Proposition',
+  'Maintenu',
+] as const;
+
+export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
+
+/**
  * Dérive un identifiant d'URL depuis un titre. Utilisé côté serveur quand
  * l'administrateur laisse le champ vide, et côté formulaire pour la
  * prévisualisation — d'où l'export.
@@ -105,6 +118,10 @@ export const projectSchema = z
     tags: z.array(z.string().trim().min(1).max(40)).max(20).default([]),
     featured: z.boolean().default(false),
     published: z.boolean().default(true),
+    confidential: z.boolean().default(false),
+    status: z
+      .union([z.enum(PROJECT_STATUSES), z.literal(''), z.null()])
+      .optional(),
     position: z.number().int().min(0).max(9999).default(0),
   })
   .transform((data) => {
@@ -122,6 +139,7 @@ export const projectSchema = z
       challenges: emptyToNull(data.challenges),
       outcome: emptyToNull(data.outcome),
       category: emptyToNull(data.category),
+      status: emptyToNull(data.status),
       client: emptyToNull(data.client),
       period: emptyToNull(data.period),
       url: emptyToNull(data.url),

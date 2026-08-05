@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { LuArrowRight, LuImageOff, LuSearchX, LuStar } from "react-icons/lu";
+import { LuArrowRight, LuImageOff, LuLock, LuSearchX, LuStar } from "react-icons/lu";
 import Template from "../../Template";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import Badge, { Chip } from "@/components/ui/Badge";
+import Badge, { Chip, StatusBadge } from "@/components/ui/Badge";
 import { PROJECT_CATEGORIES } from "@/lib/validations";
 
 interface Project {
@@ -22,6 +22,8 @@ interface Project {
   client: string | null;
   period: string | null;
   featured: boolean;
+  confidential: boolean;
+  status: string | null;
 }
 
 const UNCATEGORIZED = "Autres";
@@ -47,7 +49,16 @@ function ProjectCard({ project, delay }: { project: Project; delay: number }) {
     <ScrollReveal delay={delay} y={24}>
       <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-colors duration-200 hover:border-accent/40">
         <div className="relative h-44 overflow-hidden bg-surface-muted">
-          {project.imageUrl ? (
+          {project.confidential ? (
+            // Vignette assumée plutôt qu'une icône d'image manquante : l'absence
+            // de visuel est un choix, pas un oubli.
+            <div className="flex h-full flex-col items-center justify-center gap-2 bg-accent-soft/40 px-6 text-center">
+              <LuLock className="h-5 w-5 text-accent" aria-hidden />
+              <span className="text-xs font-medium text-muted">
+                Visuels non diffusés
+              </span>
+            </div>
+          ) : project.imageUrl ? (
             <Image
               src={project.imageUrl}
               alt={project.title}
@@ -61,13 +72,14 @@ function ProjectCard({ project, delay }: { project: Project; delay: number }) {
             </div>
           )}
 
-          {project.featured && (
-            <div className="absolute right-3 top-3">
-              <Badge tone="warning" icon={LuStar}>
+          <div className="absolute right-3 top-3 flex flex-wrap justify-end gap-1.5">
+            <StatusBadge status={project.status} />
+            {project.featured && (
+              <Badge tone="accent" icon={LuStar}>
                 Vedette
               </Badge>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         <div className="flex flex-1 flex-col p-6">

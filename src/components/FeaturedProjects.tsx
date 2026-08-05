@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { LuArrowRight, LuImageOff } from "react-icons/lu";
-import { Chip } from "@/components/ui/Badge";
+import { LuArrowRight, LuImageOff, LuLock } from "react-icons/lu";
+import { Chip, StatusBadge } from "@/components/ui/Badge";
 
 interface Project {
   id: string;
@@ -17,6 +17,8 @@ interface Project {
   stack: string[];
   client: string | null;
   period: string | null;
+  confidential: boolean;
+  status: string | null;
 }
 
 function ProjectSkeleton() {
@@ -103,11 +105,14 @@ export default function FeaturedProjects() {
                 index % 2 === 1 ? "lg:order-2" : ""
               }`}
             >
-              {meta.length > 0 && (
-                <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted">
-                  {meta.join(" · ")}
-                </p>
-              )}
+              <div className="flex flex-wrap items-center gap-3">
+                {meta.length > 0 && (
+                  <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted">
+                    {meta.join(" · ")}
+                  </p>
+                )}
+                <StatusBadge status={project.status} />
+              </div>
 
               <h3 className="text-pretty text-xl font-semibold tracking-tight text-foreground md:text-2xl">
                 <Link
@@ -146,10 +151,27 @@ export default function FeaturedProjects() {
               </Link>
             </div>
 
+            {project.confidential && (
+              <div
+                className={`flex aspect-[16/10] flex-col items-center justify-center gap-3 rounded-xl border border-border bg-accent-soft/40 px-8 text-center ${
+                  index % 2 === 1 ? "lg:order-1" : ""
+                }`}
+              >
+                <LuLock className="h-6 w-6 text-accent" aria-hidden />
+                <p className="text-sm font-medium text-foreground">
+                  Visuels non diffusés
+                </p>
+                <p className="max-w-xs text-xs leading-relaxed text-muted">
+                  Produit exploité en entreprise, dont les interfaces relèvent de
+                  la confidentialité.
+                </p>
+              </div>
+            )}
+
             {/* 16/10 : les captures de sites arrivent en format large (autour
                 de 2:1). Un cadre 4/3 les amputait de moitié. `object-top`
                 conserve l'en-tête et la bannière, la partie reconnaissable. */}
-            {project.imageUrl && (
+            {!project.confidential && project.imageUrl && (
               <div
                 className={`relative aspect-[16/10] overflow-hidden rounded-xl border border-border bg-surface-muted ${
                   index % 2 === 1 ? "lg:order-1" : ""

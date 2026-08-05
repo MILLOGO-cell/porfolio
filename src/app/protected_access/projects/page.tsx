@@ -19,7 +19,7 @@ import {
 import AdminShell from '@/components/admin/AdminShell';
 import { buttonClass } from '@/components/ui/button-styles';
 import Badge from '@/components/ui/Badge';
-import { PROJECT_CATEGORIES } from '@/lib/validations';
+import { PROJECT_CATEGORIES, PROJECT_STATUSES } from '@/lib/validations';
 
 interface Project {
   id: string;
@@ -42,6 +42,8 @@ interface Project {
   tags: string[];
   featured: boolean;
   published: boolean;
+  confidential: boolean;
+  status: string | null;
   position: number;
   createdAt: string;
   updatedAt: string;
@@ -67,6 +69,8 @@ const EMPTY_FORM = {
   tags: '',
   featured: false,
   published: true,
+  confidential: false,
+  status: '',
   position: 0,
 };
 
@@ -218,6 +222,8 @@ export default function ProjectsPage() {
       tags: splitList(formData.tags),
       featured: formData.featured,
       published: formData.published,
+      confidential: formData.confidential,
+      status: formData.status || null,
       position: Number(formData.position) || 0,
     };
 
@@ -284,6 +290,8 @@ export default function ProjectsPage() {
       tags: project.tags.join(', '),
       featured: project.featured,
       published: project.published ?? true,
+      confidential: project.confidential ?? false,
+      status: project.status || '',
       position: project.position ?? 0,
     });
     setImageInputType(project.imageUrl?.startsWith('/uploads') ? 'upload' : 'url');
@@ -641,6 +649,31 @@ export default function ProjectsPage() {
                   </p>
                 </div>
 
+                <div>
+                  <label htmlFor="status" className={LABEL}>
+                    État d&apos;avancement
+                  </label>
+                  <select
+                    id="status"
+                    value={formData.status}
+                    onChange={(e) =>
+                      setFormData({ ...formData, status: e.target.value })
+                    }
+                    className={FIELD}
+                  >
+                    <option value="">Livré (aucun badge)</option>
+                    {PROJECT_STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                  <p className={HINT}>
+                    Affiche un badge coloré sur la fiche. Laisser vide pour un
+                    projet livré : un badge partout ne signalerait plus rien.
+                  </p>
+                </div>
+
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <label htmlFor="client" className={LABEL}>
@@ -858,6 +891,21 @@ export default function ProjectsPage() {
                     className="h-4 w-4 rounded border-border text-accent focus:ring-accent"
                   />
                   Mettre en vedette sur la page d&apos;accueil
+                </label>
+
+                <label className="flex items-center gap-3 text-sm text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={formData.confidential}
+                    onChange={(e) =>
+                      setFormData({ ...formData, confidential: e.target.checked })
+                    }
+                    className="h-4 w-4 rounded border-border text-accent focus:ring-accent"
+                  />
+                  Confidentiel
+                  <span className="text-xs text-muted">
+                    (masque les visuels et affiche une mention à la place)
+                  </span>
                 </label>
 
                 <label className="flex items-center gap-3 text-sm text-foreground">

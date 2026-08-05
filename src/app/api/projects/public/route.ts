@@ -19,6 +19,8 @@ const publicSelect = {
   client: true,
   period: true,
   featured: true,
+  confidential: true,
+  status: true,
   createdAt: true,
 } satisfies Prisma.ProjectSelect;
 
