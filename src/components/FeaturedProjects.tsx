@@ -129,7 +129,7 @@ export default function FeaturedProjects() {
                 </p>
               )}
 
-              {project.stack.length > 0 && (
+              {!project.confidential && project.stack.length > 0 && (
                 <ul className="flex flex-wrap gap-2 pt-1">
                   {project.stack.slice(0, 5).map((item) => (
                     <li key={item}>

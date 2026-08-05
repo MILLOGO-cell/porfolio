@@ -235,9 +235,11 @@ export default async function ProjectPage({ params }: PageProps) {
           </section>
         )}
 
-        {project.stack.length > 0 && (
+        {/* La stack n'est pas affichée pour un produit confidentiel : elle
+            indiquerait quelles vulnérabilités connues aller chercher. */}
+        {!project.confidential && project.stack.length > 0 && (
           <section className="mt-10 border-t border-border pt-8">
-            <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+            <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-accent">
               Stack technique
             </h2>
             <ul className="flex flex-wrap gap-2">

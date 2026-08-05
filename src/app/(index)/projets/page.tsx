@@ -104,7 +104,7 @@ function ProjectCard({ project, delay }: { project: Project; delay: number }) {
             </p>
           )}
 
-          {project.stack.length > 0 && (
+          {!project.confidential && project.stack.length > 0 && (
             <ul className="mt-4 flex flex-wrap gap-1.5">
               {project.stack.slice(0, 3).map((item) => (
                 <li key={item}>
