@@ -3,9 +3,12 @@ import type { IconType } from "react-icons";
 import {
   LuArrowRight,
   LuArrowUpRight,
+  LuClipboardList,
+  LuGitPullRequest,
+  LuLandmark,
   LuMail,
+  LuNetwork,
   LuPencilRuler,
-  LuServer,
   LuShieldCheck,
 } from "react-icons/lu";
 import Template from "./Template";
@@ -22,10 +25,8 @@ import { site } from "@/lib/site";
  * plaquette commerciale.
  */
 /**
- * Domaines d'intervention. Formulés par métier plutôt que par secteur : le
- * détail du contexte bancaire est renvoyé à la mention de LICELI plus bas,
- * ce qui évite d'enfermer le profil dans une seule industrie.
- * Chaque carte porte sa teinte pour se distinguer au premier coup d'œil.
+ * Domaines d'expertise, ordonnés comme un cycle de réalisation : du cadrage
+ * jusqu'à la mise en production. Le rang est affiché, il porte cette lecture.
  */
 const expertise: {
   icon: IconType;
@@ -34,25 +35,46 @@ const expertise: {
   tint: string;
 }[] = [
   {
-    icon: LuServer,
-    title: "Applications métiers et API",
+    icon: LuClipboardList,
+    title: "Cadrage et conception fonctionnelle",
     description:
-      "Conception et développement de services backend, d'API REST et d'intégrations entre systèmes existants, jusqu'à la recette et la mise en production.",
+      "Analyse des besoins, animation d'ateliers métier, modélisation des processus et rédaction de cahiers des charges et de spécifications fonctionnelles détaillées.",
+    tint: "bg-accent-soft text-accent",
+  },
+  {
+    icon: LuNetwork,
+    title: "Architecture logicielle et API",
+    description:
+      "Conception d'architectures modulaires, de services backend et d'API sécurisées pour intégrer des applications, des systèmes existants et des partenaires externes.",
     tint: "bg-info-soft text-info",
   },
   {
-    icon: LuShieldCheck,
-    title: "Contrôle interne, audit et risques",
+    icon: LuLandmark,
+    title: "Banque digitale et systèmes de paiement",
     description:
-      "Cartographie des risques, plans de contrôle, missions d'audit, suivi des incidents et des actions correctives.",
+      "Conception de solutions de mobile banking, de gestion des comptes, de transferts, de paiements et d'intégration avec les systèmes bancaires et les infrastructures financières.",
+    tint: "bg-success-soft text-success",
+  },
+  {
+    icon: LuShieldCheck,
+    title: "Conformité, fraude et contrôle interne",
+    description:
+      "Digitalisation des processus de LCB-FT, de filtrage des sanctions, de détection de fraude, de gestion des risques, de contrôle permanent et d'audit interne.",
+    tint: "bg-warning-soft text-warning",
+  },
+  {
+    icon: LuGitPullRequest,
+    title: "Pilotage technique et qualité",
+    description:
+      "Organisation du travail des équipes, découpage des fonctionnalités, revues de code, suivi des développements, stratégie de tests et accompagnement jusqu'à la mise en production.",
     tint: "bg-accent-soft text-accent",
   },
   {
     icon: LuPencilRuler,
-    title: "Interfaces et parcours utilisateur",
+    title: "Interfaces et parcours métier",
     description:
-      "Wireframes, maquettes haute fidélité et prototypes sous Figma, puis développement des interfaces en React et Next.js.",
-    tint: "bg-warning-soft text-warning",
+      "Conception de parcours utilisateurs, de tableaux de bord et d'interfaces adaptées aux réalités opérationnelles, depuis les premières maquettes jusqu'à leur développement.",
+    tint: "bg-info-soft text-info",
   },
 ];
 
@@ -157,46 +179,54 @@ export default function Home() {
           <SectionHeader
             id="expertise"
             eyebrow="Expertise"
-            title="Les domaines sur lesquels j'interviens"
-            subtitle="Des environnements où l'exactitude, la traçabilité et le contrôle des accès ne sont pas négociables."
+            title="De l'analyse métier à la mise en production"
+            subtitle="J'interviens sur l'ensemble du cycle de réalisation de solutions numériques complexes : cadrage du besoin, conception fonctionnelle et technique, coordination des développements, intégration, sécurisation et mise en production."
           />
 
-          <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {/* Deux colonnes plutôt que trois : les six entrees portent un texte
+              dense, une colonne trop etroite les rendrait illisibles. */}
+          <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2">
             {expertise.map(({ icon: Icon, title, description, tint }, index) => (
-              <ScrollReveal key={title} delay={0.1 + index * 0.08} y={24}>
-                <article className="flex h-full flex-col rounded-2xl border border-border bg-surface p-6 transition-colors duration-200 hover:border-accent/40">
+              <ScrollReveal key={title} delay={0.08 + index * 0.06} y={24}>
+                <article className="flex h-full gap-4 rounded-2xl border border-border bg-surface p-6 transition-colors duration-200 hover:border-accent/40">
                   <span
-                    className={`mb-5 inline-flex h-10 w-10 items-center justify-center rounded-xl ${tint}`}
+                    className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tint}`}
                   >
                     <Icon className="h-5 w-5" aria-hidden />
                   </span>
-                  <h3 className="text-base font-semibold text-foreground">
-                    {title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">
-                    {description}
-                  </p>
+
+                  <div className="min-w-0">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xs font-bold tabular-nums text-muted">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <h3 className="text-base font-bold text-foreground">
+                        {title}
+                      </h3>
+                    </div>
+                    <p className="mt-2 hyphens-auto text-justify text-sm leading-relaxed text-muted">
+                      {description}
+                    </p>
+                  </div>
                 </article>
               </ScrollReveal>
             ))}
           </div>
 
-          {/* Le contexte bancaire et conformité tient en une phrase, rattaché à
-              l'employeur : mentionné sans occuper toute la section. */}
           <ScrollReveal delay={0.3} y={16}>
-            <p className="mt-8 text-sm leading-relaxed text-muted">
-              Ces travaux sont menés chez{" "}
+            <p className="mt-8 hyphens-auto text-justify text-sm leading-relaxed text-muted">
+              Ces expertises sont mises en œuvre au sein de{" "}
               <a
                 href={site.employer.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-0.5 font-medium text-accent transition-opacity hover:opacity-80"
+                className="inline-flex items-center gap-0.5 font-bold text-accent transition-opacity hover:opacity-80"
               >
                 {site.employer.name}
                 <LuArrowUpRight className="h-3.5 w-3.5" aria-hidden />
               </a>
-              , notamment sur des projets bancaires, de conformité et de
-              détection de fraude.
+              , principalement sur des projets bancaires, financiers,
+              réglementaires et de digitalisation des processus métier.
             </p>
           </ScrollReveal>
         </div>
