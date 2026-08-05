@@ -1,10 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
+import {
+  LuExternalLink,
+  LuFolderPlus,
+  LuImageOff,
+  LuPencil,
+  LuPlus,
+  LuTrash2,
+  LuX,
+} from 'react-icons/lu';
+import AdminShell from '@/components/admin/AdminShell';
+import { buttonClass } from '@/components/ui/button-styles';
 
 interface Project {
   id: string;
@@ -58,15 +68,18 @@ const splitList = (value: string) =>
     .map((item) => item.trim())
     .filter(Boolean);
 
-const FIELD_CLASS =
-  'w-full px-3 py-2 rounded-lg border border-[#d4c9f5] dark:border-[#4e2c9f] bg-white dark:bg-[#140727] text-sm text-[#1f1238] dark:text-white placeholder-[#9e91d0] focus:outline-none focus:ring-2 focus:ring-[#5f2eba] focus:border-[#5f2eba]';
+const FIELD =
+  'w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted/70 transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20';
+
+const LABEL = 'mb-1.5 block text-sm font-medium text-foreground';
+const HINT = 'mt-1.5 text-xs text-muted';
 
 /** Les quatre blocs qui font la différence entre une vignette et une étude de cas. */
 const CASE_STUDY_FIELDS = [
   {
     key: 'context' as const,
     label: 'Contexte',
-    hint: "Le besoin métier et les contraintes de départ.",
+    hint: 'Le besoin métier et les contraintes de départ.',
   },
   {
     key: 'role' as const,
@@ -86,7 +99,7 @@ const CASE_STUDY_FIELDS = [
 ];
 
 export default function ProjectsPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -99,6 +112,28 @@ export default function ProjectsPage() {
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [formErrors, setFormErrors] = useState<Record<string, string[]>>({});
 
+  // Pas de setLoading(true) : l'état initial vaut déjà true, et un setState
+  // synchrone appelé depuis un effet déclenche un rendu en cascade.
+  const fetchProjects = useCallback(async () => {
+    try {
+      let url = '/api/projects';
+      const params = new URLSearchParams();
+
+      if (filter === 'featured') params.append('featured', 'true');
+      if (searchTag) params.append('tag', searchTag);
+      if (params.toString()) url += `?${params.toString()}`;
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.success) setProjects(data.data.projects);
+    } catch (error) {
+      console.error('Erreur lors du chargement des projets:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [filter, searchTag]);
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/protected_access/login');
@@ -107,40 +142,12 @@ export default function ProjectsPage() {
 
   useEffect(() => {
     if (status === 'authenticated') {
+      // La règle ne suit pas les `await` : les setState de fetchProjects sont
+      // postérieurs au fetch, donc asynchrones.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchProjects();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, filter, searchTag]);
-
-  const fetchProjects = async () => {
-    try {
-      setLoading(true);
-      let url = '/api/projects';
-      const params = new URLSearchParams();
-
-      if (filter === 'featured') {
-        params.append('featured', 'true');
-      }
-      if (searchTag) {
-        params.append('tag', searchTag);
-      }
-
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data.success) {
-        setProjects(data.data.projects);
-      }
-    } catch (error) {
-      console.error('Erreur lors du chargement des projets:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [status, fetchProjects]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -199,7 +206,9 @@ export default function ProjectsPage() {
     };
 
     try {
-      const url = editingProject ? `/api/projects/${editingProject.id}` : '/api/projects';
+      const url = editingProject
+        ? `/api/projects/${editingProject.id}`
+        : '/api/projects';
       const method = editingProject ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -223,19 +232,14 @@ export default function ProjectsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
-      return;
-    }
+  const handleDelete = async (project: Project) => {
+    if (!confirm(`Supprimer définitivement « ${project.title} » ?`)) return;
 
     try {
-      const response = await fetch(`/api/projects/${id}`, {
+      const response = await fetch(`/api/projects/${project.id}`, {
         method: 'DELETE',
       });
-
-      if (response.ok) {
-        fetchProjects();
-      }
+      if (response.ok) fetchProjects();
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
     }
@@ -243,6 +247,7 @@ export default function ProjectsPage() {
 
   const openEditModal = (project: Project) => {
     setEditingProject(project);
+    setFormErrors({});
     setFormData({
       slug: project.slug ?? '',
       title: project.title,
@@ -275,388 +280,422 @@ export default function ProjectsPage() {
     setShowModal(true);
   };
 
-  if (status === 'loading' || !session) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f5f2ff] dark:bg-[#090016]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5f2eba]" />
-      </div>
-    );
+  if (status === 'loading' || status === 'unauthenticated') {
+    return null;
   }
 
+  const isComplete = (p: Project) =>
+    Boolean(p.context && p.role && p.challenges && p.outcome);
+
+  const filterButton = (active: boolean) =>
+    `rounded-full px-4 py-2 text-sm transition-colors ${
+      active
+        ? 'bg-accent text-white'
+        : 'border border-border text-muted hover:border-accent/40 hover:text-foreground'
+    }`;
+
   return (
-    <div className="min-h-screen bg-[#f5f2ff] dark:bg-[#090016]">
-      <div className="bg-white/95 dark:bg-[#0f041f] border-b border-[#d4c9f5] dark:border-[#3b285f]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link
-                href="/admin"
-                className="text-sm font-medium text-[#5f2eba] hover:text-[#4e2c9f] dark:text-[#c4b9f0] dark:hover:text-white underline-offset-4 hover:underline"
-              >
-                Retour au dashboard
-              </Link>
-              <h1 className="text-2xl font-bold text-[#1f1238] dark:text-white">
-                Gestion des projets
-              </h1>
-            </div>
-            <button
-              onClick={openCreateModal}
-              className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#5f2eba] hover:bg-[#4e2c9f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5f2eba] focus:ring-offset-[#f5f2ff] dark:focus:ring-offset-[#0f041f] transition-colors"
-            >
-              Nouveau projet
-            </button>
-          </div>
+    <AdminShell
+      title="Projets"
+      description="Créer, modifier et publier les fiches du portfolio."
+      actions={
+        <button
+          type="button"
+          onClick={openCreateModal}
+          className={buttonClass('primary', 'sm')}
+        >
+          <LuPlus className="h-4 w-4" aria-hidden />
+          Nouveau projet
+        </button>
+      }
+    >
+      <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4 sm:flex-row sm:items-end">
+        <div className="flex-1">
+          <label htmlFor="tag-filter" className={LABEL}>
+            Filtrer par tag
+          </label>
+          <input
+            id="tag-filter"
+            type="text"
+            placeholder="React, Django, Next.js…"
+            value={searchTag}
+            onChange={(e) => setSearchTag(e.target.value)}
+            className={FIELD}
+          />
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setFilter('all')}
+            className={filterButton(filter === 'all')}
+          >
+            Tous ({projects.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter('featured')}
+            className={filterButton(filter === 'featured')}
+          >
+            En vedette
+          </button>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white/95 dark:bg-[#0f041f] rounded-2xl shadow-md border border-[#d4c9f5] dark:border-[#3b285f] p-4 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-2">
-                Filtrer par tag
-              </label>
-              <input
-                type="text"
-                placeholder="React, Next.js, TypeScript..."
-                value={searchTag}
-                onChange={(e) => setSearchTag(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-[#d4c9f5] dark:border-[#4e2c9f] bg-white dark:bg-[#140727] text-sm text-[#1f1238] dark:text-white placeholder-[#9e91d0] focus:outline-none focus:ring-2 focus:ring-[#5f2eba] focus:border-[#5f2eba]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-2">
-                Affichage
-              </label>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setFilter('all')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold ${filter === 'all'
-                    ? 'bg-[#5f2eba] text-white'
-                    : 'bg-white dark:bg-[#140727] text-[#3b2b6a] dark:text-[#e7e0ff] border border-[#d4c9f5] dark:border-[#4e2c9f] hover:bg-[#f0eaff] dark:hover:bg-[#1b0b33]'
-                    }`}
-                >
-                  Tous ({projects.length})
-                </button>
-                <button
-                  onClick={() => setFilter('featured')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold ${filter === 'featured'
-                    ? 'bg-[#5f2eba] text-white'
-                    : 'bg-white dark:bg-[#140727] text-[#3b2b6a] dark:text-[#e7e0ff] border border-[#d4c9f5] dark:border-[#4e2c9f] hover:bg-[#f0eaff] dark:hover:bg-[#1b0b33]'
-                    }`}
-                >
-                  En vedette
-                </button>
-              </div>
-            </div>
-          </div>
+      {loading ? (
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="h-64 animate-pulse rounded-2xl border border-border bg-surface-muted"
+            />
+          ))}
         </div>
-
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5f2eba]" />
-          </div>
-        ) : projects.length === 0 ? (
-          <div className="bg-white/95 dark:bg-[#0f041f] rounded-2xl shadow-md border border-[#d4c9f5] dark:border-[#3b285f] text-center py-12 px-6">
-            <h3 className="text-sm font-semibold text-[#1f1238] dark:text-white">
-              Aucun projet
-            </h3>
-            <p className="mt-1 text-sm text-[#4b3a7a] dark:text-[#c4b9f0]">
-              Commencez par créer votre premier projet.
+      ) : projects.length === 0 ? (
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-border py-20 text-center">
+          <LuFolderPlus className="h-7 w-7 text-muted" aria-hidden />
+          <div>
+            <h2 className="font-semibold text-foreground">Aucun projet</h2>
+            <p className="mt-1 text-sm text-muted">
+              {searchTag || filter === 'featured'
+                ? 'Aucun projet ne correspond à ce filtre.'
+                : 'Commencez par créer votre première fiche.'}
             </p>
-            <div className="mt-6">
-              <button
-                onClick={openCreateModal}
-                className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#5f2eba] hover:bg-[#4e2c9f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5f2eba] focus:ring-offset-[#f5f2ff] dark:focus:ring-offset-[#0f041f]"
-              >
-                Nouveau projet
-              </button>
-            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project) => (
-              <div
-                key={project.id}
-                className="bg-white/95 dark:bg-[#0f041f] rounded-2xl shadow-md border border-[#d4c9f5] dark:border-[#3b285f] overflow-hidden hover:shadow-lg transition-shadow"
-              >
-                {project.imageUrl && (
+          <button
+            type="button"
+            onClick={openCreateModal}
+            className={buttonClass('secondary', 'md')}
+          >
+            <LuPlus className="h-4 w-4" aria-hidden />
+            Nouveau projet
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project) => (
+            <article
+              key={project.id}
+              className="flex flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-colors hover:border-accent/40"
+            >
+              <div className="relative h-36 bg-surface-muted">
+                {project.imageUrl ? (
                   <Image
                     src={project.imageUrl}
-                    alt={project.title}
-                    width={800}
-                    height={400}
-                    className="w-full h-48 object-cover"
+                    alt=""
+                    fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                    className="object-cover"
                   />
-                )}
-                <div className="p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-lg font-semibold text-[#1f1238] dark:text-white mb-2">
-                      {project.title}
-                    </h3>
-                    {project.featured && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#f3ecff] text-[#5f2eba] dark:bg-[#1b0b33] dark:text-[#e7e0ff]">
-                        Vedette
-                      </span>
-                    )}
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <LuImageOff className="h-5 w-5 text-muted" aria-hidden />
                   </div>
-                  <p className="text-sm text-[#4b3a7a] dark:text-[#c4b9f0] mb-4 line-clamp-2">
-                    {project.description || 'Aucune description'}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {project.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#e3dcff] text-[#3b2b6a] dark:bg-[#1b0b33] dark:text-[#e7e0ff]"
+                )}
+              </div>
+
+              <div className="flex flex-1 flex-col p-5">
+                <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                  {!project.published && (
+                    <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted">
+                      Brouillon
+                    </span>
+                  )}
+                  {project.featured && (
+                    <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent">
+                      Vedette
+                    </span>
+                  )}
+                  {!isComplete(project) && (
+                    <span className="rounded-full border border-amber-500/40 px-2 py-0.5 text-xs text-amber-600 dark:text-amber-400">
+                      À compléter
+                    </span>
+                  )}
+                </div>
+
+                <h2 className="text-base font-semibold text-foreground">
+                  {project.title}
+                </h2>
+                <p className="mt-0.5 truncate text-xs text-muted">
+                  /projets/{project.slug}
+                </p>
+
+                <p className="mt-2 line-clamp-2 text-sm text-muted">
+                  {project.summary || project.description || 'Aucune description'}
+                </p>
+
+                {project.tags.length > 0 && (
+                  <ul className="mt-3 flex flex-wrap gap-1.5">
+                    {project.tags.slice(0, 3).map((tag) => (
+                      <li
+                        key={tag}
+                        className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted"
                       >
                         {tag}
-                      </span>
+                      </li>
                     ))}
-                  </div>
-                  <div className="flex items-center justify-between pt-4 border-t border-[#e3dcff] dark:border-[#3b285f]">
-                    {project.url ? (
-                      <Link
-                        href={project.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm font-medium text-[#5f2eba] hover:text-[#4e2c9f] dark:text-[#c4b9f0] dark:hover:text-white underline-offset-4 hover:underline"
-                      >
-                        Voir le projet
-                      </Link>
-                    ) : (
-                      <span />
-                    )}
-                    <div className="flex gap-2 ml-auto">
-                      <button
-                        onClick={() => openEditModal(project)}
-                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#f5f2ff] text-[#3b2b6a] hover:bg-[#e3dcff] dark:bg-[#1b0b33] dark:text-[#e7e0ff] dark:hover:bg-[#261145] focus:outline-none"
-                      >
-                        Modifier
-                      </button>
-                      <button
-                        onClick={() => handleDelete(project.id)}
-                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#ffe9eb] text-[#b3261e] hover:bg-[#ffd5da] dark:bg-[#3a0b16] dark:text-[#ffb4ab] dark:hover:bg-[#4b1220] focus:outline-none"
-                      >
-                        Supprimer
-                      </button>
-                    </div>
-                  </div>
+                  </ul>
+                )}
+
+                <div className="mt-auto flex items-center gap-2 pt-5">
+                  <button
+                    type="button"
+                    onClick={() => openEditModal(project)}
+                    className={buttonClass('secondary', 'sm', 'flex-1')}
+                  >
+                    <LuPencil className="h-3.5 w-3.5" aria-hidden />
+                    Modifier
+                  </button>
+
+                  {project.url && (
+                    <a
+                      href={project.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Ouvrir ${project.title}`}
+                      className="rounded-full border border-border p-2 text-muted transition-colors hover:border-accent/40 hover:text-accent"
+                    >
+                      <LuExternalLink className="h-4 w-4" />
+                    </a>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(project)}
+                    aria-label={`Supprimer ${project.title}`}
+                    className="rounded-full border border-border p-2 text-muted transition-colors hover:border-red-500/40 hover:text-red-600 dark:hover:text-red-400"
+                  >
+                    <LuTrash2 className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            </article>
+          ))}
+        </div>
+      )}
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-          <div className="relative bg-white/95 dark:bg-[#0f041f] rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-[#d4c9f5] dark:border-[#3b285f]">
-            <div className="sticky top-0 bg-white/95 dark:bg-[#0f041f] border-b border-[#d4c9f5] dark:border-[#3b285f] px-6 py-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-[#1f1238] dark:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4 backdrop-blur-sm">
+          <div className="custom-scrollbar relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-background shadow-float">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background px-6 py-4">
+              <h2 className="text-base font-semibold text-foreground">
                 {editingProject ? 'Modifier le projet' : 'Nouveau projet'}
-              </h3>
+              </h2>
               <button
+                type="button"
                 onClick={() => setShowModal(false)}
-                className="text-sm font-medium text-[#5f2eba] hover:text-[#4e2c9f] dark:text-[#c4b9f0] dark:hover:text-white underline-offset-4 hover:underline"
+                aria-label="Fermer"
+                className="rounded-lg p-2 text-muted transition-colors hover:bg-surface-muted hover:text-foreground"
               >
-                Fermer
+                <LuX className="h-4 w-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5 p-6">
               <div>
-                <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                <label htmlFor="title" className={LABEL}>
                   Titre <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="title"
                   type="text"
                   required
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-[#d4c9f5] dark:border-[#4e2c9f] bg-white dark:bg-[#140727] text-sm text-[#1f1238] dark:text-white placeholder-[#9e91d0] focus:outline-none focus:ring-2 focus:ring-[#5f2eba] focus:border-[#5f2eba]"
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                  className={FIELD}
                 />
                 {formErrors.title && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-300">
+                  <p className="mt-1.5 text-sm text-red-600 dark:text-red-400">
                     {formErrors.title[0]}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                <label htmlFor="slug" className={LABEL}>
                   Slug (URL)
                 </label>
                 <input
+                  id="slug"
                   type="text"
                   value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, slug: e.target.value })
+                  }
                   placeholder="laissez vide pour le dériver du titre"
-                  className={FIELD_CLASS}
+                  className={FIELD}
                 />
-                <p className="mt-1 text-xs text-[#8a7abf] dark:text-[#c4b9f0]">
+                <p className={HINT}>
                   Adresse de la fiche : /projets/{formData.slug || 'mon-projet'}
                 </p>
                 {formErrors.slug && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-300">
+                  <p className="mt-1.5 text-sm text-red-600 dark:text-red-400">
                     {formErrors.slug[0]}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                <label htmlFor="summary" className={LABEL}>
                   Accroche
                 </label>
                 <textarea
+                  id="summary"
                   rows={2}
                   maxLength={300}
                   value={formData.summary}
-                  onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, summary: e.target.value })
+                  }
                   placeholder="Une ou deux phrases : ce qui apparaît sur la carte et dans les résultats de recherche."
-                  className={FIELD_CLASS}
+                  className={FIELD}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                <label htmlFor="description" className={LABEL}>
                   Description
                 </label>
                 <textarea
+                  id="description"
                   rows={4}
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className={FIELD_CLASS}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  className={FIELD}
                 />
               </div>
 
-              <fieldset className="border-t border-[#d4c9f5] dark:border-[#3b285f] pt-4 space-y-4">
-                <legend className="text-xs font-semibold uppercase tracking-[0.14em] text-[#5f2eba] dark:text-[#c4b9f0]">
+              <fieldset className="space-y-5 border-t border-border pt-5">
+                <legend className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
                   Étude de cas
                 </legend>
 
                 {CASE_STUDY_FIELDS.map(({ key, label, hint }) => (
                   <div key={key}>
-                    <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                    <label htmlFor={key} className={LABEL}>
                       {label}
                     </label>
                     <textarea
+                      id={key}
                       rows={4}
                       value={formData[key]}
                       onChange={(e) =>
                         setFormData({ ...formData, [key]: e.target.value })
                       }
-                      className={FIELD_CLASS}
+                      className={FIELD}
                     />
-                    <p className="mt-1 text-xs text-[#8a7abf] dark:text-[#c4b9f0]">
-                      {hint}
-                    </p>
+                    <p className={HINT}>{hint}</p>
                   </div>
                 ))}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                    <label htmlFor="client" className={LABEL}>
                       Client ou secteur
                     </label>
                     <input
+                      id="client"
                       type="text"
                       value={formData.client}
                       onChange={(e) =>
                         setFormData({ ...formData, client: e.target.value })
                       }
                       placeholder="Banque de détail"
-                      className={FIELD_CLASS}
+                      className={FIELD}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                    <label htmlFor="period" className={LABEL}>
                       Période
                     </label>
                     <input
+                      id="period"
                       type="text"
                       value={formData.period}
                       onChange={(e) =>
                         setFormData({ ...formData, period: e.target.value })
                       }
                       placeholder="2024 — 2025"
-                      className={FIELD_CLASS}
+                      className={FIELD}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                  <label htmlFor="stack" className={LABEL}>
                     Stack technique
                   </label>
                   <input
+                    id="stack"
                     type="text"
                     value={formData.stack}
                     onChange={(e) =>
                       setFormData({ ...formData, stack: e.target.value })
                     }
                     placeholder="Django REST, PostgreSQL, Docker, SOAP"
-                    className={FIELD_CLASS}
+                    className={FIELD}
                   />
-                  <p className="mt-1 text-xs text-[#8a7abf] dark:text-[#c4b9f0]">
-                    Séparées par des virgules. Distinct des tags, qui servent au filtrage.
+                  <p className={HINT}>
+                    Séparées par des virgules. Distinct des tags, qui servent au
+                    filtrage.
                   </p>
                 </div>
               </fieldset>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 border-t border-border pt-5 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                  <label htmlFor="url" className={LABEL}>
                     URL du projet
                   </label>
                   <input
+                    id="url"
                     type="url"
                     value={formData.url}
-                    onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, url: e.target.value })
+                    }
                     placeholder="https://..."
-                    className={FIELD_CLASS}
+                    className={FIELD}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
+                  <label htmlFor="repoUrl" className={LABEL}>
                     Code source
                   </label>
                   <input
+                    id="repoUrl"
                     type="url"
                     value={formData.repoUrl}
                     onChange={(e) =>
                       setFormData({ ...formData, repoUrl: e.target.value })
                     }
                     placeholder="https://github.com/..."
-                    className={FIELD_CLASS}
+                    className={FIELD}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-2">
-                  Image
-                </label>
+                <span className={LABEL}>Image</span>
 
-                <div className="flex gap-2 mb-3">
+                <div className="mb-3 flex gap-2">
                   <button
                     type="button"
                     onClick={() => setImageInputType('upload')}
-                    className={`px-4 py-2 text-xs font-semibold rounded-lg ${imageInputType === 'upload'
-                      ? 'bg-[#5f2eba] text-white'
-                      : 'bg-[#f5f2ff] text-[#3b2b6a] hover:bg-[#e3dcff] dark:bg-[#140727] dark:text-[#e7e0ff] dark:hover:bg-[#1b0b33]'
-                      }`}
+                    className={filterButton(imageInputType === 'upload')}
                   >
-                    Upload fichier
+                    Envoyer un fichier
                   </button>
                   <button
                     type="button"
                     onClick={() => setImageInputType('url')}
-                    className={`px-4 py-2 text-xs font-semibold rounded-lg ${imageInputType === 'url'
-                      ? 'bg-[#5f2eba] text-white'
-                      : 'bg-[#f5f2ff] text-[#3b2b6a] hover:bg-[#e3dcff] dark:bg-[#140727] dark:text-[#e7e0ff] dark:hover:bg-[#1b0b33]'
-                      }`}
+                    className={filterButton(imageInputType === 'url')}
                   >
                     URL externe
                   </button>
@@ -669,37 +708,37 @@ export default function ProjectsPage() {
                       accept="image/*"
                       onChange={handleImageUpload}
                       disabled={uploading}
-                      className="block w-full text-sm text-[#4b3a7a] dark:text-[#c4b9f0] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#f3ecff] file:text-[#5f2eba] hover:file:bg-[#e3dcff] disabled:opacity-60"
+                      className="block w-full text-sm text-muted file:mr-4 file:rounded-full file:border-0 file:bg-accent-soft file:px-4 file:py-2 file:text-sm file:font-medium file:text-accent disabled:opacity-60"
                     />
                     {uploading && (
-                      <p className="mt-2 text-sm text-[#4b3a7a] dark:text-[#c4b9f0]">
-                        Upload en cours...
-                      </p>
+                      <p className={HINT}>Envoi en cours…</p>
                     )}
                   </div>
                 ) : (
                   <input
                     type="url"
                     value={formData.imageUrl}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, imageUrl: e.target.value })
+                    }
                     placeholder="https://..."
-                    className="w-full px-3 py-2 rounded-lg border border-[#d4c9f5] dark:border-[#4e2c9f] bg-white dark:bg-[#140727] text-sm text-[#1f1238] dark:text-white placeholder-[#9e91d0] focus:outline-none focus:ring-2 focus:ring-[#5f2eba] focus:border-[#5f2eba]"
+                    className={FIELD}
                   />
                 )}
 
                 {formData.imageUrl && (
-                  <div className="mt-3 relative">
+                  <div className="relative mt-3">
                     <Image
                       src={formData.imageUrl}
-                      alt="Preview"
+                      alt="Aperçu"
                       width={400}
                       height={200}
-                      className="w-full h-40 object-cover rounded-lg border border-[#d4c9f5] dark:border-[#3b285f]"
+                      className="h-40 w-full rounded-xl border border-border object-cover"
                     />
                     <button
                       type="button"
                       onClick={() => setFormData({ ...formData, imageUrl: '' })}
-                      className="absolute top-2 right-2 px-2 py-1 text-xs font-semibold rounded-lg bg-[#ffe9eb] text-[#b3261e] hover:bg-[#ffd5da] dark:bg-[#3a0b16] dark:text-[#ffb4ab] dark:hover:bg-[#4b1220] focus:outline-none"
+                      className="absolute right-2 top-2 rounded-full border border-border bg-background/90 px-3 py-1 text-xs text-muted backdrop-blur transition-colors hover:text-red-600 dark:hover:text-red-400"
                     >
                       Retirer
                     </button>
@@ -708,90 +747,84 @@ export default function ProjectsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
-                  Tags{' '}
-                  <span className="text-xs text-[#8a7abf] dark:text-[#c4b9f0]">
-                    (séparés par des virgules)
-                  </span>
+                <label htmlFor="tags" className={LABEL}>
+                  Tags
                 </label>
                 <input
+                  id="tags"
                   type="text"
                   value={formData.tags}
-                  onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                  placeholder="React, Next.js, TypeScript"
-                  className="w-full px-3 py-2 rounded-lg border border-[#d4c9f5] dark:border-[#4e2c9f] bg-white dark:bg-[#140727] text-sm text-[#1f1238] dark:text-white placeholder-[#9e91d0] focus:outline-none focus:ring-2 focus:ring-[#5f2eba] focus:border-[#5f2eba]"
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="featured"
-                  checked={formData.featured}
                   onChange={(e) =>
-                    setFormData({ ...formData, featured: e.target.checked })
+                    setFormData({ ...formData, tags: e.target.value })
                   }
-                  className="h-4 w-4 text-[#5f2eba] focus:ring-[#5f2eba] border-[#d4c9f5] rounded"
+                  placeholder="Banque, Conformité, Mobile"
+                  className={FIELD}
                 />
-                <label
-                  htmlFor="featured"
-                  className="text-sm text-[#3b2b6a] dark:text-[#e7e0ff]"
-                >
-                  Projet en vedette
-                </label>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="published"
-                  checked={formData.published}
-                  onChange={(e) =>
-                    setFormData({ ...formData, published: e.target.checked })
-                  }
-                  className="h-4 w-4 text-[#5f2eba] focus:ring-[#5f2eba] border-[#d4c9f5] rounded"
-                />
-                <label
-                  htmlFor="published"
-                  className="text-sm text-[#3b2b6a] dark:text-[#e7e0ff]"
-                >
-                  Publié{' '}
-                  <span className="text-xs text-[#8a7abf] dark:text-[#c4b9f0]">
-                    (décochez pour préparer une fiche sans la rendre visible)
-                  </span>
-                </label>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#3b2b6a] dark:text-[#e7e0ff] mb-1">
-                  Ordre d&apos;affichage
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  value={formData.position}
-                  onChange={(e) =>
-                    setFormData({ ...formData, position: Number(e.target.value) })
-                  }
-                  className={`${FIELD_CLASS} max-w-[8rem]`}
-                />
-                <p className="mt-1 text-xs text-[#8a7abf] dark:text-[#c4b9f0]">
-                  Croissant : 0 apparaît en premier. À égalité, tri par date.
+                <p className={HINT}>
+                  Séparés par des virgules. Servent aux filtres du site public.
                 </p>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-[#d4c9f5] dark:border-[#3b285f]">
+              <div className="space-y-3 border-t border-border pt-5">
+                <label className="flex items-center gap-3 text-sm text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={formData.featured}
+                    onChange={(e) =>
+                      setFormData({ ...formData, featured: e.target.checked })
+                    }
+                    className="h-4 w-4 rounded border-border text-accent focus:ring-accent"
+                  />
+                  Mettre en vedette sur la page d&apos;accueil
+                </label>
+
+                <label className="flex items-center gap-3 text-sm text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={formData.published}
+                    onChange={(e) =>
+                      setFormData({ ...formData, published: e.target.checked })
+                    }
+                    className="h-4 w-4 rounded border-border text-accent focus:ring-accent"
+                  />
+                  Publié
+                  <span className="text-xs text-muted">
+                    (décochez pour préparer la fiche sans la rendre visible)
+                  </span>
+                </label>
+
+                <div>
+                  <label htmlFor="position" className={LABEL}>
+                    Ordre d&apos;affichage
+                  </label>
+                  <input
+                    id="position"
+                    type="number"
+                    min={0}
+                    value={formData.position}
+                    onChange={(e) =>
+                      setFormData({ ...formData, position: Number(e.target.value) })
+                    }
+                    className={`${FIELD} max-w-[8rem]`}
+                  />
+                  <p className={HINT}>
+                    Croissant : 0 apparaît en premier. À égalité, tri par date.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 border-t border-border pt-5">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-lg text-sm font-semibold text-[#3b2b6a] dark:text-[#e7e0ff] bg-white dark:bg-[#140727] border border-[#d4c9f5] dark:border-[#4e2c9f] hover:bg-[#f5f2ff] dark:hover:bg-[#1b0b33] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5f2eba] focus:ring-offset-[#f5f2ff] dark:focus:ring-offset-[#0f041f]"
+                  className={buttonClass('secondary', 'md')}
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
                   disabled={uploading}
-                  className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#5f2eba] hover:bg-[#4e2c9f] border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5f2eba] focus:ring-offset-[#f5f2ff] dark:focus:ring-offset-[#0f041f] disabled:opacity-60"
+                  className={buttonClass('primary', 'md')}
                 >
                   {editingProject ? 'Enregistrer' : 'Créer'}
                 </button>
@@ -800,6 +833,6 @@ export default function ProjectsPage() {
           </div>
         </div>
       )}
-    </div>
+    </AdminShell>
   );
 }

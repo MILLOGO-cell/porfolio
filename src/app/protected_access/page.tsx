@@ -1,819 +1,319 @@
 'use client';
 
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
 import {
-    HiOutlineCollection,
-    HiOutlineStar,
-    HiOutlineTag,
-    HiOutlinePhotograph,
-    HiOutlineLink,
-    HiOutlinePlus,
-    HiOutlineCog,
-    HiOutlineExternalLink,
-    HiOutlineTrash,
-    HiOutlinePencil,
-    HiOutlineLogout,
-    HiOutlineChartBar
-} from 'react-icons/hi';
-import ThemeSwitcher from '@/components/ThemeSwitcher/ThemeSwitcher';
-import { getGravatarUrl } from '@/lib/gravatar';
+  LuArrowUpRight,
+  LuExternalLink,
+  LuEye,
+  LuFolder,
+  LuPencil,
+  LuPlus,
+  LuSettings,
+  LuStar,
+  LuTag,
+  LuUsers,
+} from 'react-icons/lu';
+import AdminShell from '@/components/admin/AdminShell';
+import StatCard from '@/components/admin/StatCard';
+import { buttonClass } from '@/components/ui/button-styles';
 
 interface Project {
-    id: string;
-    title: string;
-    description: string | null;
-    url: string | null;
-    imageUrl: string | null;
-    tags: string[];
-    featured: boolean;
-    createdAt: string;
-    updatedAt: string;
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  description: string | null;
+  context: string | null;
+  role: string | null;
+  challenges: string | null;
+  outcome: string | null;
+  url: string | null;
+  imageUrl: string | null;
+  tags: string[];
+  featured: boolean;
+  published: boolean;
+  updatedAt: string;
 }
 
 interface AdminStats {
-    projects: {
-        total: number;
-        featured: number;
-    };
-    visitors: {
-        totalVisible: number;
-        totalVisits: number;
-        today: number;
-        visitsToday: number;
-    };
-    topPages: Array<{
-        path: string;
-        _count: {
-            id: number;
-        };
-    }>;
-}
-
-interface Visitor {
-    id: string;
-    lastIp: string;
-    userAgent: string;
-    createdAt: string;
-    updatedAt: string;
-    lastVisitPath: string;
+  projects: { total: number; featured: number };
+  visitors: {
+    totalVisible: number;
     totalVisits: number;
+    today: number;
+    visitsToday: number;
+  };
+  topPages: Array<{ path: string; _count: { id: number } }>;
 }
 
 export default function AdminDashboard() {
-    const { data: session, status } = useSession();
-    const router = useRouter();
-    const [stats, setStats] = useState<AdminStats | null>(null);
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [visitors, setVisitors] = useState<Visitor[]>([]);
-    const [loading, setLoading] = useState(true);
+  const { status } = useSession();
+  const router = useRouter();
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (status === 'unauthenticated') {
-            router.push('/protected_access/login');
-        }
-    }, [status, router]);
+  // Pas de setLoading(true) : l'état initial vaut déjà true, et un setState
+  // synchrone appelé depuis un effet déclenche un rendu en cascade.
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      const [projectsRes, statsRes] = await Promise.all([
+        fetch('/api/projects'),
+        fetch('/api/protected_access/stats'),
+      ]);
 
-    useEffect(() => {
-        if (status === 'authenticated') {
-            fetchDashboardData();
-        }
-    }, [status]);
+      const projectsData = await projectsRes.json();
+      const statsData = await statsRes.json();
 
-    const fetchDashboardData = async () => {
-        try {
-            setLoading(true);
-            const [projectsRes, statsRes, visitorsRes] = await Promise.all([
-                fetch('/api/projects'),
-                fetch('/api/protected_access/stats'),
-                fetch('/api/protected_access/visitors')
-            ]);
+      if (projectsData.success) setProjects(projectsData.data.projects);
+      if (statsData.success) setStats(statsData.data);
+    } catch (error) {
+      console.error('Erreur lors du chargement des données:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-            const projectsData = await projectsRes.json();
-            const statsData = await statsRes.json();
-            const visitorsData = await visitorsRes.json();
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/protected_access/login');
+    }
+  }, [status, router]);
 
-            if (projectsData.success) {
-                setProjects(projectsData.data.projects);
-            }
-            if (statsData.success) {
-                setStats(statsData.data);
-            }
-            if (visitorsData.success) {
-                setVisitors(visitorsData.data.visitors);
-            }
-        } catch (error) {
-            console.error('Erreur lors du chargement des données:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+  useEffect(() => {
+    if (status === 'authenticated') {
+      // La règle ne suit pas les `await` : les setState de fetchDashboardData
+      // sont postérieurs au fetch, donc asynchrones.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchDashboardData();
+    }
+  }, [status, fetchDashboardData]);
 
-    const handleDeleteProject = async (id: string) => {
-        if (!confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
-            return;
-        }
+  if (status === 'loading' || status === 'unauthenticated') {
+    return null;
+  }
 
-        try {
-            const response = await fetch(`/api/projects/${id}`, {
-                method: 'DELETE',
-            });
+  const featuredCount = projects.filter((p) => p.featured).length;
+  const uniqueTags = new Set(projects.flatMap((p) => p.tags)).size;
+  const recentProjects = projects.slice(0, 5);
 
-            if (response.ok) {
-                fetchDashboardData();
-            }
-        } catch (error) {
-            console.error('Erreur lors de la suppression:', error);
-        }
-    };
+  /** Une fiche « complète » a ses quatre blocs d'étude de cas renseignés. */
+  const isComplete = (p: Project) =>
+    Boolean(p.context && p.role && p.challenges && p.outcome);
+  const incompleteProjects = projects.filter((p) => !isComplete(p));
 
-    const fadeIn = {
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0 }
-    };
-
-    if (status === 'loading' || loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black">
-                <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    className="rounded-lg h-16 w-16 border-4 border-indigo-200 dark:border-indigo-800 border-t-indigo-600 dark:border-t-indigo-400"
-                />
+  return (
+    <AdminShell
+      title="Tableau de bord"
+      description="Vue d'ensemble du portfolio et de sa fréquentation."
+      actions={
+        <>
+          <Link
+            href="/"
+            target="_blank"
+            className={buttonClass('secondary', 'sm')}
+          >
+            <LuExternalLink className="h-4 w-4" aria-hidden />
+            Voir le site
+          </Link>
+          <Link
+            href="/protected_access/projects"
+            className={buttonClass('primary', 'sm')}
+          >
+            <LuPlus className="h-4 w-4" aria-hidden />
+            Nouveau projet
+          </Link>
+        </>
+      }
+    >
+      {loading ? (
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="h-28 animate-pulse rounded-2xl border border-border bg-surface-muted"
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-10">
+          <section>
+            <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+              Contenu
+            </h2>
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+              <StatCard label="Projets" value={projects.length} icon={LuFolder} />
+              <StatCard label="En vedette" value={featuredCount} icon={LuStar} />
+              <StatCard label="Tags" value={uniqueTags} icon={LuTag} />
+              <StatCard
+                label="Fiches à compléter"
+                value={incompleteProjects.length}
+                icon={LuPencil}
+                hint={
+                  incompleteProjects.length > 0
+                    ? "Sans étude de cas complète"
+                    : 'Toutes les fiches sont complètes'
+                }
+              />
             </div>
-        );
-    }
+          </section>
 
-    if (!session) {
-        return null;
-    }
+          <section>
+            <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+              Fréquentation
+            </h2>
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+              <StatCard
+                label="Visiteurs aujourd'hui"
+                value={stats?.visitors?.today ?? 0}
+                icon={LuUsers}
+              />
+              <StatCard
+                label="Visites aujourd'hui"
+                value={stats?.visitors?.visitsToday ?? 0}
+                icon={LuEye}
+              />
+              <StatCard
+                label="Visiteurs au total"
+                value={stats?.visitors?.totalVisible ?? 0}
+                icon={LuUsers}
+              />
+              <StatCard
+                label="Visites au total"
+                value={stats?.visitors?.totalVisits ?? 0}
+                icon={LuEye}
+              />
+            </div>
+          </section>
 
-    const featuredProjects = projects.filter(p => p.featured).length;
-    const recentProjects = projects.slice(0, 5);
-    const userImage = session.user?.image || (session.user?.email ? getGravatarUrl(session.user.email) : null);
-
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black">
-            <nav className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex items-center">
-                            <div className="flex-shrink-0 flex items-center gap-3">
-                                <motion.div
-                                    whileHover={{ rotate: 360 }}
-                                    transition={{ duration: 0.5 }}
-                                    className="h-10 w-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg"
-                                >
-                                    <span className="text-white font-bold text-xl">P</span>
-                                </motion.div>
-                                <div>
-                                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
-                                        Portfolio Admin
-                                    </h1>
-                                    <p className="text-[10px] text-gray-500 dark:text-gray-400 -mt-1">
-                                        Tableau de bord
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="hidden md:ml-10 md:flex md:items-center md:space-x-4">
-                                <Link
-                                    href="/protected_access"
-                                    className="px-3 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium text-sm shadow-lg"
-                                >
-                                    Dashboard
-                                </Link>
-                                <Link
-                                    href="/protected_access/projects"
-                                    className="px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium text-sm transition-colors"
-                                >
-                                    Projets
-                                </Link>
-                                <Link
-                                    href="/protected_access/settings"
-                                    className="px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium text-sm transition-colors"
-                                >
-                                    Paramètres
-                                </Link>
-
-                                <div className="ml-4 pl-4 border-l border-gray-300 dark:border-gray-700">
-                                    <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
-                                        <ThemeSwitcher />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-3">
-                                <div className="text-right hidden sm:block">
-                                    <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        {session.user?.name || 'Admin'}
-                                    </p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                                        {session.user?.email}
-                                    </p>
-                                </div>
-                                {userImage ? (
-                                    <Image
-                                        src={userImage}
-                                        alt="Profile"
-                                        width={40}
-                                        height={40}
-                                        className="h-10 w-10 rounded-lg object-cover ring-2 ring-indigo-500 dark:ring-indigo-400"
-                                    />
-                                ) : (
-                                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-semibold shadow-lg ring-2 ring-indigo-500 dark:ring-indigo-400">
-                                        {session.user?.name?.charAt(0) || 'A'}
-                                    </div>
-                                )}
-                            </div>
-
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => signOut({ callbackUrl: '/protected_access/login' })}
-                                className="inline-flex items-center px-4 py-2 border-2 border-red-500 dark:border-red-400 text-sm font-semibold rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300"
-                            >
-                                <HiOutlineLogout className="h-4 w-4 mr-2" />
-                                <span className="hidden sm:inline">Déconnexion</span>
-                            </motion.button>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-
-            <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-                <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={fadeIn}
-                    transition={{ duration: 0.5 }}
-                    className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-700 dark:via-purple-700 dark:to-pink-700 rounded-lg shadow-2xl p-8 mb-8 relative overflow-hidden"
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <section className="rounded-2xl border border-border bg-surface p-6 lg:col-span-2">
+              <div className="mb-5 flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-foreground">
+                  Projets récents
+                </h2>
+                <Link
+                  href="/protected_access/projects"
+                  className="inline-flex items-center gap-1.5 text-sm text-accent transition-opacity hover:opacity-80"
                 >
-                    <div className="absolute inset-0 bg-black/10"></div>
-                    <div className="relative z-10 flex items-center justify-between">
-                        <div>
-                            <motion.h2
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="text-3xl font-extrabold text-white mb-2"
-                            >
-                                Bienvenue, {session.user?.name || 'Admin'}
-                            </motion.h2>
-                            <motion.p
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.3 }}
-                                className="text-indigo-100 text-lg"
-                            >
-                                Voici un aperçu de votre portfolio
-                            </motion.p>
-                        </div>
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.5 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.4 }}
-                            className="hidden md:block"
-                        >
-                            <HiOutlineChartBar className="h-32 w-32 text-white/20" />
-                        </motion.div>
-                    </div>
-                </motion.div>
+                  Tout gérer
+                  <LuArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+                </Link>
+              </div>
 
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
-                    {[
-                        {
-                            title: 'Projets Totaux',
-                            value: projects.length,
-                            icon: HiOutlineCollection,
-                            color: 'from-indigo-500 to-indigo-600',
-                            bgColor: 'bg-indigo-500',
-                            delay: 0.1
-                        },
-                        {
-                            title: 'En Vedette',
-                            value: featuredProjects,
-                            icon: HiOutlineStar,
-                            color: 'from-yellow-500 to-yellow-600',
-                            bgColor: 'bg-yellow-500',
-                            delay: 0.2
-                        },
-                        {
-                            title: 'Tags Uniques',
-                            value: new Set(projects.flatMap(p => p.tags)).size,
-                            icon: HiOutlineTag,
-                            color: 'from-purple-500 to-purple-600',
-                            bgColor: 'bg-purple-500',
-                            delay: 0.3
-                        }
-                    ].map((stat, index) => {
-                        const Icon = stat.icon;
-                        return (
-                            <motion.div
-                                key={index}
-                                initial="hidden"
-                                animate="visible"
-                                variants={fadeIn}
-                                transition={{ duration: 0.5, delay: stat.delay }}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                className="bg-white dark:bg-gray-800/50 backdrop-blur-lg overflow-hidden shadow-xl rounded-lg border border-gray-200 dark:border-gray-700"
-                            >
-                                <div className="p-6">
-                                    <div className="flex items-center">
-                                        <div className="flex-shrink-0">
-                                            <div className={`rounded-lg bg-gradient-to-br ${stat.color} p-4 shadow-lg`}>
-                                                <Icon className="h-8 w-8 text-white" />
-                                            </div>
-                                        </div>
-                                        <div className="ml-5 w-0 flex-1">
-                                            <dl>
-                                                <dt className="text-sm font-semibold text-gray-500 dark:text-gray-400 truncate">
-                                                    {stat.title}
-                                                </dt>
-                                                <dd className="flex items-baseline">
-                                                    <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                                                        {stat.value}
-                                                    </div>
-                                                </dd>
-                                            </dl>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="bg-gray-50 dark:bg-gray-700/50 px-6 py-3">
-                                    <Link
-                                        href="/protected_access/projects"
-                                        className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1"
-                                    >
-                                        Gérer
-                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </Link>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-                    {[
-                        {
-                            title: 'Visiteurs Aujourd\'hui',
-                            value: stats?.visitors?.today || 0,
-                            icon: HiOutlineChartBar,
-                            color: 'from-blue-500 to-blue-600',
-                            delay: 0.4
-                        },
-                        {
-                            title: 'Visites Aujourd\'hui',
-                            value: stats?.visitors?.visitsToday || 0,
-                            icon: HiOutlineCollection,
-                            color: 'from-green-500 to-green-600',
-                            delay: 0.5
-                        },
-                        {
-                            title: 'Total Visiteurs',
-                            value: stats?.visitors?.totalVisible || 0,
-                            icon: HiOutlinePhotograph,
-                            color: 'from-purple-500 to-purple-600',
-                            delay: 0.6
-                        },
-                        {
-                            title: 'Total Visites',
-                            value: stats?.visitors?.totalVisits || 0,
-                            icon: HiOutlineLink,
-                            color: 'from-pink-500 to-pink-600',
-                            delay: 0.7
-                        }
-                    ].map((stat, index) => {
-                        const Icon = stat.icon;
-                        return (
-                            <motion.div
-                                key={index}
-                                initial="hidden"
-                                animate="visible"
-                                variants={fadeIn}
-                                transition={{ duration: 0.5, delay: stat.delay }}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                className="bg-white dark:bg-gray-800/50 backdrop-blur-lg overflow-hidden shadow-xl rounded-lg border border-gray-200 dark:border-gray-700"
-                            >
-                                <div className="p-6">
-                                    <div className="flex items-center">
-                                        <div className="flex-shrink-0">
-                                            <div className={`rounded-lg bg-gradient-to-br ${stat.color} p-4 shadow-lg`}>
-                                                <Icon className="h-8 w-8 text-white" />
-                                            </div>
-                                        </div>
-                                        <div className="ml-5 w-0 flex-1">
-                                            <dl>
-                                                <dt className="text-sm font-semibold text-gray-500 dark:text-gray-400 truncate">
-                                                    {stat.title}
-                                                </dt>
-                                                <dd className="flex items-baseline">
-                                                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                                                        {stat.value}
-                                                    </div>
-                                                </dd>
-                                            </dl>
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    <motion.div
-                        initial="hidden"
-                        animate="visible"
-                        variants={fadeIn}
-                        transition={{ duration: 0.5, delay: 0.8 }}
-                        className="lg:col-span-2 bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-6"
+              {recentProjects.length === 0 ? (
+                <p className="py-8 text-center text-sm text-muted">
+                  Aucun projet pour le moment.
+                </p>
+              ) : (
+                <ul className="divide-y divide-border">
+                  {recentProjects.map((project) => (
+                    <li
+                      key={project.id}
+                      className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0"
                     >
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                            <HiOutlineChartBar className="h-6 w-6" />
-                            Pages les plus visitées
-                        </h3>
-                        <div className="space-y-4 mb-10">
-                            {(stats?.topPages || []).map((page: any, index: number) => (
-                                <div key={index} className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <span className="flex items-center justify-center h-6 w-6 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold">
-                                            {index + 1}
-                                        </span>
-                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                            {page.path}
-                                        </span>
-                                    </div>
-                                    <span className="text-sm font-bold text-gray-900 dark:text-white">
-                                        {page._count.id} visites
-                                    </span>
-                                </div>
-                            ))}
-                            {(!stats?.topPages || stats?.topPages.length === 0) && (
-                                <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                                    Aucune donnée de visite pour le moment.
-                                </p>
-                            )}
-                        </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-foreground">
+                          {project.title}
+                        </p>
+                        <p className="mt-0.5 truncate text-xs text-muted">
+                          /projets/{project.slug}
+                        </p>
+                      </div>
 
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2 border-t border-gray-100 dark:border-gray-700 pt-6">
-                            <HiOutlineChartBar className="h-6 w-6" />
-                            Statistiques des projets
-                        </h3>
-                        <div className="space-y-6">
-                            {[
-                                {
-                                    label: 'Projets avec images',
-                                    value: projects.filter(p => p.imageUrl).length,
-                                    total: projects.length,
-                                    color: 'bg-indigo-600',
-                                    icon: HiOutlinePhotograph
-                                },
-                                {
-                                    label: 'Projets avec URL',
-                                    value: projects.filter(p => p.url).length,
-                                    total: projects.length,
-                                    color: 'bg-green-600',
-                                    icon: HiOutlineLink
-                                },
-                                {
-                                    label: 'Projets en vedette',
-                                    value: featuredProjects,
-                                    total: projects.length,
-                                    color: 'bg-yellow-600',
-                                    icon: HiOutlineStar
-                                }
-                            ].map((stat, index) => {
-                                const Icon = stat.icon;
-                                const percentage = stat.total ? (stat.value / stat.total) * 100 : 0;
-                                return (
-                                    <div key={index}>
-                                        <div className="flex items-center justify-between mb-3">
-                                            <div className="flex items-center gap-2">
-                                                <Icon className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                                    {stat.label}
-                                                </span>
-                                            </div>
-                                            <span className="text-sm font-bold text-gray-900 dark:text-white">
-                                                {stat.value} / {stat.total}
-                                            </span>
-                                        </div>
-                                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
-                                            <motion.div
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${percentage}%` }}
-                                                transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
-                                                className={`${stat.color} h-3 rounded-full shadow-lg`}
-                                            />
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </motion.div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        {!project.published && (
+                          <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted">
+                            Brouillon
+                          </span>
+                        )}
+                        {project.featured && (
+                          <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent">
+                            Vedette
+                          </span>
+                        )}
+                        {!isComplete(project) && (
+                          <span className="rounded-full border border-amber-500/40 px-2 py-0.5 text-xs text-amber-600 dark:text-amber-400">
+                            À compléter
+                          </span>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
 
-                    <motion.div
-                        initial="hidden"
-                        animate="visible"
-                        variants={fadeIn}
-                        transition={{ duration: 0.5, delay: 0.5 }}
-                        className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-6"
-                    >
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                            Actions Rapides
-                        </h3>
-                        <div className="space-y-3">
-                            {[
-                                {
-                                    href: '/protected_access/projects',
-                                    label: 'Nouveau Projet',
-                                    icon: HiOutlinePlus,
-                                    color: 'from-indigo-500 to-indigo-600',
-                                    hoverColor: 'hover:from-indigo-600 hover:to-indigo-700'
-                                },
-                                {
-                                    href: '/protected_access/projects',
-                                    label: 'Gérer Projets',
-                                    icon: HiOutlineCollection,
-                                    color: 'from-gray-500 to-gray-600',
-                                    hoverColor: 'hover:from-gray-600 hover:to-gray-700'
-                                },
-                                {
-                                    href: '/protected_access/settings',
-                                    label: 'Paramètres',
-                                    icon: HiOutlineCog,
-                                    color: 'from-green-500 to-green-600',
-                                    hoverColor: 'hover:from-green-600 hover:to-green-700'
-                                },
-                                {
-                                    href: '/',
-                                    label: 'Voir le Site',
-                                    icon: HiOutlineExternalLink,
-                                    color: 'from-purple-500 to-purple-600',
-                                    hoverColor: 'hover:from-purple-600 hover:to-purple-700',
-                                    external: true
-                                }
-                            ].map((action, index) => {
-                                const Icon = action.icon;
-                                return (
-                                    <motion.div
-                                        key={index}
-                                        whileHover={{ scale: 1.03, x: 5 }}
-                                        whileTap={{ scale: 0.98 }}
-                                    >
-                                        <Link
-                                            href={action.href}
-                                            target={action.external ? '_blank' : undefined}
-                                            className="flex items-center p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-700/30 rounded-lg hover:shadow-lg transition-all duration-300 group border border-gray-200 dark:border-gray-600"
-                                        >
-                                            <div className={`bg-gradient-to-br ${action.color} ${action.hoverColor} rounded-lg p-3 group-hover:shadow-lg transition-all duration-300`}>
-                                                <Icon className="h-6 w-6 text-white" />
-                                            </div>
-                                            <span className="ml-4 text-sm font-semibold text-gray-900 dark:text-white">
-                                                {action.label}
-                                            </span>
-                                            <svg className="ml-auto h-5 w-5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                            </svg>
-                                        </Link>
-                                    </motion.div>
-                                );
-                            })}
-                        </div>
-                    </motion.div>
+            <div className="space-y-6">
+              <section className="rounded-2xl border border-border bg-surface p-6">
+                <h2 className="mb-5 text-sm font-semibold text-foreground">
+                  Pages les plus visitées
+                </h2>
+
+                {!stats?.topPages || stats.topPages.length === 0 ? (
+                  <p className="text-sm text-muted">
+                    Aucune donnée de visite pour le moment.
+                  </p>
+                ) : (
+                  <ul className="space-y-3">
+                    {stats.topPages.map((page, index) => (
+                      <li
+                        key={page.path}
+                        className="flex items-center justify-between gap-3"
+                      >
+                        <span className="flex min-w-0 items-center gap-2.5">
+                          <span className="w-4 shrink-0 text-xs tabular-nums text-muted">
+                            {index + 1}
+                          </span>
+                          <span className="truncate text-sm text-foreground">
+                            {page.path}
+                          </span>
+                        </span>
+                        <span className="shrink-0 text-sm tabular-nums text-muted">
+                          {page._count.id}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+
+              <section className="rounded-2xl border border-border bg-surface p-6">
+                <h2 className="mb-4 text-sm font-semibold text-foreground">
+                  Raccourcis
+                </h2>
+                <div className="flex flex-col gap-1">
+                  <Link
+                    href="/protected_access/projects"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+                  >
+                    <LuFolder className="h-4 w-4 text-accent" aria-hidden />
+                    Gérer les projets
+                  </Link>
+                  <Link
+                    href="/protected_access/settings"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+                  >
+                    <LuSettings className="h-4 w-4 text-accent" aria-hidden />
+                    Paramètres du compte
+                  </Link>
+                  <Link
+                    href="/"
+                    target="_blank"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+                  >
+                    <LuExternalLink className="h-4 w-4 text-accent" aria-hidden />
+                    Voir le site public
+                  </Link>
                 </div>
-
-                <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={fadeIn}
-                    transition={{ duration: 0.5, delay: 0.6 }}
-                    className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
-                >
-                    <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            <HiOutlineCollection className="h-6 w-6" />
-                            Projets Récents
-                        </h3>
-                        <Link
-                            href="/protected_access/projects"
-                            className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1"
-                        >
-                            Voir tout
-                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                        </Link>
-                    </div>
-                    {recentProjects.length === 0 ? (
-                        <div className="px-6 py-16 text-center">
-                            <svg className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                            </svg>
-                            <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
-                                Aucun projet
-                            </h3>
-                            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                Commencez par créer votre premier projet.
-                            </p>
-                            <motion.div
-                                className="mt-6"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                            >
-                                <Link
-                                    href="/protected_access/projects"
-                                    className="inline-flex items-center px-6 py-3 border border-transparent shadow-lg text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300"
-                                >
-                                    <HiOutlinePlus className="h-5 w-5 mr-2" />
-                                    Créer un projet
-                                </Link>
-                            </motion.div>
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead className="bg-gray-50 dark:bg-gray-700/50">
-                                    <tr>
-                                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Projet
-                                        </th>
-                                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Tags
-                                        </th>
-                                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Date
-                                        </th>
-                                        <th scope="col" className="relative px-6 py-4">
-                                            <span className="sr-only">Actions</span>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white dark:bg-gray-800/30 divide-y divide-gray-200 dark:divide-gray-700">
-                                    {recentProjects.map((project, index) => (
-                                        <motion.tr
-                                            key={project.id}
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.1 * index }}
-                                            className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                                        >
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center">
-                                                    <div className="h-12 w-12 flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-                                                        {project.imageUrl ? (
-                                                            <Image
-                                                                src={project.imageUrl}
-                                                                alt={project.title}
-                                                                width={48}
-                                                                height={48}
-                                                                className="h-12 w-12 rounded-lg object-cover"
-                                                            />
-                                                        ) : (
-                                                            <HiOutlineCollection className="h-7 w-7 text-white" />
-                                                        )}
-                                                    </div>
-                                                    <div className="ml-4">
-                                                        <div className="text-sm font-bold text-gray-900 dark:text-white">
-                                                            {project.title}
-                                                        </div>
-                                                        {project.featured && (
-                                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 mt-1">
-                                                                Vedette
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-wrap gap-2">
-                                                    {project.tags.slice(0, 3).map((tag, idx) => (
-                                                        <span
-                                                            key={idx}
-                                                            className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-400"
-                                                        >
-                                                            {tag}
-                                                        </span>
-                                                    ))}
-                                                    {project.tags.length > 3 && (
-                                                        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                                                            +{project.tags.length - 3}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 font-medium">
-                                                {new Date(project.createdAt).toLocaleDateString('fr-FR')}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold space-x-3">
-                                                <motion.button
-                                                    whileHover={{ scale: 1.1 }}
-                                                    whileTap={{ scale: 0.9 }}
-                                                    onClick={() => router.push('/protected_access/projects')}
-                                                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 inline-flex items-center gap-1"
-                                                >
-                                                    <HiOutlinePencil className="h-4 w-4" />
-                                                    Modifier
-                                                </motion.button>
-                                                <motion.button
-                                                    whileHover={{ scale: 1.1 }}
-                                                    whileTap={{ scale: 0.9 }}
-                                                    onClick={() => handleDeleteProject(project.id)}
-                                                    className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 inline-flex items-center gap-1"
-                                                >
-                                                    <HiOutlineTrash className="h-4 w-4" />
-                                                    Supprimer
-                                                </motion.button>
-                                            </td>
-                                        </motion.tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </motion.div>
-
-                <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={fadeIn}
-                    transition={{ duration: 0.5, delay: 0.7 }}
-                    className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8"
-                >
-                    <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            <HiOutlineChartBar className="h-6 w-6" />
-                            Visiteurs Récents
-                        </h3>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead className="bg-gray-50 dark:bg-gray-700/50">
-                                <tr>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                        Adresse IP
-                                    </th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                        Dernière Page
-                                    </th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                        Navigateur
-                                    </th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                        Date
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white dark:bg-gray-800/30 divide-y divide-gray-200 dark:divide-gray-700">
-                                {visitors.map((visitor, index) => (
-                                    <motion.tr
-                                        key={visitor.id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.05 * index }}
-                                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                                    >
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="text-sm font-mono text-gray-600 dark:text-gray-400">
-                                                {visitor.lastIp}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
-                                                {visitor.lastVisitPath}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 max-w-xs overflow-hidden text-ellipsis">
-                                            <span className="text-xs text-gray-500 dark:text-gray-500 truncate block">
-                                                {visitor.userAgent}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">
-                                            {new Date(visitor.updatedAt).toLocaleString('fr-FR')}
-                                        </td>
-                                    </motion.tr>
-                                ))}
-                                {visitors.length === 0 && (
-                                    <tr>
-                                        <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-500 italic">
-                                            Aucun visiteur enregistré.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </motion.div>
-            </main >
-        </div >
-    );
+              </section>
+            </div>
+          </div>
+        </div>
+      )}
+    </AdminShell>
+  );
 }

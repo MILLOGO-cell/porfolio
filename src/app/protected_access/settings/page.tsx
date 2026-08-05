@@ -1,13 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
+import {
+  LuCircleCheck,
+  LuKeyRound,
+  LuMail,
+  LuShieldCheck,
+  LuSmartphone,
+  LuTriangleAlert,
+  LuUser,
+} from 'react-icons/lu';
+import AdminShell from '@/components/admin/AdminShell';
+import { buttonClass } from '@/components/ui/button-styles';
 import { getGravatarUrl } from '@/lib/gravatar';
-import { motion } from 'framer-motion';
-import { HiArrowLeft, HiUser, HiShieldCheck, HiLockClosed, HiCamera, HiMail, HiDeviceMobile, HiCheck, HiX } from 'react-icons/hi';
 
 interface UserProfile {
   id: string;
@@ -20,7 +28,20 @@ interface UserProfile {
 }
 
 type TabType = 'profile' | 'security' | '2fa';
-type Step2FA = 'choose' | 'totp-setup' | 'totp-verify' | 'email-setup' | 'email-verify';
+type Step2FA = 'choose' | 'totp-verify' | 'email-verify';
+
+/** Doit rester aligné sur `passwordSchema` côté serveur. */
+const MIN_PASSWORD_LENGTH = 12;
+
+const FIELD =
+  'w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted/70 transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20';
+const LABEL = 'mb-1.5 block text-sm font-medium text-foreground';
+
+const TABS: { id: TabType; label: string; icon: typeof LuUser }[] = [
+  { id: 'profile', label: 'Profil', icon: LuUser },
+  { id: 'security', label: 'Mot de passe', icon: LuKeyRound },
+  { id: '2fa', label: 'Double authentification', icon: LuShieldCheck },
+];
 
 export default function SettingsPage() {
   const { status, update } = useSession();
@@ -47,21 +68,10 @@ export default function SettingsPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/protected_access/login');
-    }
-  }, [status, router]);
-
-  useEffect(() => {
-    if (status === 'authenticated') {
-      fetchProfile();
-    }
-  }, [status]);
-
-  const fetchProfile = async () => {
+  // Pas de setLoading(true) : l'état initial vaut déjà true, et un setState
+  // synchrone appelé depuis un effet déclenche un rendu en cascade.
+  const fetchProfile = useCallback(async () => {
     try {
-      setLoading(true);
       const response = await fetch('/api/user/profile');
       const data = await response.json();
 
@@ -71,11 +81,31 @@ export default function SettingsPage() {
         setUploadedImage(data.data.profileImage || '');
         setUseGravatar(!data.data.profileImage);
       }
-    } catch (error) {
-      console.error('Erreur:', error);
+    } catch (err) {
+      console.error('Erreur:', err);
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/protected_access/login');
+    }
+  }, [status, router]);
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      // La règle ne suit pas les `await` : les setState de fetchProfile sont
+      // postérieurs au fetch, donc asynchrones.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchProfile();
+    }
+  }, [status, fetchProfile]);
+
+  const resetFeedback = () => {
+    setMessage('');
+    setError('');
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,6 +113,7 @@ export default function SettingsPage() {
     if (!file) return;
 
     setUploading(true);
+    resetFeedback();
 
     try {
       const formData = new FormData();
@@ -99,19 +130,18 @@ export default function SettingsPage() {
         setUploadedImage(data.data.url);
         setUseGravatar(false);
       } else {
-        setError(data.error || 'Erreur lors de l\'upload');
+        setError(data.error || "Erreur lors de l'envoi");
       }
-    } catch (error) {
-      console.error('Erreur upload:', error);
-      setError('Erreur lors de l\'upload');
+    } catch (err) {
+      console.error('Erreur upload:', err);
+      setError("Erreur lors de l'envoi");
     } finally {
       setUploading(false);
     }
   };
 
   const handleSaveProfile = async () => {
-    setMessage('');
-    setError('');
+    resetFeedback();
 
     try {
       const response = await fetch('/api/user/profile', {
@@ -119,31 +149,38 @@ export default function SettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
-          profileImage: useGravatar ? null : uploadedImage,
+          // Chaîne vide = retirer l'image et retomber sur Gravatar.
+          profileImage: useGravatar ? '' : uploadedImage,
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setMessage('Profil mis à jour avec succès');
+        setMessage('Profil mis à jour.');
         await update();
         fetchProfile();
       } else {
         setError(data.error || 'Erreur lors de la mise à jour');
       }
-    } catch (error) {
-      console.error('Erreur:', error);
+    } catch (err) {
+      console.error('Erreur:', err);
       setError('Erreur lors de la mise à jour');
     }
   };
 
   const handleChangePassword = async () => {
-    setMessage('');
-    setError('');
+    resetFeedback();
 
     if (newPassword !== confirmPassword) {
       setError('Les mots de passe ne correspondent pas');
+      return;
+    }
+
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      setError(
+        `Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères`
+      );
       return;
     }
 
@@ -157,28 +194,24 @@ export default function SettingsPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage('Mot de passe modifié avec succès');
+        setMessage('Mot de passe modifié.');
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
       } else {
         setError(data.error || 'Erreur lors du changement de mot de passe');
       }
-    } catch (error) {
-      console.error('Erreur:', error);
+    } catch (err) {
+      console.error('Erreur:', err);
       setError('Erreur lors du changement de mot de passe');
     }
   };
 
   const handleSetupTOTP = async () => {
-    setMessage('');
-    setError('');
+    resetFeedback();
 
     try {
-      const response = await fetch('/api/user/2fa/totp/setup', {
-        method: 'POST',
-      });
-
+      const response = await fetch('/api/user/2fa/totp/setup', { method: 'POST' });
       const data = await response.json();
 
       if (data.success) {
@@ -188,15 +221,14 @@ export default function SettingsPage() {
       } else {
         setError(data.error || 'Erreur lors de la configuration');
       }
-    } catch (error) {
-      console.error('Erreur:', error);
+    } catch (err) {
+      console.error('Erreur:', err);
       setError('Erreur lors de la configuration');
     }
   };
 
   const handleVerifyTOTP = async () => {
-    setMessage('');
-    setError('');
+    resetFeedback();
 
     try {
       const response = await fetch('/api/user/2fa/totp/verify', {
@@ -208,70 +240,40 @@ export default function SettingsPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage('2FA TOTP activé avec succès');
+        setMessage('Double authentification activée.');
         setStep2FA('choose');
         setTotpToken('');
         fetchProfile();
       } else {
         setError(data.error || 'Code invalide');
       }
-    } catch (error) {
-      console.error('Erreur:', error);
+    } catch (err) {
+      console.error('Erreur:', err);
       setError('Erreur lors de la vérification');
     }
   };
 
-  const handleDisableTOTP = async () => {
-    if (!confirm('Êtes-vous sûr de vouloir désactiver le 2FA ?')) return;
-
-    setMessage('');
-    setError('');
-
-    try {
-      const response = await fetch('/api/user/2fa/totp/disable', {
-        method: 'POST',
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage('2FA désactivé avec succès');
-        fetchProfile();
-      } else {
-        setError(data.error || 'Erreur');
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-      setError('Erreur');
-    }
-  };
-
   const handleSetupEmail2FA = async () => {
-    setMessage('');
-    setError('');
+    resetFeedback();
 
     try {
-      const response = await fetch('/api/user/2fa/email/setup', {
-        method: 'POST',
-      });
-
+      const response = await fetch('/api/user/2fa/email/setup', { method: 'POST' });
       const data = await response.json();
 
       if (data.success) {
-        setMessage('Code envoyé par email');
+        setMessage('Code envoyé par email.');
         setStep2FA('email-verify');
       } else {
         setError(data.error || 'Erreur');
       }
-    } catch (error) {
-      console.error('Erreur:', error);
+    } catch (err) {
+      console.error('Erreur:', err);
       setError('Erreur');
     }
   };
 
   const handleVerifyEmail2FA = async () => {
-    setMessage('');
-    setError('');
+    resetFeedback();
 
     try {
       const response = await fetch('/api/user/2fa/email/verify', {
@@ -283,540 +285,455 @@ export default function SettingsPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage('2FA par email activé avec succès');
+        setMessage('Double authentification par email activée.');
         setStep2FA('choose');
         setEmailCode('');
         fetchProfile();
       } else {
         setError(data.error || 'Code invalide');
       }
-    } catch (error) {
-      console.error('Erreur:', error);
+    } catch (err) {
+      console.error('Erreur:', err);
       setError('Erreur');
     }
   };
 
-  const handleDisableEmail2FA = async () => {
-    if (!confirm('Êtes-vous sûr de vouloir désactiver le 2FA ?')) return;
+  const handleDisable2FA = async (method: 'totp' | 'email') => {
+    if (
+      !confirm(
+        'Désactiver la double authentification ? Votre compte ne sera plus protégé que par son mot de passe.'
+      )
+    ) {
+      return;
+    }
 
-    setMessage('');
-    setError('');
+    resetFeedback();
 
     try {
-      const response = await fetch('/api/user/2fa/email/disable', {
+      const response = await fetch(`/api/user/2fa/${method}/disable`, {
         method: 'POST',
       });
-
       const data = await response.json();
 
       if (data.success) {
-        setMessage('2FA par email désactivé avec succès');
+        setMessage('Double authentification désactivée.');
         fetchProfile();
       } else {
         setError(data.error || 'Erreur');
       }
-    } catch (error) {
-      console.error('Erreur:', error);
+    } catch (err) {
+      console.error('Erreur:', err);
       setError('Erreur');
     }
   };
 
-  const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-
-  if (status === 'loading' || loading || !profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="rounded-lg h-16 w-16 border-4 border-indigo-200 dark:border-indigo-800 border-t-indigo-600 dark:border-t-indigo-400"
-        />
-      </div>
-    );
+  if (status === 'loading' || status === 'unauthenticated') {
+    return null;
   }
 
-  const gravatarUrl = getGravatarUrl(profile.email);
-  const displayImage = useGravatar ? gravatarUrl : (uploadedImage || gravatarUrl);
+  const avatarSrc = useGravatar
+    ? profile?.email
+      ? getGravatarUrl(profile.email)
+      : null
+    : uploadedImage || null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black">
-      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/admin"
-                className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+    <AdminShell
+      title="Paramètres"
+      description="Profil, mot de passe et double authentification."
+    >
+      {loading || !profile ? (
+        <div className="h-96 animate-pulse rounded-2xl border border-border bg-surface-muted" />
+      ) : (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[220px_1fr]">
+          <nav className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
+            {TABS.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => {
+                  setActiveTab(id);
+                  resetFeedback();
+                }}
+                className={`flex shrink-0 items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-sm transition-colors ${
+                  activeTab === id
+                    ? 'bg-accent-soft text-accent'
+                    : 'text-muted hover:bg-surface-muted hover:text-foreground'
+                }`}
               >
-                <HiArrowLeft className="h-6 w-6" />
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
-                  Paramètres
-                </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Gérez votre compte et vos préférences
-                </p>
+                <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                <span className="whitespace-nowrap">{label}</span>
+              </button>
+            ))}
+          </nav>
+
+          <div className="min-w-0">
+            {message && (
+              <div
+                role="status"
+                className="mb-5 flex items-start gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-600 dark:text-emerald-400"
+              >
+                <LuCircleCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                <span>{message}</span>
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Image
-                src={displayImage}
-                alt="Profile"
-                width={40}
-                height={40}
-                className="h-10 w-10 rounded-lg ring-2 ring-indigo-500 dark:ring-indigo-400"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+            )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {message && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 flex items-center gap-3"
-          >
-            <HiCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
-            <p className="text-sm text-green-800 dark:text-green-300 font-medium">{message}</p>
-          </motion.div>
-        )}
+            {error && (
+              <div
+                role="alert"
+                className="mb-5 flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-600 dark:text-red-400"
+              >
+                <LuTriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                <span>{error}</span>
+              </div>
+            )}
 
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-center gap-3"
-          >
-            <HiX className="h-5 w-5 text-red-600 dark:text-red-400" />
-            <p className="text-sm text-red-800 dark:text-red-300 font-medium">{error}</p>
-          </motion.div>
-        )}
+            {activeTab === 'profile' && (
+              <section className="rounded-2xl border border-border bg-surface p-6">
+                <h2 className="mb-6 text-base font-semibold text-foreground">
+                  Profil
+                </h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={fadeIn}
-            transition={{ duration: 0.5 }}
-            className="lg:col-span-1"
-          >
-            <nav className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2">
-              {[
-                { id: 'profile', label: 'Profil', icon: HiUser },
-                { id: 'security', label: 'Sécurité', icon: HiLockClosed },
-                { id: '2fa', label: '2FA', icon: HiShieldCheck },
-              ].map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <motion.button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as TabType)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${activeTab === tab.id
-                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                      }`}
-                  >
-                    <Icon className="h-5 w-5" />
-                    {tab.label}
-                  </motion.button>
-                );
-              })}
-            </nav>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={fadeIn}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="lg:col-span-3"
-          >
-            <div className="bg-white dark:bg-gray-800/50 backdrop-blur-lg rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8">
-              {activeTab === 'profile' && (
-                <div className="space-y-8">
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                      <HiUser className="h-6 w-6" />
-                      Photo de profil
-                    </h2>
-                    <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                      <div className="relative">
-                        <Image
-                          src={displayImage}
-                          alt="Profile"
-                          width={120}
-                          height={120}
-                          className="h-28 w-28 md:h-32 md:w-32 rounded-lg object-cover ring-4 ring-indigo-500 dark:ring-indigo-400 shadow-xl"
-                        />
-                        <div className="absolute -bottom-2 -right-2 bg-indigo-600 dark:bg-indigo-500 rounded-lg p-2 shadow-lg">
-                          <HiCamera className="h-5 w-5 text-white" />
-                        </div>
-                      </div>
-                      <div className="flex-1 w-full">
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600">
-                            <input
-                              type="radio"
-                              id="gravatar"
-                              checked={useGravatar}
-                              onChange={() => setUseGravatar(true)}
-                              className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600"
-                            />
-                            <label htmlFor="gravatar" className="flex-1 text-sm font-medium text-gray-900 dark:text-white cursor-pointer">
-                              Utiliser Gravatar
-                            </label>
-                          </div>
-                          <div className="space-y-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600">
-                            <div className="flex items-center gap-3">
-                              <input
-                                type="radio"
-                                id="upload"
-                                checked={!useGravatar}
-                                onChange={() => setUseGravatar(false)}
-                                className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600"
-                              />
-                              <label htmlFor="upload" className="flex-1 text-sm font-medium text-gray-900 dark:text-white cursor-pointer">
-                                Télécharger une photo
-                              </label>
-                            </div>
-                            {!useGravatar && (
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                                disabled={uploading}
-                                className="block w-full text-sm text-gray-500 dark:text-gray-400
-                                file:mr-4 file:py-2 file:px-4
-                                file:rounded-lg file:border-0
-                                file:text-sm file:font-semibold
-                                file:bg-indigo-50 dark:file:bg-indigo-900/30
-                                file:text-indigo-700 dark:file:text-indigo-400
-                                hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900/50
-                                file:transition-colors"
-                              />
-                            )}
-                          </div>
-                        </div>
-                      </div>
+                <div className="mb-6 flex items-center gap-5">
+                  {avatarSrc ? (
+                    <Image
+                      src={avatarSrc}
+                      alt=""
+                      width={72}
+                      height={72}
+                      className="h-18 w-18 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-accent-soft text-xl font-medium text-accent">
+                      {name.charAt(0) || profile.email.charAt(0)}
                     </div>
-                  </div>
+                  )}
 
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        Nom complet
-                      </label>
+                  <div className="min-w-0">
+                    <label className="mb-2 flex items-center gap-2 text-sm text-foreground">
                       <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
-                        placeholder="Votre nom"
+                        type="checkbox"
+                        checked={useGravatar}
+                        onChange={(e) => setUseGravatar(e.target.checked)}
+                        className="h-4 w-4 rounded border-border text-accent focus:ring-accent"
                       />
-                    </div>
+                      Utiliser Gravatar
+                    </label>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        Adresse email
-                      </label>
-                      <div className="relative">
-                        <HiMail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <input
-                          type="email"
-                          value={profile.email}
-                          disabled
-                          className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 rounded-lg cursor-not-allowed"
-                        />
-                      </div>
-                    </div>
-
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handleSaveProfile}
-                      className="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-                    >
-                      Enregistrer les modifications
-                    </motion.button>
+                    {!useGravatar && (
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={uploading}
+                        className="block w-full text-sm text-muted file:mr-3 file:rounded-full file:border-0 file:bg-accent-soft file:px-3.5 file:py-1.5 file:text-sm file:font-medium file:text-accent disabled:opacity-60"
+                      />
+                    )}
+                    {uploading && (
+                      <p className="mt-1.5 text-xs text-muted">Envoi en cours…</p>
+                    )}
                   </div>
                 </div>
-              )}
 
-              {activeTab === 'security' && (
-                <div className="space-y-6">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                    <HiLockClosed className="h-6 w-6" />
-                    Changer le mot de passe
-                  </h2>
+                <div className="space-y-5">
+                  <div>
+                    <label htmlFor="name" className={LABEL}>
+                      Nom affiché
+                    </label>
+                    <input
+                      id="name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className={FIELD}
+                    />
+                  </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    <label htmlFor="email" className={LABEL}>
+                      Email
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      value={profile.email}
+                      disabled
+                      className={`${FIELD} cursor-not-allowed opacity-60`}
+                    />
+                    <p className="mt-1.5 text-xs text-muted">
+                      L&apos;email identifie le compte et ne peut pas être modifié
+                      ici.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSaveProfile}
+                    className={buttonClass('primary', 'md')}
+                  >
+                    Enregistrer
+                  </button>
+                </div>
+              </section>
+            )}
+
+            {activeTab === 'security' && (
+              <section className="rounded-2xl border border-border bg-surface p-6">
+                <h2 className="mb-6 text-base font-semibold text-foreground">
+                  Mot de passe
+                </h2>
+
+                <div className="space-y-5">
+                  <div>
+                    <label htmlFor="currentPassword" className={LABEL}>
                       Mot de passe actuel
                     </label>
                     <input
+                      id="currentPassword"
                       type="password"
+                      autoComplete="current-password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
-                      placeholder="••••••••"
+                      className={FIELD}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    <label htmlFor="newPassword" className={LABEL}>
                       Nouveau mot de passe
                     </label>
                     <input
+                      id="newPassword"
                       type="password"
+                      autoComplete="new-password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
-                      placeholder="••••••••"
+                      placeholder={`${MIN_PASSWORD_LENGTH} caractères minimum`}
+                      className={FIELD}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Confirmer le mot de passe
+                    <label htmlFor="confirmPassword" className={LABEL}>
+                      Confirmer
                     </label>
                     <input
+                      id="confirmPassword"
                       type="password"
+                      autoComplete="new-password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300"
-                      placeholder="••••••••"
+                      className={FIELD}
                     />
                   </div>
 
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                  <button
+                    type="button"
                     onClick={handleChangePassword}
-                    className="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    className={buttonClass('primary', 'md')}
                   >
-                    Changer le mot de passe
-                  </motion.button>
+                    Modifier le mot de passe
+                  </button>
                 </div>
-              )}
+              </section>
+            )}
 
-              {activeTab === '2fa' && (
-                <div className="space-y-6">
+            {activeTab === '2fa' && (
+              <section className="rounded-2xl border border-border bg-surface p-6">
+                <div className="mb-6 flex items-start justify-between gap-4">
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                      <HiShieldCheck className="h-6 w-6" />
-                      Authentification à deux facteurs
+                    <h2 className="text-base font-semibold text-foreground">
+                      Double authentification
                     </h2>
-                    {profile.twoFactorEnabled ? (
-                      <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-lg p-6 mt-4">
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="bg-green-500 rounded-lg p-2">
-                            <HiCheck className="h-5 w-5 text-white" />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-green-800 dark:text-green-300">
-                              2FA activé
-                            </p>
-                            <p className="text-sm text-green-700 dark:text-green-400">
-                              via {profile.twoFactorMethod === 'totp' ? 'Application TOTP' : 'Email'}
-                            </p>
-                          </div>
-                        </div>
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={profile.twoFactorMethod === 'totp' ? handleDisableTOTP : handleDisableEmail2FA}
-                          className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-lg transition-colors"
-                        >
-                          Désactiver le 2FA
-                        </motion.button>
-                      </div>
-                    ) : (
-                      <div className="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 rounded-lg p-6 mt-4">
-                        <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                          Renforcez la sécurité de votre compte en activant l&apos;authentification à deux facteurs.
-                        </p>
-                      </div>
-                    )}
+                    <p className="mt-1 text-sm text-muted">
+                      Un second facteur est exigé à chaque connexion.
+                    </p>
                   </div>
 
-                  {!profile.twoFactorEnabled && (
-                    <>
-                      {step2FA === 'choose' && (
-                        <div className="space-y-4">
-                          <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={handleSetupTOTP}
-                            className="w-full flex items-center justify-between p-6 border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-300 group"
-                          >
-                            <div className="flex items-center gap-4">
-                              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg p-4 group-hover:scale-110 transition-transform">
-                                <HiDeviceMobile className="h-7 w-7 text-white" />
-                              </div>
-                              <div className="text-left">
-                                <p className="font-bold text-gray-900 dark:text-white text-lg">Application TOTP</p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Google Authenticator, Authy, etc.</p>
-                              </div>
-                            </div>
-                            <svg className="h-6 w-6 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </motion.button>
-
-                          <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={handleSetupEmail2FA}
-                            className="w-full flex items-center justify-between p-6 border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-300 group"
-                          >
-                            <div className="flex items-center gap-4">
-                              <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg p-4 group-hover:scale-110 transition-transform">
-                                <HiMail className="h-7 w-7 text-white" />
-                              </div>
-                              <div className="text-left">
-                                <p className="font-bold text-gray-900 dark:text-white text-lg">Email</p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Recevoir un code par email</p>
-                              </div>
-                            </div>
-                            <svg className="h-6 w-6 text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </motion.button>
-                        </div>
-                      )}
-
-                      {step2FA === 'totp-verify' && (
-                        <div className="space-y-6">
-                          <button
-                            onClick={() => setStep2FA('choose')}
-                            className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium flex items-center gap-2"
-                          >
-                            <HiArrowLeft className="h-4 w-4" />
-                            Retour
-                          </button>
-
-                          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-6 border-2 border-indigo-200 dark:border-indigo-800">
-                            <h3 className="font-bold text-gray-900 dark:text-white mb-4 text-lg">
-                              Scannez ce QR code
-                            </h3>
-                            {qrCode && (
-                              <div className="flex justify-center mb-4">
-                                <div className="bg-white p-4 rounded-lg shadow-lg">
-                                  <Image
-                                    src={qrCode}
-                                    alt="QR Code"
-                                    width={200}
-                                    height={200}
-                                  />
-                                </div>
-                              </div>
-                            )}
-                            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                Clé manuelle :
-                              </p>
-                              <code className="block bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-lg text-gray-900 dark:text-white font-mono text-sm break-all">
-                                {totpSecret}
-                              </code>
-                            </div>
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                              Entrez le code à 6 chiffres
-                            </label>
-                            <input
-                              type="text"
-                              value={totpToken}
-                              onChange={(e) => setTotpToken(e.target.value)}
-                              maxLength={6}
-                              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-300 text-center text-2xl font-mono tracking-widest"
-                              placeholder="000000"
-                            />
-                          </div>
-
-                          <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={handleVerifyTOTP}
-                            className="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-                          >
-                            Vérifier et activer
-                          </motion.button>
-                        </div>
-                      )}
-
-                      {step2FA === 'email-verify' && (
-                        <div className="space-y-6">
-                          <button
-                            onClick={() => setStep2FA('choose')}
-                            className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium flex items-center gap-2"
-                          >
-                            <HiArrowLeft className="h-4 w-4" />
-                            Retour
-                          </button>
-
-                          <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6 border-2 border-green-200 dark:border-green-800">
-                            <div className="flex items-center gap-3 mb-3">
-                              <HiMail className="h-6 w-6 text-green-600 dark:text-green-400" />
-                              <h3 className="font-bold text-gray-900 dark:text-white text-lg">
-                                Vérifiez votre email
-                              </h3>
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              Un code de vérification a été envoyé à <strong>{profile.email}</strong>
-                            </p>
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                              Entrez le code reçu par email
-                            </label>
-                            <input
-                              type="text"
-                              value={emailCode}
-                              onChange={(e) => setEmailCode(e.target.value)}
-                              maxLength={6}
-                              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:border-transparent transition-all duration-300 text-center text-2xl font-mono tracking-widest"
-                              placeholder="000000"
-                            />
-                          </div>
-
-                          <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={handleVerifyEmail2FA}
-                            className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-                          >
-                            Vérifier et activer
-                          </motion.button>
-
-                          <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={handleSetupEmail2FA}
-                            className="w-full px-6 py-3 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg font-semibold border-2 border-green-200 dark:border-green-800 transition-all duration-300"
-                          >
-                            Renvoyer le code
-                          </motion.button>
-                        </div>
-                      )}
-                    </>
-                  )}
+                  <span
+                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
+                      profile.twoFactorEnabled
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                        : 'border border-amber-500/40 text-amber-600 dark:text-amber-400'
+                    }`}
+                  >
+                    {profile.twoFactorEnabled ? 'Activée' : 'Désactivée'}
+                  </span>
                 </div>
-              )}
-            </div>
-          </motion.div>
+
+                {profile.twoFactorEnabled ? (
+                  <div className="space-y-5">
+                    <div className="flex items-center gap-3 rounded-xl border border-border bg-surface-muted p-4">
+                      {profile.twoFactorMethod === 'totp' ? (
+                        <LuSmartphone className="h-5 w-5 text-accent" aria-hidden />
+                      ) : (
+                        <LuMail className="h-5 w-5 text-accent" aria-hidden />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {profile.twoFactorMethod === 'totp'
+                            ? "Application d'authentification"
+                            : 'Code par email'}
+                        </p>
+                        <p className="text-xs text-muted">
+                          Méthode actuellement active
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleDisable2FA(
+                          profile.twoFactorMethod === 'totp' ? 'totp' : 'email'
+                        )
+                      }
+                      className="rounded-full border border-red-500/40 px-5 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-500/10 dark:text-red-400"
+                    >
+                      Désactiver
+                    </button>
+                  </div>
+                ) : step2FA === 'choose' ? (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <button
+                      type="button"
+                      onClick={handleSetupTOTP}
+                      className="flex flex-col items-start gap-3 rounded-xl border border-border p-5 text-left transition-colors hover:border-accent/40"
+                    >
+                      <LuSmartphone className="h-5 w-5 text-accent" aria-hidden />
+                      <span className="text-sm font-medium text-foreground">
+                        Application d&apos;authentification
+                      </span>
+                      <span className="text-xs text-muted">
+                        Google Authenticator, Authy… Recommandé : fonctionne hors
+                        ligne.
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleSetupEmail2FA}
+                      className="flex flex-col items-start gap-3 rounded-xl border border-border p-5 text-left transition-colors hover:border-accent/40"
+                    >
+                      <LuMail className="h-5 w-5 text-accent" aria-hidden />
+                      <span className="text-sm font-medium text-foreground">
+                        Code par email
+                      </span>
+                      <span className="text-xs text-muted">
+                        Un code à six chiffres envoyé à chaque connexion.
+                      </span>
+                    </button>
+                  </div>
+                ) : step2FA === 'totp-verify' ? (
+                  <div className="space-y-5">
+                    <p className="text-sm text-muted">
+                      Scannez ce QR code avec votre application, puis entrez le
+                      code affiché.
+                    </p>
+
+                    {qrCode && (
+                      <div className="flex justify-center rounded-xl border border-border bg-white p-4">
+                        {/* Image en data: URI générée par le serveur — next/image
+                            n'apporte rien ici et refuserait le format. */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={qrCode} alt="QR code" className="h-44 w-44" />
+                      </div>
+                    )}
+
+                    {totpSecret && (
+                      <div>
+                        <p className={LABEL}>Ou saisissez cette clé manuellement</p>
+                        <code className="block break-all rounded-xl border border-border bg-surface-muted px-3.5 py-2.5 font-mono text-xs text-foreground">
+                          {totpSecret}
+                        </code>
+                      </div>
+                    )}
+
+                    <div>
+                      <label htmlFor="totpToken" className={LABEL}>
+                        Code à six chiffres
+                      </label>
+                      <input
+                        id="totpToken"
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        value={totpToken}
+                        onChange={(e) =>
+                          setTotpToken(e.target.value.replace(/\D/g, ''))
+                        }
+                        placeholder="000000"
+                        className={`${FIELD} text-center text-xl tracking-[0.4em]`}
+                      />
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setStep2FA('choose')}
+                        className={buttonClass('secondary', 'md')}
+                      >
+                        Annuler
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleVerifyTOTP}
+                        disabled={totpToken.length !== 6}
+                        className={buttonClass('primary', 'md')}
+                      >
+                        Activer
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-5">
+                    <p className="text-sm text-muted">
+                      Un code vient d&apos;être envoyé à {profile.email}. Il expire
+                      dans dix minutes.
+                    </p>
+
+                    <div>
+                      <label htmlFor="emailCode" className={LABEL}>
+                        Code reçu
+                      </label>
+                      <input
+                        id="emailCode"
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        value={emailCode}
+                        onChange={(e) =>
+                          setEmailCode(e.target.value.replace(/\D/g, ''))
+                        }
+                        placeholder="000000"
+                        className={`${FIELD} text-center text-xl tracking-[0.4em]`}
+                      />
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setStep2FA('choose')}
+                        className={buttonClass('secondary', 'md')}
+                      >
+                        Annuler
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleVerifyEmail2FA}
+                        disabled={emailCode.length !== 6}
+                        className={buttonClass('primary', 'md')}
+                      >
+                        Activer
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </AdminShell>
   );
 }

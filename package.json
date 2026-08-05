@@ -16,7 +16,8 @@
     "db:reset": "prisma migrate reset",
     "db:push": "prisma db push",
     "seed:projects": "tsx scripts/seed-featured-projects.ts",
-    "seed:admin": "tsx scripts/create-admin.ts"
+    "seed:admin": "tsx scripts/create-admin.ts",
+    "ensure:admin": "tsx scripts/ensure-admin.ts"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",

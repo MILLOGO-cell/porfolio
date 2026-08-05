@@ -32,4 +32,7 @@ ENV PORT=3000
 # un schéma périmé et toute requête sur une colonne récente échoue.
 # `migrate deploy` est idempotent et pose un verrou consultatif : plusieurs
 # instances qui démarrent en même temps ne se marchent pas dessus.
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
+#
+# `ensure-admin` amorce ensuite le compte administrateur depuis ADMIN_EMAIL /
+# ADMIN_PASSWORD. Il est idempotent et ne fait jamais échouer le démarrage.
+CMD ["sh", "-c", "npx prisma migrate deploy && npx tsx scripts/ensure-admin.ts; npm run start"]

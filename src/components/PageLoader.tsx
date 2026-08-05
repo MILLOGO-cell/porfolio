@@ -26,7 +26,7 @@ export const PageLoader = () => {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.5, ease: "easeInOut" }}
                     style={{ originX: 0 }}
-                    className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 z-[9999]"
+                    className="fixed top-0 left-0 right-0 h-0.5 bg-accent z-[9999]"
                 />
             )}
         </AnimatePresence>
