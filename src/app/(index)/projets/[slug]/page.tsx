@@ -60,6 +60,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+/**
+ * Rend cliquables les adresses présentes dans un texte saisi en administration.
+ * Le contenu vient de la base sous forme de texte brut : sans cela, une
+ * référence à un site partenaire resterait une chaîne inerte.
+ */
+function linkify(text: string) {
+  return text.split(/(https?:\/\/[^\s)]+)/g).map((part, index) =>
+    /^https?:\/\//.test(part) ? (
+      <a
+        key={index}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-medium text-accent underline decoration-accent/40 underline-offset-2 transition-opacity hover:opacity-80"
+      >
+        {part.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
+      </a>
+    ) : (
+      part
+    )
+  );
+}
+
 /** Bloc de l'étude de cas — n'apparaît que s'il est renseigné. */
 function CaseSection({
   label,
@@ -79,7 +102,7 @@ function CaseSection({
           `hyphens-auto` accompagne la justification : sans césure, un texte
           justifié en français creuse des rivières de blanc entre les mots. */}
       <p className="hyphens-auto whitespace-pre-line text-justify leading-relaxed text-foreground">
-        {children}
+        {linkify(children)}
       </p>
     </section>
   );
