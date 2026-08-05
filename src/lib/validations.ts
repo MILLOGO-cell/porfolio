@@ -40,6 +40,7 @@ const caseStudyText = z.string().trim().max(5000).nullable().optional();
  */
 export const PROJECT_CATEGORIES = [
   'Site web',
+  'E-commerce',
   'Application métier',
   'Application mobile',
   'API et backend',
@@ -97,6 +98,10 @@ export const projectSchema = z
     url: optionalHttpUrl,
     repoUrl: optionalHttpUrl,
     imageUrl: optionalImageUrl,
+    gallery: z
+      .array(z.union([httpUrl, relativeAssetPath]))
+      .max(12)
+      .default([]),
     tags: z.array(z.string().trim().min(1).max(40)).max(20).default([]),
     featured: z.boolean().default(false),
     published: z.boolean().default(true),

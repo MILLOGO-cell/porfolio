@@ -12,6 +12,7 @@ const publicSelect = {
   description: true,
   url: true,
   imageUrl: true,
+  gallery: true,
   tags: true,
   stack: true,
   category: true,

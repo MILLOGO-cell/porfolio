@@ -62,7 +62,11 @@ model Project {
 
   url         String?
   repoUrl     String?  @map("repo_url")
+  /// Visuel principal, utilisé en vignette et en tête de fiche.
   imageUrl    String?  @map("image_url")
+  /// Captures supplémentaires, affichées en bas de l'étude de cas. Une seule
+  /// image ne suffit pas à rendre compte d'une application à plusieurs écrans.
+  gallery     String[]
   tags        String[]
   featured    Boolean  @default(false)
   /// Ordre d'affichage maîtrisé ; à défaut, tri par date de création.

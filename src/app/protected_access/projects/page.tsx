@@ -38,6 +38,7 @@ interface Project {
   url: string | null;
   repoUrl: string | null;
   imageUrl: string | null;
+  gallery: string[];
   tags: string[];
   featured: boolean;
   published: boolean;
@@ -62,6 +63,7 @@ const EMPTY_FORM = {
   url: '',
   repoUrl: '',
   imageUrl: '',
+  gallery: '',
   tags: '',
   featured: false,
   published: true,
@@ -207,6 +209,12 @@ export default function ProjectsPage() {
       url: formData.url || null,
       repoUrl: formData.repoUrl || null,
       imageUrl: formData.imageUrl || null,
+      // Une ligne par chemin : plus lisible qu'une liste separee par virgules
+      // pour des chemins qui en contiennent deja des caracteres speciaux.
+      gallery: formData.gallery
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean),
       tags: splitList(formData.tags),
       featured: formData.featured,
       published: formData.published,
@@ -272,6 +280,7 @@ export default function ProjectsPage() {
       url: project.url || '',
       repoUrl: project.repoUrl || '',
       imageUrl: project.imageUrl || '',
+      gallery: (project.gallery ?? []).join('\n'),
       tags: project.tags.join(', '),
       featured: project.featured,
       published: project.published ?? true,
@@ -797,6 +806,26 @@ export default function ProjectsPage() {
                     </button>
                   </div>
                 )}
+              </div>
+
+              <div>
+                <label htmlFor="gallery" className={LABEL}>
+                  Aperçus supplémentaires
+                </label>
+                <textarea
+                  id="gallery"
+                  rows={4}
+                  value={formData.gallery}
+                  onChange={(e) =>
+                    setFormData({ ...formData, gallery: e.target.value })
+                  }
+                  placeholder={'/projets/mon-projet-dashboard.webp\n/projets/mon-projet-detail.webp'}
+                  className={`${FIELD} font-mono text-xs`}
+                />
+                <p className={HINT}>
+                  Un chemin par ligne. Affichés en bas de l&apos;étude de cas,
+                  après le visuel principal.
+                </p>
               </div>
 
               <div>

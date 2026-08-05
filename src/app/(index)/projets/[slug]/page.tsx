@@ -33,6 +33,7 @@ async function getProject(slug: string) {
       url: true,
       repoUrl: true,
       imageUrl: true,
+      gallery: true,
     },
   });
 }
@@ -162,6 +163,32 @@ export default async function ProjectPage({ params }: PageProps) {
             <CaseSection label="Présentation">{project.description}</CaseSection>
           )}
         </div>
+
+        {project.gallery.length > 0 && (
+          <section className="mt-10 border-t border-border pt-8">
+            <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-accent">
+              Aperçus
+            </h2>
+            {/* Pleine largeur et cadrage haut : ce sont des captures d'écran,
+                les rogner en vignette rendrait l'interface illisible. */}
+            <div className="space-y-4">
+              {project.gallery.map((src, index) => (
+                <div
+                  key={src}
+                  className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border bg-surface-muted"
+                >
+                  <Image
+                    src={src}
+                    alt={`${project.title}, aperçu ${index + 1}`}
+                    fill
+                    sizes="(min-width: 768px) 768px, 100vw"
+                    className="object-cover object-top"
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {project.stack.length > 0 && (
           <section className="mt-10 border-t border-border pt-8">
