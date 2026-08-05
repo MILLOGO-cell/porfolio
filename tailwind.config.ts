@@ -32,8 +32,10 @@ const config: Config = {
         float: "0 12px 32px -8px rgb(0 0 0 / 0.12)",
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "monospace"],
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        // Réservé aux grands titres (h1, accroches de section).
+        display: ["var(--font-display)", "Georgia", "serif"],
+        mono: ["var(--font-mono)", "monospace"],
       },
     },
   },

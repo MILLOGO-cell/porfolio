@@ -71,7 +71,7 @@ export default function Home() {
           {site.role}
         </p>
 
-        <h1 className="mt-5 max-w-3xl text-pretty text-4xl font-semibold leading-[1.1] tracking-tight md:text-5xl lg:text-6xl">
+        <h1 className="mt-5 max-w-4xl text-pretty font-display text-5xl font-normal leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
           Je construis des applications métiers{" "}
           <span className="text-gradient">qui tiennent en production</span>.
         </h1>

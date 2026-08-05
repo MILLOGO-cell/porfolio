@@ -475,8 +475,8 @@ export default function ProjectsPage() {
       )}
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4 backdrop-blur-sm">
-          <div className="custom-scrollbar relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-background shadow-float">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4 backdrop-blur-sm md:p-8">
+          <div className="custom-scrollbar relative max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-2xl border border-border bg-background shadow-float">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background px-6 py-4">
               <h2 className="text-base font-semibold text-foreground">
                 {editingProject ? 'Modifier le projet' : 'Nouveau projet'}
@@ -574,23 +574,27 @@ export default function ProjectsPage() {
                   Étude de cas
                 </legend>
 
-                {CASE_STUDY_FIELDS.map(({ key, label, hint }) => (
-                  <div key={key}>
-                    <label htmlFor={key} className={LABEL}>
-                      {label}
-                    </label>
-                    <textarea
-                      id={key}
-                      rows={4}
-                      value={formData[key]}
-                      onChange={(e) =>
-                        setFormData({ ...formData, [key]: e.target.value })
-                      }
-                      className={FIELD}
-                    />
-                    <p className={HINT}>{hint}</p>
-                  </div>
-                ))}
+                {/* Deux colonnes dès `lg` : la modale est large, une colonne
+                    unique étirerait les zones de texte sur toute la largeur. */}
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  {CASE_STUDY_FIELDS.map(({ key, label, hint }) => (
+                    <div key={key}>
+                      <label htmlFor={key} className={LABEL}>
+                        {label}
+                      </label>
+                      <textarea
+                        id={key}
+                        rows={6}
+                        value={formData[key]}
+                        onChange={(e) =>
+                          setFormData({ ...formData, [key]: e.target.value })
+                        }
+                        className={FIELD}
+                      />
+                      <p className={HINT}>{hint}</p>
+                    </div>
+                  ))}
+                </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>

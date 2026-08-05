@@ -1,6 +1,6 @@
 "use client";
 
-import { FaMoon, FaSun } from "react-icons/fa";
+import { LuMoon, LuSun } from "react-icons/lu";
 import { useTheme } from "@/context/ThemeContext";
 
 export default function ThemeSwitcher() {
@@ -8,14 +8,17 @@ export default function ThemeSwitcher() {
 
   return (
     <button
+      type="button"
       onClick={toggleTheme}
-      className="relative inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      aria-label="Toggle theme"
+      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:bg-surface-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      aria-label={
+        theme === "dark" ? "Activer le thème clair" : "Activer le thème sombre"
+      }
     >
       {theme === "dark" ? (
-        <FaSun className="w-5 h-5 text-yellow-500" />
+        <LuSun className="h-3.5 w-3.5" />
       ) : (
-        <FaMoon className="w-5 h-5 text-indigo-600" />
+        <LuMoon className="h-3.5 w-3.5" />
       )}
     </button>
   );

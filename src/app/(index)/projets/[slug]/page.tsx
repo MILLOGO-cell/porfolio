@@ -110,7 +110,7 @@ export default async function ProjectPage({ params }: PageProps) {
         </Link>
 
         <header className="mt-8">
-          <h1 className="text-balance text-3xl font-semibold tracking-tight md:text-4xl">
+          <h1 className="text-balance font-display text-4xl font-normal tracking-tight md:text-5xl">
             {project.title}
           </h1>
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -9,14 +9,30 @@ import { ScrollProgress } from "@/components/ScrollProgress";
 import { PageLoader } from "@/components/PageLoader";
 import { site } from "@/lib/site";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+/**
+ * Geist est la police de Vercel : elle signale « projet Next.js » avant de
+ * signaler quoi que ce soit sur son auteur. Remplacée par Inter, la référence
+ * des interfaces (excellente en français, diacritiques compris), avec un serif
+ * réservé aux grands titres pour donner une tenue éditoriale plutôt que
+ * l'uniformité d'un gabarit.
+ */
+const sans = Inter({
+  variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const display = Instrument_Serif({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+});
+
+const mono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -41,7 +57,7 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning className="overflow-x-hidden">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden max-w-full`}
+        className={`${sans.variable} ${display.variable} ${mono.variable} antialiased overflow-x-hidden max-w-full`}
       >
         <ThemeProvider>
           <AuthProvider>
