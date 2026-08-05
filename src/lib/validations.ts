@@ -35,6 +35,20 @@ const optionalImageUrl = z
 const caseStudyText = z.string().trim().max(5000).nullable().optional();
 
 /**
+ * Familles de projets. Vocabulaire volontairement court et ferme : une liste
+ * qui s'allonge à chaque fiche cesse de servir à regrouper quoi que ce soit.
+ */
+export const PROJECT_CATEGORIES = [
+  'Site web',
+  'Application métier',
+  'Application mobile',
+  'API et backend',
+  'Design UX/UI',
+] as const;
+
+export type ProjectCategory = (typeof PROJECT_CATEGORIES)[number];
+
+/**
  * Dérive un identifiant d'URL depuis un titre. Utilisé côté serveur quand
  * l'administrateur laisse le champ vide, et côté formulaire pour la
  * prévisualisation — d'où l'export.
@@ -73,6 +87,9 @@ export const projectSchema = z
     challenges: caseStudyText,
     outcome: caseStudyText,
 
+    category: z
+      .union([z.enum(PROJECT_CATEGORIES), z.literal(''), z.null()])
+      .optional(),
     client: z.string().trim().max(200).nullable().optional(),
     period: z.string().trim().max(60).nullable().optional(),
     stack: z.array(z.string().trim().min(1).max(40)).max(40).default([]),
@@ -99,6 +116,7 @@ export const projectSchema = z
       role: emptyToNull(data.role),
       challenges: emptyToNull(data.challenges),
       outcome: emptyToNull(data.outcome),
+      category: emptyToNull(data.category),
       client: emptyToNull(data.client),
       period: emptyToNull(data.period),
       url: emptyToNull(data.url),

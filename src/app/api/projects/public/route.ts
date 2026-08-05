@@ -14,6 +14,7 @@ const publicSelect = {
   imageUrl: true,
   tags: true,
   stack: true,
+  category: true,
   client: true,
   period: true,
   featured: true,

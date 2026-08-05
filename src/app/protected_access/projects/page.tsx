@@ -19,6 +19,7 @@ import {
 import AdminShell from '@/components/admin/AdminShell';
 import { buttonClass } from '@/components/ui/button-styles';
 import Badge from '@/components/ui/Badge';
+import { PROJECT_CATEGORIES } from '@/lib/validations';
 
 interface Project {
   id: string;
@@ -30,6 +31,7 @@ interface Project {
   role: string | null;
   challenges: string | null;
   outcome: string | null;
+  category: string | null;
   client: string | null;
   period: string | null;
   stack: string[];
@@ -53,6 +55,7 @@ const EMPTY_FORM = {
   role: '',
   challenges: '',
   outcome: '',
+  category: '',
   client: '',
   period: '',
   stack: '',
@@ -197,6 +200,7 @@ export default function ProjectsPage() {
       role: formData.role || null,
       challenges: formData.challenges || null,
       outcome: formData.outcome || null,
+      category: formData.category || null,
       client: formData.client || null,
       period: formData.period || null,
       stack: splitList(formData.stack),
@@ -261,6 +265,7 @@ export default function ProjectsPage() {
       role: project.role || '',
       challenges: project.challenges || '',
       outcome: project.outcome || '',
+      category: project.category || '',
       client: project.client || '',
       period: project.period || '',
       stack: (project.stack ?? []).join(', '),
@@ -600,6 +605,31 @@ export default function ProjectsPage() {
                       <p className={HINT}>{hint}</p>
                     </div>
                   ))}
+                </div>
+
+                <div>
+                  <label htmlFor="category" className={LABEL}>
+                    Catégorie
+                  </label>
+                  <select
+                    id="category"
+                    value={formData.category}
+                    onChange={(e) =>
+                      setFormData({ ...formData, category: e.target.value })
+                    }
+                    className={FIELD}
+                  >
+                    <option value="">Non classé</option>
+                    {PROJECT_CATEGORIES.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                  <p className={HINT}>
+                    Sert à regrouper les projets sur la page publique. Une seule
+                    valeur par fiche, contrairement aux tags.
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

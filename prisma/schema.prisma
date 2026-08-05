@@ -48,6 +48,11 @@ model Project {
   /// Ce qui a été livré et ce que cela a changé.
   outcome     String?
 
+  /// Famille du projet, valeur unique et contrôlée (voir PROJECT_CATEGORIES).
+  /// Sert au regroupement et au filtrage ; les `tags` restent libres et
+  /// secondaires.
+  category    String?
+
   /// Client ou secteur (« banque de détail ») si le nom est confidentiel.
   client      String?
   /// Période libre : « 2024 — 2025 ».
@@ -69,6 +74,7 @@ model Project {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@index([published, featured])
+  @@index([published, category])
   @@map("projects")
 }
 
