@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -9,31 +8,9 @@ import { ScrollProgress } from "@/components/ScrollProgress";
 import { PageLoader } from "@/components/PageLoader";
 import { site } from "@/lib/site";
 
-/**
- * Geist est la police de Vercel : elle signale « projet Next.js » avant de
- * signaler quoi que ce soit sur son auteur. Remplacée par Inter, la référence
- * des interfaces (excellente en français, diacritiques compris), avec un serif
- * réservé aux grands titres pour donner une tenue éditoriale plutôt que
- * l'uniformité d'un gabarit.
- */
-const sans = Inter({
-  variable: "--font-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const display = Instrument_Serif({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: "400",
-  display: "swap",
-});
-
-const mono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
+// Typographie : Helvetica via une pile système, définie dans tailwind.config.
+// Aucune police n'est téléchargée, ce qui supprime le temps de chargement des
+// fontes et le décalage de mise en page qui l'accompagne.
 
 export const metadata: Metadata = {
   title: {
@@ -57,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning className="overflow-x-hidden">
       <body
-        className={`${sans.variable} ${display.variable} ${mono.variable} antialiased overflow-x-hidden max-w-full`}
+        className="max-w-full overflow-x-hidden antialiased"
       >
         <ThemeProvider>
           <AuthProvider>

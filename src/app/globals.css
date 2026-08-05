@@ -19,18 +19,16 @@
     --foreground: 24 24 27;
     --muted: 113 113 122;
     --accent: 79 70 229;
-    /* Teinte assez marquée pour se voir sur fond blanc : la version précédente
-       (238 242 255) était presque indiscernable. */
-    --accent-soft: 224 231 255;
+    --accent-soft: 199 210 254;
 
-    /* Couleurs porteuses de sens : chacune signale un état, elles ne servent
-       jamais de décoration. */
-    --success: 5 150 105;
-    --success-soft: 209 250 229;
-    --warning: 217 119 6;
-    --warning-soft: 254 243 199;
-    --info: 2 132 199;
-    --info-soft: 224 242 254;
+    /* Teintes de section et d'état. Volontairement franches : les versions
+       précédentes se confondaient avec le blanc. */
+    --success: 4 120 87;
+    --success-soft: 167 243 208;
+    --warning: 180 83 9;
+    --warning-soft: 253 230 138;
+    --info: 3 105 161;
+    --info-soft: 186 230 253;
   }
 
   .dark {
@@ -41,14 +39,14 @@
     --foreground: 250 250 250;
     --muted: 161 161 170;
     --accent: 129 140 248;
-    --accent-soft: 30 27 75;
+    --accent-soft: 49 46 129;
 
     --success: 52 211 153;
-    --success-soft: 6 46 37;
+    --success-soft: 6 78 59;
     --warning: 251 191 36;
-    --warning-soft: 60 39 6;
+    --warning-soft: 120 53 15;
     --info: 56 189 248;
-    --info-soft: 8 47 73;
+    --info-soft: 12 74 110;
   }
 
   html {

@@ -77,7 +77,7 @@ export default function Contact() {
               Contact
             </p>
 
-            <h1 className="text-pretty font-display text-4xl font-normal tracking-tight md:text-5xl">
+            <h1 className="text-pretty text-4xl font-bold tracking-tight md:text-5xl">
               Parlons de votre projet
             </h1>
 

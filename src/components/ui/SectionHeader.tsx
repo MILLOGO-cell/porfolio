@@ -27,7 +27,7 @@ export default function SectionHeader({
           {eyebrow}
         </span>
 
-        <h2 className="max-w-3xl text-balance font-display text-3xl font-normal tracking-tight text-foreground md:text-4xl">
+        <h2 className="max-w-3xl text-balance text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           {title}
         </h2>
 

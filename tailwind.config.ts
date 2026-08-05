@@ -44,10 +44,31 @@ const config: Config = {
         float: "0 12px 32px -8px rgb(0 0 0 / 0.12)",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
-        // Réservé aux grands titres (h1, accroches de section).
-        display: ["var(--font-display)", "Georgia", "serif"],
-        mono: ["var(--font-mono)", "monospace"],
+        // Helvetica en tête, avec les replis usuels : Arial sur Windows,
+        // Liberation Sans sur Linux. Aucune police n'est téléchargée.
+        sans: [
+          '"Helvetica Neue"',
+          "Helvetica",
+          "Arial",
+          '"Liberation Sans"',
+          "sans-serif",
+        ],
+        // `display` reste défini pour ne pas casser les classes existantes,
+        // mais pointe désormais sur la même pile : plus de serif.
+        display: [
+          '"Helvetica Neue"',
+          "Helvetica",
+          "Arial",
+          '"Liberation Sans"',
+          "sans-serif",
+        ],
+        mono: [
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Consolas",
+          "monospace",
+        ],
       },
     },
   },

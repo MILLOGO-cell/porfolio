@@ -82,12 +82,20 @@ export default function Home() {
       {/* Hero — typographique. L'illustration a été retirée : elle tirait  */}
       {/* la page vers la plaquette de freelance.                          */}
       {/* ---------------------------------------------------------------- */}
-      <section className="mx-auto max-w-5xl px-4 py-20 md:px-8 md:py-28">
+      <section className="relative isolate overflow-hidden">
+        {/* Halo coloré derrière le hero : il donne le ton chromatique de la
+            page sans poser d'aplat derrière le texte, qui perdrait en lisibilité. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[560px] bg-[radial-gradient(ellipse_at_top_left,rgb(var(--accent)/0.30),transparent_55%),radial-gradient(ellipse_at_top_right,rgb(var(--info)/0.26),transparent_55%)]"
+        />
+
+        <div className="mx-auto max-w-5xl px-4 py-20 md:px-8 md:py-28">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
           {site.role}
         </p>
 
-        <h1 className="mt-5 max-w-4xl text-pretty font-display text-5xl font-normal leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
+        <h1 className="mt-5 max-w-4xl text-pretty text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
           Je construis des applications métiers{" "}
           <span className="text-gradient">qui tiennent en production</span>.
         </h1>
@@ -104,6 +112,7 @@ export default function Home() {
           <Link href="/contact" className={buttonClass("secondary", "lg")}>
             Me contacter
           </Link>
+        </div>
         </div>
       </section>
 
@@ -143,7 +152,7 @@ export default function Home() {
       {/* ---------------------------------------------------------------- */}
       {/* Expertise                                                         */}
       {/* ---------------------------------------------------------------- */}
-      <section className="border-t border-border bg-accent-soft/50 dark:bg-accent-soft/25">
+      <section className="border-t border-border bg-accent-soft/45 dark:bg-accent-soft/20">
         <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
           <SectionHeader
             id="expertise"
@@ -196,7 +205,7 @@ export default function Home() {
       {/* ---------------------------------------------------------------- */}
       {/* Stack                                                             */}
       {/* ---------------------------------------------------------------- */}
-      <section className="border-t border-border">
+      <section className="border-t border-border bg-warning-soft/30 dark:bg-warning-soft/15">
         <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
           <SectionHeader
             id="stack"
@@ -229,9 +238,9 @@ export default function Home() {
       {/* ---------------------------------------------------------------- */}
       <section className="border-t border-border bg-info-soft/40 dark:bg-info-soft/20">
         <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
-          <ScrollReveal y={24}>
+          <ScrollReveal y={24}>{/* Bloc de contact */}
             <div className="flex flex-col items-start gap-6 rounded-2xl border border-border bg-surface p-10">
-              <h2 className="max-w-xl text-balance font-display text-3xl font-normal tracking-tight md:text-4xl">
+              <h2 className="max-w-xl text-balance text-3xl font-bold tracking-tight md:text-4xl">
                 Un projet, un poste, une question technique ?
               </h2>
               <p className="max-w-xl text-pretty leading-relaxed text-muted">

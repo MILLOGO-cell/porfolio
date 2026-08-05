@@ -87,7 +87,7 @@ export default function Projets() {
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
             Projets
           </p>
-          <h1 className="mt-4 max-w-2xl text-pretty font-display text-4xl font-normal tracking-tight md:text-5xl">
+          <h1 className="mt-4 max-w-2xl text-pretty text-4xl font-bold tracking-tight md:text-5xl">
             Ce que j&apos;ai construit
           </h1>
           <p className="mt-4 max-w-2xl text-pretty leading-relaxed text-muted">
