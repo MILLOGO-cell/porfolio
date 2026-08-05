@@ -292,10 +292,10 @@ export default function ProjectsPage() {
     Boolean(p.context && p.role && p.challenges && p.outcome);
 
   const filterButton = (active: boolean) =>
-    `rounded-full px-4 py-2 text-sm transition-colors ${
+    `rounded-full px-4 py-2 text-sm font-medium transition-colors ${
       active
-        ? 'bg-accent text-white'
-        : 'border border-border text-muted hover:border-accent/40 hover:text-foreground'
+        ? 'bg-accent text-white shadow-subtle'
+        : 'bg-accent-soft/60 text-accent hover:bg-accent-soft'
     }`;
 
   return (
@@ -459,7 +459,7 @@ export default function ProjectsPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`Ouvrir ${project.title}`}
-                      className="rounded-full border border-border p-2 text-muted transition-colors hover:border-accent/40 hover:text-accent"
+                      className="rounded-full border border-info/25 bg-info-soft/60 p-2 text-info transition-colors hover:bg-info-soft"
                     >
                       <LuExternalLink className="h-4 w-4" />
                     </a>
@@ -469,7 +469,7 @@ export default function ProjectsPage() {
                     type="button"
                     onClick={() => handleDelete(project)}
                     aria-label={`Supprimer ${project.title}`}
-                    className="rounded-full border border-border p-2 text-muted transition-colors hover:border-red-500/40 hover:text-red-600 dark:hover:text-red-400"
+                    className="rounded-full border border-red-600/25 bg-red-600/10 p-2 text-red-600 transition-colors hover:bg-red-600/20 dark:border-red-400/25 dark:bg-red-400/10 dark:text-red-400 dark:hover:bg-red-400/20"
                   >
                     <LuTrash2 className="h-4 w-4" />
                   </button>
@@ -824,10 +824,12 @@ export default function ProjectsPage() {
               </div>
 
               <div className="flex justify-end gap-3 border-t border-border pt-5">
+                {/* Annuler reste neutre : le teinter le mettrait au même rang
+                    visuel que l'action d'enregistrement. */}
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className={buttonClass('secondary', 'md')}
+                  className="rounded-full border border-border px-5 py-2.5 text-sm font-medium text-muted transition-colors hover:bg-surface-muted hover:text-foreground"
                 >
                   Annuler
                 </button>

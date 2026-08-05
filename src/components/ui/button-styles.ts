@@ -14,9 +14,11 @@ const base =
 const variants: Record<ButtonVariant, string> = {
   primary:
     "bg-gradient-to-r from-accent to-purple-500 text-white shadow-raised hover:shadow-float hover:brightness-110",
+  // Teinté plutôt que gris : un bouton secondaire reste une action, il doit se
+  // distinguer du texte courant.
   secondary:
-    "border border-border bg-surface text-foreground hover:border-accent/40 hover:bg-surface-muted",
-  ghost: "text-muted hover:bg-surface-muted hover:text-foreground",
+    "border border-accent/25 bg-accent-soft/60 text-accent hover:border-accent/40 hover:bg-accent-soft",
+  ghost: "text-accent hover:bg-accent-soft/60",
 };
 
 const sizes: Record<ButtonSize, string> = {
