@@ -57,15 +57,27 @@
     --info-soft: 12 74 110;
   }
 
+  /*
+   * `clip` et non `hidden`, sur les deux éléments.
+   *
+   * `overflow-x: hidden` force `overflow-y` à `auto` et fait de l'élément un
+   * conteneur de défilement. `body` en devenait un sans être défilable, et
+   * `animation-timeline: view()` se résolvait contre lui : les blocs étaient
+   * considérés comme déjà entrés, l'animation naissait terminée, et la
+   * révélation au défilement ne se produisait jamais.
+   *
+   * `clip` rogne le débordement horizontal à l'identique sans créer de
+   * conteneur de défilement.
+   */
   html {
-    overflow-x: hidden;
+    overflow-x: clip;
     scroll-behavior: smooth;
     /* Compense le header fixe quand on cible une ancre de section. */
     scroll-padding-top: 6rem;
   }
 
   body {
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
     background-color: rgb(var(--background));
     color: rgb(var(--foreground));
@@ -124,7 +136,7 @@
 @keyframes reveal-up {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(var(--reveal-y, 14px));
   }
   to {
     opacity: 1;
@@ -133,8 +145,51 @@
 }
 
 @layer utilities {
+  /* Cascade d'arrivée : joue au chargement (hero). */
   .reveal-up {
     animation: reveal-up var(--motion-base) var(--motion-ease-out) both;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+
+  /*
+   * Révélation au défilement, pour le contenu sous la ligne de flottaison.
+   *
+   * Même problème que le hero avant correction : la version framer-motion
+   * inscrivait `opacity: 0` dans le HTML rendu côté serveur, donc toutes les
+   * sections sous le premier écran étaient invisibles sans JavaScript.
+   *
+   * Cette regle-ci est le repli, valable partout : un fondu au chargement.
+   * Le vrai comportement au défilement est ajouté juste en dessous, quand le
+   * navigateur sait le faire.
+   */
+  .reveal-scroll {
+    animation: reveal-up var(--motion-base) var(--motion-ease-out) both;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+}
+
+/*
+ * Animations pilotées par le défilement, sans une ligne de JavaScript.
+ *
+ * `animation-timeline: view()` lie la progression de l'animation à la position
+ * de l'élément dans la fenêtre. La plage s'arrête à `entry 40%` et non à
+ * `entry 100%` : un bloc situé tout en bas de page pourrait ne jamais achever
+ * son entrée si le document ne défile pas assez, et resterait alors à moitié
+ * transparent.
+ *
+ * `animation-delay` est remis à zéro : sur une frise de progression, un retard
+ * exprimé en millisecondes n'a plus de sens, c'est la position qui décale
+ * naturellement les blocs les uns par rapport aux autres.
+ *
+ * Bloc volontairement hors de toute couche : en cascade de couches, une règle
+ * sans couche l'emporte sur une règle en couche, donc elle surcharge bien
+ * `.reveal-scroll` défini dans `utilities`.
+ */
+@supports (animation-timeline: view()) {
+  .reveal-scroll {
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
+    animation-delay: 0s;
   }
 }
 
@@ -168,5 +223,18 @@
     transition-property: color, background-color, border-color, fill, stroke,
       opacity, box-shadow !important;
     transition-duration: 150ms !important;
+  }
+
+  /*
+   * Les révélations sont retirées, pas raccourcies.
+   *
+   * `.reveal-scroll` est liée à une frise de progression, où
+   * `animation-duration` n'a aucun effet : la règle générique ci-dessus ne
+   * l'atteignait pas, et le déplacement vertical continuait de suivre le
+   * défilement. Sans animation, le contenu est simplement visible.
+   */
+  .reveal-up,
+  .reveal-scroll {
+    animation-name: none !important;
   }
 }

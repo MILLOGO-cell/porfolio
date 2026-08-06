@@ -32,9 +32,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" suppressHydrationWarning className="overflow-x-hidden">
+    // `clip` et non `hidden` : voir globals.css. `hidden` faisait de <body> un
+    // conteneur de defilement, ce qui cassait animation-timeline: view().
+    <html lang="fr" suppressHydrationWarning className="overflow-x-clip">
       <body
-        className="max-w-full overflow-x-hidden antialiased"
+        className="max-w-full overflow-x-clip antialiased"
       >
         <ThemeProvider>
           <AuthProvider>

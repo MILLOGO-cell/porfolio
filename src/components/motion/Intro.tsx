@@ -38,7 +38,12 @@ export function IntroGroup({
         <div
           key={index}
           className="reveal-up"
-          style={{ animationDelay: `${delay + index * step}ms` }}
+          // Même mécanisme que `ScrollReveal` : le retard passe par une
+          // propriété personnalisée, ce qui laisse une règle de feuille de
+          // style le neutraliser (voir prefers-reduced-motion).
+          style={
+            { "--reveal-delay": `${delay + index * step}ms` } as React.CSSProperties
+          }
         >
           {palier}
         </div>
