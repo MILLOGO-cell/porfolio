@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 import { contactSchema } from "@/lib/validations";
 import { clientKey, rateLimit } from "@/lib/rate-limit";
+import {
+  MailConfigError,
+  defaultRecipient,
+  isAuthError,
+  isConnectionError,
+  sendMail,
+  senderAddress,
+  smtpErrorDetails,
+} from "@/lib/mailer";
 
 /** Les champs du formulaire sont réinjectés dans le HTML de l'email : on échappe. */
 function escapeHtml(value: string): string {
@@ -43,34 +51,6 @@ export async function POST(req: NextRequest) {
 
     const { name, email, message } = validation.data;
 
-    if (
-      !process.env.EMAIL_HOST ||
-      !process.env.EMAIL_PORT ||
-      !process.env.EMAIL_USER ||
-      !process.env.EMAIL_PASS
-    ) {
-      console.error("Variables d'environnement manquantes pour l'email");
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Configuration email manquante sur le serveur.",
-        },
-        { status: 500 }
-      );
-    }
-
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: Number(process.env.EMAIL_PORT),
-      secure: Number(process.env.EMAIL_PORT) === 465,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    await transporter.verify();
-
     const safeName = escapeHtml(name);
     const safeEmail = escapeHtml(email);
     const safeMessage = escapeHtml(message).replace(/\n/g, "<br>");
@@ -81,9 +61,9 @@ export async function POST(req: NextRequest) {
       day: "numeric",
     });
 
-    const info = await transporter.sendMail({
-      from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_TO || process.env.EMAIL_USER,
+    const info = await sendMail({
+      from: senderAddress("Portfolio Contact"),
+      to: defaultRecipient(),
       replyTo: email,
       subject: `Nouveau message de ${name}`,
       text: `Nom : ${name}\nEmail : ${email}\n\nMessage :\n${message}\n`,
@@ -167,45 +147,41 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    // Le client ne reçoit qu'un message générique ; sans le code et la réponse
-    // brute du serveur SMTP dans les logs, un échec d'authentification en prod
-    // n'est pas diagnosticable (voir scripts/test-smtp.ts).
-    const smtp = error as NodeJS.ErrnoException & {
-      responseCode?: number;
-      response?: string;
-      command?: string;
-    };
-    console.error("Erreur lors de l'envoi de l'email:", {
-      code: smtp?.code,
-      responseCode: smtp?.responseCode,
-      command: smtp?.command,
-      response: smtp?.response,
-      message: smtp?.message,
-    });
+    // Le visiteur ne reçoit qu'un message générique ; sans le code et la
+    // réponse brute du serveur SMTP dans les logs, un échec d'authentification
+    // en prod n'est pas diagnosticable (voir scripts/test-smtp.ts).
+    console.error("Erreur lors de l'envoi de l'email:", smtpErrorDetails(error));
 
-    if (error instanceof Error) {
-      // nodemailer expose `code: "EAUTH"` ; le libellé du message dépend du
-      // serveur ("Invalid login" chez Gmail, autre chose ailleurs).
-      if (smtp.code === "EAUTH" || error.message.includes("Invalid login")) {
-        return NextResponse.json(
-          {
-            success: false,
-            message:
-              "Erreur d'authentification email. Vérifiez vos identifiants.",
-          },
-          { status: 500 }
-        );
-      }
-      if (error.message.includes("ECONNREFUSED")) {
-        return NextResponse.json(
-          {
-            success: false,
-            message:
-              "Impossible de se connecter au serveur email. Vérifiez votre configuration.",
-          },
-          { status: 500 }
-        );
-      }
+    if (error instanceof MailConfigError) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Configuration email manquante sur le serveur.",
+        },
+        { status: 500 }
+      );
+    }
+
+    if (isAuthError(error)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Erreur d'authentification email. Vérifiez vos identifiants.",
+        },
+        { status: 500 }
+      );
+    }
+
+    if (isConnectionError(error)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Impossible de se connecter au serveur email. Vérifiez votre configuration.",
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(

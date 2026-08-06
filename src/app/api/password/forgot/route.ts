@@ -1,25 +1,15 @@
 import { NextRequest } from 'next/server';
-import * as nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import { prisma } from '@/lib/db';
 import { hashResetToken } from '@/lib/reset-token';
 import { clientKey, rateLimit } from '@/lib/rate-limit';
+import { sendMail, senderAddress } from '@/lib/mailer';
 import {
   successResponse,
   errorResponse,
   rateLimitResponse,
   handleApiError,
 } from '@/lib/api-response';
-
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: Number(process.env.EMAIL_PORT) || 587,
-  secure: Number(process.env.EMAIL_PORT) === 465,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,8 +61,8 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXTAUTH_URL ?? '';
     const resetUrl = `${baseUrl}/protected_access/reset-password?token=${resetToken}`;
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    await sendMail({
+      from: senderAddress(),
       to: email,
       subject: 'Réinitialisation de mot de passe',
       html: `
