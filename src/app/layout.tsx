@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import VisitorTracker from "@/components/VisitorTracker";
 import CookieConsent from '@/components/CookieConsent';
 import { ScrollProgress } from "@/components/ScrollProgress";
-import { PageLoader } from "@/components/PageLoader";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 import { site } from "@/lib/site";
 
 // Typographie : Helvetica via une pile système, définie dans tailwind.config.
@@ -38,11 +38,15 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <AuthProvider>
-            <PageLoader />
-            <ScrollProgress />
-            <VisitorTracker />
-            <CookieConsent />
-            {children}
+            <MotionProvider>
+              {/* Une seule barre en haut de l'écran. `PageLoader` en posait une
+                  seconde, identique, qui ne mesurait rien : elle se déclenchait
+                  après la navigation sur une minuterie de 500 ms. */}
+              <ScrollProgress />
+              <VisitorTracker />
+              <CookieConsent />
+              {children}
+            </MotionProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

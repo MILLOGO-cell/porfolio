@@ -100,8 +100,31 @@
   }
 }
 
+/*
+ * Réduction des animations.
+ *
+ * Ce bloc ne neutralisait que `scroll-behavior` : tout le reste — animations
+ * CSS en boucle, transitions de transformation, effets de survol qui déplacent
+ * ou agrandissent — continuait de s'exécuter chez quelqu'un qui avait demandé
+ * l'inverse à son système. Le volet framer-motion est traité séparément par
+ * MotionProvider (`reducedMotion="user"`).
+ *
+ * Les transitions de couleur, d'opacité et d'ombre sont conservées : ce sont
+ * des changements d'état, pas du mouvement, et elles ne provoquent pas la gêne
+ * vestibulaire que le réglage cherche à éviter. Supprimer le déplacement suffit.
+ */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-property: color, background-color, border-color, fill, stroke,
+      opacity, box-shadow !important;
+    transition-duration: 150ms !important;
   }
 }

@@ -15,6 +15,7 @@ import Template from "./Template";
 import FeaturedProjects from "@/components/FeaturedProjects";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { IntroGroup, IntroItem } from "@/components/motion/Intro";
 import { buttonClass } from "@/components/ui/button-styles";
 import { Chip } from "@/components/ui/Badge";
 import { site } from "@/lib/site";
@@ -112,30 +113,42 @@ export default function Home() {
           className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[560px] bg-[radial-gradient(ellipse_at_top_left,rgb(var(--accent)/0.30),transparent_55%),radial-gradient(ellipse_at_top_right,rgb(var(--info)/0.26),transparent_55%)]"
         />
 
-        <div className="mx-auto max-w-5xl px-4 py-20 md:px-8 md:py-28">
-        <p className="inline-flex items-center rounded-full bg-accent-soft px-4 py-1.5 text-sm font-bold uppercase tracking-[0.14em] text-accent">
-          {site.role}
-        </p>
+        {/* Le hero était le seul bloc entièrement statique de la page, alors
+            que tout le reste s'animait au défilement. La cascade rétablit
+            l'équilibre : le regard descend le premier écran dans l'ordre où il
+            doit le lire. */}
+        <IntroGroup className="mx-auto max-w-5xl px-4 py-20 md:px-8 md:py-28">
+        <IntroItem>
+          <p className="inline-flex items-center rounded-full bg-accent-soft px-4 py-1.5 text-sm font-bold uppercase tracking-[0.14em] text-accent">
+            {site.role}
+          </p>
+        </IntroItem>
 
-        <h1 className="mt-5 max-w-4xl text-pretty text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
-          Je construis des applications métiers{" "}
-          <span className="text-gradient">qui tiennent en production</span>.
-        </h1>
+        <IntroItem>
+          <h1 className="mt-5 max-w-4xl text-pretty text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
+            Je construis des applications métiers{" "}
+            <span className="text-gradient">qui tiennent en production</span>.
+          </h1>
+        </IntroItem>
 
-        <p className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted">
-          {site.tagline}
-        </p>
+        <IntroItem>
+          <p className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted">
+            {site.tagline}
+          </p>
+        </IntroItem>
 
-        <div className="mt-9 flex flex-wrap gap-3">
-          <Link href="/projets" className={buttonClass("primary", "lg")}>
-            Voir les projets
-            <LuArrowRight className="h-4 w-4" aria-hidden />
-          </Link>
-          <Link href="/contact" className={buttonClass("secondary", "lg")}>
-            Me contacter
-          </Link>
-        </div>
-        </div>
+        <IntroItem>
+          <div className="mt-9 flex flex-wrap gap-3">
+            <Link href="/projets" className={buttonClass("primary", "lg")}>
+              Voir les projets
+              <LuArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+            <Link href="/contact" className={buttonClass("secondary", "lg")}>
+              Me contacter
+            </Link>
+          </div>
+        </IntroItem>
+        </IntroGroup>
       </section>
 
       {/* ---------------------------------------------------------------- */}
