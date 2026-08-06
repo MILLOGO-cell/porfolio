@@ -36,6 +36,34 @@ export default function AuthCard({
   );
 }
 
+/**
+ * Repli des frontières Suspense des pages d'authentification.
+ *
+ * `useSearchParams` impose une frontière Suspense au prérendu. Elle était
+ * fournie par un `loading.tsx` à la racine, qui plaçait tout le site derrière un
+ * spinner plein écran et le rendait invisible sans JavaScript. La frontière est
+ * désormais locale à ces deux pages, avec un repli qui garde la carte et les
+ * jetons du thème au lieu d'une page vide.
+ */
+export function AuthCardFallback({
+  title,
+  description,
+}: {
+  title: string;
+  description?: string;
+}) {
+  return (
+    <AuthCard title={title} description={description}>
+      <div className="space-y-4" aria-hidden>
+        <div className="h-11 animate-pulse rounded-xl bg-surface-muted" />
+        <div className="h-11 animate-pulse rounded-xl bg-surface-muted" />
+        <div className="h-11 animate-pulse rounded-xl bg-accent-soft/60" />
+      </div>
+      <span className="sr-only">Chargement du formulaire…</span>
+    </AuthCard>
+  );
+}
+
 /** Classes de champ partagées par les formulaires d'authentification. */
 export const AUTH_FIELD =
   'w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted/70 transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20';

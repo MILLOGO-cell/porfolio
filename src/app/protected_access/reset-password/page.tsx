@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { LuLoaderCircle } from 'react-icons/lu';
 import AuthCard, {
   AUTH_FIELD,
   AUTH_LABEL,
+  AuthCardFallback,
   AuthError,
   AuthSuccess,
 } from '@/components/admin/AuthCard';
@@ -15,7 +16,7 @@ import { buttonClass } from '@/components/ui/button-styles';
 /** Doit rester aligné sur `passwordSchema` côté serveur. */
 const MIN_PASSWORD_LENGTH = 12;
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams?.get('token');
 
@@ -176,5 +177,25 @@ export default function ResetPasswordPage() {
         </button>
       </form>
     </AuthCard>
+  );
+}
+
+/**
+ * `useSearchParams` (lecture du jeton de réinitialisation) exige une frontière
+ * Suspense au prérendu. Locale à cette page, pour la même raison que sur la
+ * page de connexion.
+ */
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <AuthCardFallback
+          title="Nouveau mot de passe"
+          description="Chargement du formulaire…"
+        />
+      }
+    >
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

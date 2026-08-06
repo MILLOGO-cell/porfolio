@@ -2,12 +2,13 @@
 
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { LuLoaderCircle } from 'react-icons/lu';
 import AuthCard, {
   AUTH_FIELD,
   AUTH_LABEL,
+  AuthCardFallback,
   AuthError,
   AuthSuccess,
 } from '@/components/admin/AuthCard';
@@ -33,7 +34,7 @@ function isTimeout(error: unknown): boolean {
   );
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -336,5 +337,25 @@ export default function LoginPage() {
         </form>
       )}
     </AuthCard>
+  );
+}
+
+/**
+ * `useSearchParams` (lecture du paramètre `error` renvoyé par NextAuth) exige
+ * une frontière Suspense au prérendu. Elle est locale à cette page : à la
+ * racine, elle plaçait tout le site derrière un spinner.
+ */
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <AuthCardFallback
+          title="Administration"
+          description="Connectez-vous pour accéder au tableau de bord"
+        />
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
