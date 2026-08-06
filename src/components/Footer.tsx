@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Logo from "@/components/Logo";
 import { navItems, site, socialLinks } from "@/lib/site";
 
 export default function Footer() {
@@ -16,6 +17,11 @@ export default function Footer() {
             <p className="mt-4 text-sm leading-relaxed text-muted">
               {site.location}
             </p>
+
+            {/* Plus grande qu'en tête de page : le pied est le seul endroit où la
+                marque a la place de se lire, et le nom juste au-dessus la rend
+                décorative. */}
+            <Logo className="mt-6 h-14 w-14" />
           </div>
 
           <nav className="flex flex-col gap-3">
