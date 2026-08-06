@@ -62,27 +62,56 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+/** Habillage commun aux liens insérés dans un texte d'étude de cas. */
+const LIEN_TEXTE =
+  'font-medium text-accent underline decoration-accent/40 underline-offset-2 transition-opacity hover:opacity-80';
+
 /**
  * Rend cliquables les adresses présentes dans un texte saisi en administration.
  * Le contenu vient de la base sous forme de texte brut : sans cela, une
  * référence à un site partenaire resterait une chaîne inerte.
+ *
+ * Deux formes sont acceptées. Une adresse nue s'affiche débarrassée de son
+ * protocole. La forme `[libellé](adresse)` pose le lien sur des mots choisis :
+ * « au sein de LICELI Technologies » se lit mieux, en pleine phrase, que
+ * « au sein de liceli-technologies.com/qui-sommes-nous ».
+ *
+ * Les liens sont construits en éléments React, jamais injectés en HTML : le
+ * texte de la base ne peut donc pas transporter de balise.
  */
 function linkify(text: string) {
-  return text.split(/(https?:\/\/[^\s)]+)/g).map((part, index) =>
-    /^https?:\/\//.test(part) ? (
+  const motif = /\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s)]+)/g;
+  const morceaux: React.ReactNode[] = [];
+  let curseur = 0;
+  let trouve: RegExpExecArray | null;
+
+  while ((trouve = motif.exec(text)) !== null) {
+    if (trouve.index > curseur) {
+      morceaux.push(text.slice(curseur, trouve.index));
+    }
+
+    const adresse = trouve[2] ?? trouve[3];
+    const libelle =
+      trouve[1] ??
+      adresse.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+
+    morceaux.push(
       <a
-        key={index}
-        href={part}
+        key={trouve.index}
+        href={adresse}
         target="_blank"
         rel="noopener noreferrer"
-        className="font-medium text-accent underline decoration-accent/40 underline-offset-2 transition-opacity hover:opacity-80"
+        className={LIEN_TEXTE}
       >
-        {part.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
+        {libelle}
       </a>
-    ) : (
-      part
-    )
-  );
+    );
+
+    curseur = trouve.index + trouve[0].length;
+  }
+
+  if (curseur < text.length) morceaux.push(text.slice(curseur));
+  return morceaux;
 }
 
 /** Bloc de l'étude de cas — n'apparaît que s'il est renseigné. */
