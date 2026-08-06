@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { LuMail, LuMenu, LuX } from "react-icons/lu";
 import { motion, AnimatePresence } from "framer-motion";
+import Logo from "@/components/Logo";
 import ThemeSwitcher from "@/components/ThemeSwitcher/ThemeSwitcher";
 import { buttonClass } from "@/components/ui/button-styles";
 import { navItems, site, socialLinks } from "@/lib/site";
@@ -50,12 +51,18 @@ export default function Header() {
         }`}
       >
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3.5 md:px-8">
-          <Link href="/" aria-label="Accueil" className="flex items-baseline gap-2.5">
-            <span className="text-[15px] font-bold tracking-tight text-foreground">
-              {site.name}
-            </span>
-            <span className="hidden text-xs font-medium text-muted sm:inline">
-              {site.role}
+          {/* La marque est décorative : le lien porte déjà son intitulé et le nom
+              est lu juste à côté. L'alignement sur la ligne de base reste sur le
+              groupe de texte, un SVG s'y alignerait mal. */}
+          <Link href="/" aria-label="Accueil" className="flex items-center gap-2.5">
+            <Logo className="h-7 w-7 shrink-0" />
+            <span className="flex items-baseline gap-2.5">
+              <span className="text-[15px] font-bold tracking-tight text-foreground">
+                {site.name}
+              </span>
+              <span className="hidden text-xs font-medium text-muted sm:inline">
+                {site.role}
+              </span>
             </span>
           </Link>
 
