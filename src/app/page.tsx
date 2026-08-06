@@ -15,7 +15,7 @@ import Template from "./Template";
 import FeaturedProjects from "@/components/FeaturedProjects";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { IntroGroup, IntroItem } from "@/components/motion/Intro";
+import { IntroGroup } from "@/components/motion/Intro";
 import { buttonClass } from "@/components/ui/button-styles";
 import { Chip } from "@/components/ui/Badge";
 import { site } from "@/lib/site";
@@ -118,26 +118,19 @@ export default function Home() {
             l'équilibre : le regard descend le premier écran dans l'ordre où il
             doit le lire. */}
         <IntroGroup className="mx-auto max-w-5xl px-4 py-20 md:px-8 md:py-28">
-        <IntroItem>
           <p className="inline-flex items-center rounded-full bg-accent-soft px-4 py-1.5 text-sm font-bold uppercase tracking-[0.14em] text-accent">
             {site.role}
           </p>
-        </IntroItem>
 
-        <IntroItem>
           <h1 className="mt-5 max-w-4xl text-pretty text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
             Je construis des applications métiers{" "}
             <span className="text-gradient">qui tiennent en production</span>.
           </h1>
-        </IntroItem>
 
-        <IntroItem>
           <p className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted">
             {site.tagline}
           </p>
-        </IntroItem>
 
-        <IntroItem>
           <div className="mt-9 flex flex-wrap gap-3">
             <Link href="/projets" className={buttonClass("primary", "lg")}>
               Voir les projets
@@ -147,7 +140,6 @@ export default function Home() {
               Me contacter
             </Link>
           </div>
-        </IntroItem>
         </IntroGroup>
       </section>
 

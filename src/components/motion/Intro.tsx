@@ -1,60 +1,48 @@
-'use client';
-
-import { motion } from 'framer-motion';
-import { fadeUp, staggerContainer } from '@/lib/motion';
+import { Children } from 'react';
 
 /**
- * Cascade d'arrivée, pour le contenu déjà visible au chargement.
+ * Cascade d'arrivée pour le contenu visible au chargement.
  *
- * Distinct de `ScrollReveal`, qui attend l'entrée dans le viewport : au-dessus
- * de la ligne de flottaison, attendre le défilement signifie ne jamais
- * s'animer, ou pire s'animer alors que l'utilisateur a déjà lu.
+ * Volontairement en CSS et non avec framer-motion. Une animation au montage
+ * inscrit `opacity: 0` dans le HTML rendu côté serveur : le hero restait
+ * invisible jusqu'à l'hydratation de React, et ne s'affichait pas du tout si le
+ * JavaScript ne s'exécutait pas. La classe `.reveal-up` (globals.css) démarre
+ * au premier rendu et ne dépend de rien.
  *
- * L'ordre d'animation est l'ordre du DOM. Il n'y a rien à indexer à la main :
- * `staggerChildren` décale chaque enfant direct du groupe.
+ * Le composant reste donc un composant serveur : le hero n'a plus besoin de
+ * franchir la frontière client, contrairement à `ScrollReveal` qui doit
+ * observer le viewport.
+ *
+ * Pour le contenu situé sous la ligne de flottaison, voir `ScrollReveal`.
  */
 export function IntroGroup({
   children,
   className,
-  delay = 0.05,
-  step = 0.06,
+  delay = 40,
+  step = 60,
 }: {
   children: React.ReactNode;
   className?: string;
-  /** Retard avant le premier enfant, le temps que la page se pose. */
+  /** Retard du premier palier, en millisecondes. */
   delay?: number;
-  /** Décalage entre deux enfants successifs. */
+  /** Décalage entre deux paliers successifs, en millisecondes. */
   step?: number;
 }) {
-  return (
-    <motion.div
-      className={className}
-      variants={staggerContainer(step, delay)}
-      initial="hidden"
-      animate="visible"
-    >
-      {children}
-    </motion.div>
-  );
-}
+  // L'ordre d'animation est l'ordre du DOM : chaque enfant direct devient un
+  // palier, il n'y a aucun index à tenir à la main dans la page.
+  const paliers = Children.toArray(children);
 
-/**
- * Un palier de la cascade. À placer en enfant direct d'`IntroGroup` : c'est de
- * cette relation que vient le décalage.
- */
-export function IntroItem({
-  children,
-  className,
-  y,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  /** Amplitude de la montée. Par défaut celle de `fadeUp`. */
-  y?: number;
-}) {
   return (
-    <motion.div className={className} variants={fadeUp(y)}>
-      {children}
-    </motion.div>
+    <div className={className}>
+      {paliers.map((palier, index) => (
+        <div
+          key={index}
+          className="reveal-up"
+          style={{ animationDelay: `${delay + index * step}ms` }}
+        >
+          {palier}
+        </div>
+      ))}
+    </div>
   );
 }
