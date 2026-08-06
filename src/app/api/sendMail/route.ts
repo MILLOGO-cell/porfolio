@@ -167,10 +167,26 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Erreur lors de l'envoi de l'email:", error);
+    // Le client ne reçoit qu'un message générique ; sans le code et la réponse
+    // brute du serveur SMTP dans les logs, un échec d'authentification en prod
+    // n'est pas diagnosticable (voir scripts/test-smtp.ts).
+    const smtp = error as NodeJS.ErrnoException & {
+      responseCode?: number;
+      response?: string;
+      command?: string;
+    };
+    console.error("Erreur lors de l'envoi de l'email:", {
+      code: smtp?.code,
+      responseCode: smtp?.responseCode,
+      command: smtp?.command,
+      response: smtp?.response,
+      message: smtp?.message,
+    });
 
     if (error instanceof Error) {
-      if (error.message.includes("Invalid login")) {
+      // nodemailer expose `code: "EAUTH"` ; le libellé du message dépend du
+      // serveur ("Invalid login" chez Gmail, autre chose ailleurs).
+      if (smtp.code === "EAUTH" || error.message.includes("Invalid login")) {
         return NextResponse.json(
           {
             success: false,
