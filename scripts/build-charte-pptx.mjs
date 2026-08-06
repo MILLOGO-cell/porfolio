@@ -27,7 +27,6 @@ const ATTENUE = "6B6472";
 const FILET = "E7E1EA";
 const SURFACE = "FAF7FB";
 const ORANGE = "F79420";
-const TEAL = "3FD3C6";
 const BLANC = "FFFFFF";
 const POLICE = "Arial";
 

@@ -47,8 +47,8 @@ export default function CookieConsent() {
                                     Respect de votre vie privée
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-                                    J'utilise des cookies pour analyser le trafic et améliorer votre expérience sur mon portfolio.
-                                    Aucune donnée n'est vendue à des tiers.
+                                    J’utilise des cookies pour analyser le trafic et améliorer votre expérience sur mon portfolio.
+                                    Aucune donnée n’est vendue à des tiers.
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-3">
                                     <button

@@ -43,9 +43,13 @@ export default function ProjectCard({
         <motion.div variants={fadeInUp} className="flex flex-col gap-6 lg:w-1/2">
           {logo && (
             <div className="flex items-center gap-3">
+              {/* Un tour complet au survol attirait l'œil sur le logo du client
+                  plutôt que sur le projet, et jurait avec la sobriété du reste.
+                  Remplacé par un léger grossissement, cohérent avec les autres
+                  interactions de la carte. */}
               <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.5 }}
+                whileHover={{ scale: 1.08 }}
+                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
               >
                 <Image
                   src={logo}
