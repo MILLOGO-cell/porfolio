@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 
 type Theme = "light" | "dark";
 
@@ -11,30 +11,39 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+/**
+ * Lit le thème réellement appliqué, sur l'élément racine.
+ *
+ * La classe y est posée par le script bloquant de `layout.tsx`, avant le premier
+ * rendu. Ce fournisseur n'a donc plus à décider du thème : il ne fait que
+ * refléter ce qui est déjà en place, et le basculer à la demande.
+ */
+function themeApplique(): Theme {
+  if (typeof document === "undefined") return "light";
+  return document.documentElement.classList.contains("dark") ? "dark" : "light";
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  // Initialisation paresseuse plutôt qu'un effet. L'ancienne version appelait
+  // `setTheme` dans un `useEffect` : le thème n'était connu qu'après
+  // l'hydratation, ce qui provoquait un rendu en cascade en plus du
+  // clignotement. Le rendu serveur retourne « light », valeur qui n'est jamais
+  // affichée puisque rien ne dépend de `theme` pour son balisage.
+  const [theme, setTheme] = useState<Theme>(themeApplique);
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as Theme | null;
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle("dark", savedTheme === "dark");
-    } else if (prefersDark) {
-      setTheme("dark");
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+  const toggleTheme = useCallback(() => {
+    setTheme((actuel) => {
+      const suivant: Theme = actuel === "dark" ? "light" : "dark";
+      document.documentElement.classList.toggle("dark", suivant === "dark");
+      try {
+        localStorage.setItem("theme", suivant);
+      } catch {
+        // Stockage indisponible : le choix ne survivra pas au rechargement,
+        // mais la bascule doit rester fonctionnelle pour la session.
+      }
+      return suivant;
+    });
   }, []);
-
-  const toggleTheme = () => {
-    const newTheme: Theme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
-  };
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

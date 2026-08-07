@@ -8,9 +8,16 @@ export default function CookieConsent() {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        // Check if user has already made a choice
+        // Le choix déjà exprimé n'est lisible qu'au navigateur : le serveur ne
+        // peut pas savoir s'il faut afficher la bannière.
         const consent = localStorage.getItem('cookie-consent');
         if (!consent) {
+            // `react-hooks/set-state-in-effect` signale ici un rendu en
+            // cascade. Il est assumé : l'alternative serait d'initialiser
+            // l'état depuis `localStorage`, ce qui ferait diverger le rendu
+            // serveur du rendu client et casserait l'hydratation. Un rendu de
+            // plus au montage coûte moins qu'une incohérence d'hydratation.
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsVisible(true);
         }
     }, []);

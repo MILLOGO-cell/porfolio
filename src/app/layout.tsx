@@ -35,6 +35,26 @@ export default function RootLayout({
     // `clip` et non `hidden` : voir globals.css. `hidden` faisait de <body> un
     // conteneur de defilement, ce qui cassait animation-timeline: view().
     <html lang="fr" suppressHydrationWarning className="overflow-x-clip">
+      <head>
+        {/*
+          Le thème est appliqué AVANT le premier rendu, par un script bloquant.
+
+          Il était posé jusqu'ici dans un effet de `ThemeProvider`, donc après
+          l'hydratation : un visiteur en préférence sombre voyait le site
+          s'afficher en clair, puis basculer. Ce clignotement ne se corrige pas
+          côté React — le serveur ne peut pas connaître la préférence, et tout
+          ce qui s'exécute après l'hydratation arrive trop tard.
+
+          Le script est court et synchrone : il coûte moins qu'un repaint. Le
+          try/catch couvre les navigateurs où `localStorage` lève, en navigation
+          privée verrouillée par exemple ; on retombe alors sur le thème clair.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t!=='dark'&&t!=='light'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.classList.toggle('dark',t==='dark')}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body
         className="max-w-full overflow-x-clip antialiased"
       >
