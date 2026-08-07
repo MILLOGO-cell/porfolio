@@ -4,3 +4,12 @@ node_modules
 .vscode
 *.log
 docker
+
+# Documents de marque et fichiers du logo : ils n'ont rien a faire dans une
+# image d'execution, et pesent une dizaine de Mo dans le contexte de build.
+docs
+
+# Sorties de test et fichiers locaux.
+coverage
+.env*
+!.env.example
