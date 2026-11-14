@@ -73,8 +73,8 @@ const LIEN_TEXTE =
  *
  * Deux formes sont acceptées. Une adresse nue s'affiche débarrassée de son
  * protocole. La forme `[libellé](adresse)` pose le lien sur des mots choisis :
- * « au sein de LICELI Technologies » se lit mieux, en pleine phrase, que
- * « au sein de liceli-technologies.com/qui-sommes-nous ».
+ * « chez Exemple SA » se lit mieux, en pleine phrase, que
+ * « chez exemple.com/a-propos ».
  *
  * Les liens sont construits en éléments React, jamais injectés en HTML : le
  * texte de la base ne peut donc pas transporter de balise.

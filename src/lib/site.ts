@@ -24,10 +24,6 @@ export const site = {
     "J'accompagne des projets logiciels du cadrage du besoin jusqu'à la mise en production, sur des domaines où l'exactitude et la traçabilité ne se négocient pas.",
   email: "nicolasmillogo3@gmail.com",
   location: "Ouagadougou, Burkina Faso",
-  employer: {
-    name: "LICELI Technologies",
-    url: "https://liceli-technologies.com",
-  },
 } as const;
 
 export type NavItem = {

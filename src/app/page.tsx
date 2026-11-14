@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { IconType } from "react-icons";
 import {
   LuArrowRight,
-  LuArrowUpRight,
   LuClipboardList,
   LuGitPullRequest,
   LuLandmark,
@@ -217,22 +216,6 @@ export default function Home() {
             ))}
           </div>
 
-          <ScrollReveal delay={0.3} y={16}>
-            <p className="mt-8 hyphens-auto text-justify text-sm leading-relaxed text-muted">
-              Ces expertises sont mises en œuvre au sein de{" "}
-              <a
-                href={site.employer.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-0.5 font-bold text-accent transition-opacity hover:opacity-80"
-              >
-                {site.employer.name}
-                <LuArrowUpRight className="h-3.5 w-3.5" aria-hidden />
-              </a>
-              , principalement sur des projets bancaires, financiers,
-              réglementaires et de digitalisation des processus métier.
-            </p>
-          </ScrollReveal>
         </div>
       </section>
 

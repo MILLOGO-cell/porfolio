@@ -16,11 +16,6 @@ export default function MentionsLegales() {
         Ouettéré Nicolas MILLOGO, à {site.location}. Site personnel, sans
         société. Contact : <a href={`mailto:${site.email}`}>{site.email}</a>.
       </p>
-      <p>
-        Il est indépendant de mon employeur, {site.employer.name}, qui
-        n&apos;est cité que comme référence professionnelle.
-      </p>
-
       <h2>Où il est hébergé</h2>
       <p>
         Le site chez Vercel Inc. (États-Unis) et la base de données chez Neon
