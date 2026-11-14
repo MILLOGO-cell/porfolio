@@ -8,7 +8,6 @@ import {
   LuMail,
   LuNetwork,
   LuPencilRuler,
-  LuShieldCheck,
 } from "react-icons/lu";
 import Template from "./Template";
 import FeaturedProjects from "@/components/FeaturedProjects";
@@ -54,13 +53,6 @@ const expertise: {
     description:
       "Conception de solutions de mobile banking, de gestion des comptes, de transferts, de paiements et d'intégration avec les systèmes bancaires et les infrastructures financières.",
     tint: "bg-success-soft text-success",
-  },
-  {
-    icon: LuShieldCheck,
-    title: "Conformité, fraude et contrôle interne",
-    description:
-      "Digitalisation des processus de LCB-FT, de filtrage des sanctions, de détection de fraude, de gestion des risques, de contrôle permanent et d'audit interne.",
-    tint: "bg-warning-soft text-warning",
   },
   {
     icon: LuGitPullRequest,
