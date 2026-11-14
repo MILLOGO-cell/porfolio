@@ -290,7 +290,9 @@ export default async function ProjectPage({ params }: PageProps) {
                 rel="noopener noreferrer"
                 className={buttonClass('primary', 'md')}
               >
-                Voir le projet
+                {/figma\.com/.test(project.url)
+                  ? 'Ouvrir le prototype Figma'
+                  : 'Voir le projet'}
                 <LuArrowUpRight className="h-4 w-4" aria-hidden />
               </a>
             )}
