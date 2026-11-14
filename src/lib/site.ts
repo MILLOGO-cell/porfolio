@@ -17,6 +17,8 @@ import {
 export const site = {
   name: "Nicolas MILLOGO",
   shortName: "NM",
+  // Adresse canonique : base des liens absolus (Open Graph, sitemap, robots).
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://nicolas-millogo.vercel.app",
   role: "Ingénieur logiciel",
   tagline:
     "J'accompagne des projets logiciels du cadrage du besoin jusqu'à la mise en production, sur des domaines où l'exactitude et la traçabilité ne se négocient pas.",

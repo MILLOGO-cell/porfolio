@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { put } from '@vercel/blob';
 import crypto from 'crypto';
 import { getAdminSession } from '@/lib/dal';
 import {
@@ -88,11 +87,14 @@ export async function POST(request: NextRequest) {
     // système de fichiers.
     const filename = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}.${extension}`;
 
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    await mkdir(uploadsDir, { recursive: true });
-    await writeFile(path.join(uploadsDir, filename), buffer);
+    // Vercel n'a pas de disque inscriptible : le fichier part dans Vercel Blob
+    // (jeton BLOB_READ_WRITE_TOKEN lu automatiquement).
+    const blob = await put(`uploads/${filename}`, buffer, {
+      access: 'public',
+      contentType: detectedMime ?? undefined,
+    });
 
-    return successResponse({ url: `/uploads/${filename}` });
+    return successResponse({ url: blob.url });
   } catch (error) {
     return handleApiError(error);
   }

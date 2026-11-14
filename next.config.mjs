@@ -37,6 +37,24 @@ const nextConfig = {
       },
     ],
   },
+  // HTTPS : Vercel redirige déjà http vers https ; HSTS demande en plus au
+  // navigateur de ne plus jamais essayer http pendant deux ans.
+  // shortcut: pas de Content-Security-Policy (le script de thème en ligne
+  // imposerait un nonce), à ajouter si le site accueille un jour du contenu tiers.
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+    ];
+  },
   webpack: (config) => {
     config.externals.push({
       canvas: 'commonjs canvas',

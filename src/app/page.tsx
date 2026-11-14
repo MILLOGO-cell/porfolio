@@ -132,12 +132,11 @@ export default function Home() {
           </p>
 
           <div className="mt-9 flex flex-wrap gap-3">
-            <Link href="/projets" className={buttonClass("primary", "lg")}>
-              Voir les projets
-              <LuArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-            <Link href="/contact" className={buttonClass("secondary", "lg")}>
+            {/* Un seul appel à l'action : la prise de contact. Les projets
+                restent à un clic dans le menu. */}
+            <Link href="/contact" className={buttonClass("primary", "lg")}>
               Me contacter
+              <LuArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           </div>
         </IntroGroup>
@@ -249,22 +248,22 @@ export default function Home() {
             subtitle="Ce avec quoi je travaille réellement au quotidien, pas une liste exhaustive."
           />
 
-          <dl className="mt-12 grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-2">
+          <div className="mt-12 grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-2">
             {stack.map(({ label, items }, index) => (
               <ScrollReveal key={label} delay={0.05 + index * 0.06} y={20}>
                 <div>
-                  <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
                     {label}
-                  </dt>
-                  <dd className="mt-3 flex flex-wrap gap-2">
+                  </h3>
+                  <div className="mt-3 flex flex-wrap gap-2">
                     {items.map((item) => (
                       <Chip key={item}>{item}</Chip>
                     ))}
-                  </dd>
+                  </div>
                 </div>
               </ScrollReveal>
             ))}
-          </dl>
+          </div>
         </div>
       </section>
 

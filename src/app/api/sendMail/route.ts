@@ -37,6 +37,16 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+
+    // Anti-spam : un robot remplit le champ piège ou envoie en moins de 3 s.
+    // Réponse de succès factice, pour ne rien apprendre au robot.
+    if (
+      (typeof body?.website === "string" && body.website !== "") ||
+      (typeof body?.elapsed === "number" && body.elapsed < 3000)
+    ) {
+      return NextResponse.json({ success: true, message: "Message envoyé." });
+    }
+
     const validation = contactSchema.safeParse(body);
 
     if (!validation.success) {

@@ -26,6 +26,9 @@ const fields = [
 export default function Contact() {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Anti-spam : champ piège (invisible, jamais rempli par un humain) et heure d'ouverture.
+  const [openedAt] = useState(() => Date.now());
+  const [website, setWebsite] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -46,7 +49,7 @@ export default function Contact() {
       const response = await fetch("/api/sendMail", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, website, elapsed: Date.now() - openedAt }),
       });
 
       const data = await response.json();
@@ -148,6 +151,19 @@ export default function Contact() {
                   <span>{success}</span>
                 </div>
               )}
+
+              <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+                <label htmlFor="website">Ne pas remplir</label>
+                <input
+                  id="website"
+                  name="website"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                />
+              </div>
 
               {fields.map(({ id, label, type, placeholder }) => (
                 <div key={id}>

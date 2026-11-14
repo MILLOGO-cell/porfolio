@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --webpack",
+    "postinstall": "prisma generate",
+    "vercel-build": "prisma migrate deploy && (tsx scripts/ensure-admin.ts; true) && next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "prisma:generate": "prisma generate",
@@ -22,6 +24,9 @@
   },
   "dependencies": {
     "@prisma/client": "5.22.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/blob": "^2.9.0",
+    "@vercel/speed-insights": "^2.1.0",
     "bcryptjs": "^3.0.3",
     "crypto-js": "^4.2.0",
     "formidable": "^3.5.4",

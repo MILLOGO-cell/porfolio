@@ -34,6 +34,15 @@ export async function POST(request: NextRequest) {
                 },
             });
             visitorId = visitor.id;
+
+            // Conservation limitée à 13 mois (annoncée dans /confidentialite).
+            // Purge faite ici, à la première visite de chaque nouveau visiteur :
+            // pas de tâche planifiée à maintenir. Un échec ne bloque pas le suivi.
+            const cutoff = new Date(Date.now() - 395 * 24 * 60 * 60 * 1000);
+            await prismaAny.visit.deleteMany({ where: { createdAt: { lt: cutoff } } }).catch(() => {});
+            await prismaAny.visitor
+                .deleteMany({ where: { updatedAt: { lt: cutoff }, visits: { none: {} } } })
+                .catch(() => {});
         } else {
             // Update existing visitor's last known info
             await prismaAny.visitor.update({

@@ -54,7 +54,7 @@ export default function Header() {
           {/* La marque est décorative : le lien porte déjà son intitulé et le nom
               est lu juste à côté. L'alignement sur la ligne de base reste sur le
               groupe de texte, un SVG s'y alignerait mal. */}
-          <Link href="/" aria-label="Accueil" className="flex items-center gap-2.5">
+          <Link href="/" className="flex items-center gap-2.5">
             <Logo className="h-7 w-7 shrink-0" />
             <span className="flex items-baseline gap-2.5">
               <span className="text-[15px] font-bold tracking-tight text-foreground">

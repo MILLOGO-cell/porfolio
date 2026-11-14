@@ -6,6 +6,8 @@ import VisitorTracker from "@/components/VisitorTracker";
 import CookieConsent from '@/components/CookieConsent';
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { MotionProvider } from "@/components/motion/MotionProvider";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { site } from "@/lib/site";
 
 // Typographie : Helvetica via une pile système, définie dans tailwind.config.
@@ -13,6 +15,8 @@ import { site } from "@/lib/site";
 // fontes et le décalage de mise en page qui l'accompagne.
 
 export const metadata: Metadata = {
+  metadataBase: new URL(site.url),
+  alternates: { canonical: "/" },
   title: {
     default: `${site.name} · ${site.role}`,
     template: `%s · ${site.name}`,
@@ -23,6 +27,14 @@ export const metadata: Metadata = {
     description: site.tagline,
     type: "website",
     locale: "fr_FR",
+    siteName: site.name,
+    url: "/",
+  },
+  // L'image d'aperçu vient de app/opengraph-image.tsx.
+  twitter: {
+    card: "summary_large_image",
+    title: `${site.name} · ${site.role}`,
+    description: site.tagline,
   },
 };
 
@@ -68,6 +80,9 @@ export default function RootLayout({
               <VisitorTracker />
               <CookieConsent />
               {children}
+              {/* Mesure d'audience sans cookie ni donnée personnelle. */}
+              <Analytics />
+              <SpeedInsights />
             </MotionProvider>
           </AuthProvider>
         </ThemeProvider>

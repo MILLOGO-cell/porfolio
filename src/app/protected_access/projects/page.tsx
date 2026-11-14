@@ -294,7 +294,7 @@ export default function ProjectsPage() {
       status: project.status || '',
       position: project.position ?? 0,
     });
-    setImageInputType(project.imageUrl?.startsWith('/uploads') ? 'upload' : 'url');
+    setImageInputType((project.imageUrl?.startsWith('/uploads') || project.imageUrl?.includes('blob.vercel-storage.com')) ? 'upload' : 'url');
     setShowModal(true);
   };
 

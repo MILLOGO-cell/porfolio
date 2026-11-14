@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import CookieSettingsButton from "@/components/CookieSettingsButton";
 import { navItems, site, socialLinks } from "@/lib/site";
 
 export default function Footer() {
@@ -67,7 +68,15 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 border-t border-border pt-6 text-xs text-muted">
-          © {year} {site.name}
+          <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+            <span>© {year} {site.name}</span>
+            <nav aria-label="Informations légales" className="flex flex-wrap gap-x-5 gap-y-2">
+              <Link href="/mentions-legales" className="hover:text-accent">Mentions légales</Link>
+              <Link href="/confidentialite" className="hover:text-accent">Confidentialité</Link>
+              <Link href="/conditions" className="hover:text-accent">Conditions</Link>
+              <CookieSettingsButton className="hover:text-accent" />
+            </nav>
+          </div>
         </div>
       </div>
     </footer>
