@@ -5,12 +5,30 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { successResponse, handleApiError } from '@/lib/api-response';
 
+const NO_TRACK_COOKIE = {
+    maxAge: 5 * 365 * 24 * 60 * 60,
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+} as const;
+
+const BOT_UA = /bot|crawl|spider|slurp|headless|lighthouse|preview|vercel|curl|wget|python-requests/i;
+
 export async function POST(request: NextRequest) {
     try {
         // Check if admin is logged in, if so, skip tracking
         const session = await getServerSession(authOptions);
         if (session) {
-            return successResponse({ skipped: true, message: 'Admin visit not tracked' });
+            // Mémorise l'appareil du propriétaire : ses visites, même déconnecté, ne comptent plus.
+            const res = successResponse({ skipped: true, message: 'Admin visit not tracked' });
+            res.cookies.set('no_track', '1', NO_TRACK_COOKIE);
+            return res;
+        }
+
+        // Propriétaire (cookie posé en admin), robots et aperçus de liens : exclus des statistiques.
+        const ua = request.headers.get('user-agent') || '';
+        if (request.cookies.get('no_track')?.value === '1' || BOT_UA.test(ua)) {
+            return successResponse({ skipped: true });
         }
 
         const body = await request.json();

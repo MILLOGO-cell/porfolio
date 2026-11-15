@@ -13,6 +13,13 @@ export default function VisitorTracker() {
         // Skip tracking if user is authenticated (admin)
         if (status === 'authenticated') return;
 
+        // Espace d'administration : on mémorise cet appareil comme « propriétaire »
+        // (cookie no_track) pour ne plus jamais compter ses visites.
+        if (pathname?.startsWith('/protected_access')) {
+            fetch('/api/track/ignore', { method: 'POST' }).catch(() => {});
+            return;
+        }
+
         const trackVisit = async () => {
             // Only track if consent is given
             const consent = localStorage.getItem('cookie-consent');
