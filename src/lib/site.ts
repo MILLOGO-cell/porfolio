@@ -34,6 +34,7 @@ export type NavItem = {
 
 export const navItems: NavItem[] = [
   { href: "/projets", label: "Projets", icon: LuBriefcase },
+  { href: "/#prototypes", label: "Prototypes", icon: LuLayers },
   { href: "/#expertise", label: "Expertise", icon: LuLayers },
   { href: "/#stack", label: "Stack", icon: LuWrench },
 ];

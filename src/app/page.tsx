@@ -11,6 +11,7 @@ import {
 } from "react-icons/lu";
 import Template from "./Template";
 import FeaturedProjects from "@/components/FeaturedProjects";
+import Prototypes from "@/components/Prototypes";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { IntroGroup } from "@/components/motion/Intro";
@@ -163,6 +164,21 @@ export default function Home() {
               </Link>
             </div>
           </ScrollReveal>
+        </div>
+      </section>
+
+      {/* Prototypes Figma, interactifs au clic. */}
+      <section className="border-t border-border">
+        <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
+          <SectionHeader
+            id="prototypes"
+            eyebrow="Design"
+            title="Prototypes interactifs"
+            subtitle="Des maquettes conçues sous Figma, à parcourir comme une vraie interface."
+          />
+          <div className="mt-12">
+            <Prototypes />
+          </div>
         </div>
       </section>
 
