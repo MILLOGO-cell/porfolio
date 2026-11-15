@@ -58,7 +58,7 @@ export default function Prototypes() {
         return (
           <article
             key={p.url}
-            className={`flex flex-col overflow-hidden rounded-2xl border border-border bg-surface ${
+            className={`glass glass-hover flex flex-col overflow-hidden rounded-3xl ${
               isOpen ? "md:col-span-3" : ""
             }`}
           >

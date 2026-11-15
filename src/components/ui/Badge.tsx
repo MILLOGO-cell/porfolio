@@ -52,7 +52,7 @@ export function StatusBadge({ status }: { status: string | null }) {
 /** Puce de technologie, teintée pour se distinguer du texte courant. */
 export function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent">
+    <span className="inline-flex items-center rounded-full border border-accent/25 bg-accent/10 px-3 py-1 text-xs font-medium text-accent backdrop-blur-sm">
       {children}
     </span>
   );

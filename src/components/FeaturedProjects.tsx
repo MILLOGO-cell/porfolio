@@ -23,7 +23,7 @@ interface Project {
 
 function ProjectSkeleton() {
   return (
-    <div className="animate-pulse rounded-2xl border border-border bg-surface p-6 md:p-8">
+    <div className="glass animate-pulse rounded-3xl p-6 md:p-8">
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-4">
           <div className="h-3 w-24 rounded bg-surface-muted" />
@@ -97,7 +97,7 @@ export default function FeaturedProjects() {
         return (
           <article
             key={project.id}
-            className="group grid items-center gap-8 rounded-2xl border border-border bg-surface p-6 transition-colors duration-200 hover:border-accent/40 md:p-10 lg:grid-cols-2"
+            className="glass glass-hover group grid items-center gap-8 rounded-3xl p-6 md:p-10 lg:grid-cols-2"
           >
             <div
               className={`flex flex-col gap-4 ${

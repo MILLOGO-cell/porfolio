@@ -17,9 +17,20 @@
     --surface-muted: 250 250 250;
     --border: 228 228 231;
     --foreground: 24 24 27;
-    --muted: 113 113 122;
+    /* Un cran plus foncé qu'avant : sur une surface vitrée teintée, le gris
+       d'origine descendait sous 4,5:1. */
+    --muted: 92 92 101;
     --accent: 79 70 229;
     --accent-soft: 199 210 254;
+    /* Deux compagnons de l'accent pour les halos : violet et cyan. */
+    --accent-2: 168 85 247;
+    --accent-3: 34 211 238;
+
+    /* Verre : fond translucide, filet clair, reflet haut et ombre portée. */
+    --glass-bg: 255 255 255 / 0.58;
+    --glass-border: 255 255 255 / 0.7;
+    --glass-ring: 24 24 27 / 0.07;
+    --glass-shadow: 31 38 135 / 0.12;
 
     /* Teintes de section et d'état. Volontairement franches : les versions
        précédentes se confondaient avec le blanc. */
@@ -48,6 +59,13 @@
     --muted: 161 161 170;
     --accent: 129 140 248;
     --accent-soft: 30 27 75;
+    --accent-2: 192 132 252;
+    --accent-3: 103 232 249;
+
+    --glass-bg: 30 30 38 / 0.5;
+    --glass-border: 255 255 255 / 0.12;
+    --glass-ring: 0 0 0 / 0.35;
+    --glass-shadow: 0 0 0 / 0.5;
 
     --success: 52 211 153;
     --success-soft: 6 78 59;
@@ -93,6 +111,60 @@
 }
 
 @layer components {
+  /*
+   * Fond d'ambiance : trois halos (accent, violet, cyan) posés une fois pour
+   * toute la page. C'est ce qui donne quelque chose à flouter derrière le
+   * verre ; sans lui, un `backdrop-filter` ne ferait rien de visible.
+   * Statique et sans filtre : il ne coûte rien au défilement.
+   */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -10% 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(48rem 32rem at 12% 8%, rgb(var(--accent) / 0.2), transparent 70%),
+      radial-gradient(44rem 30rem at 92% 28%, rgb(var(--accent-2) / 0.16), transparent 70%),
+      radial-gradient(52rem 34rem at 30% 88%, rgb(var(--accent-3) / 0.14), transparent 70%);
+  }
+
+  /*
+   * Carte vitrée. Le repli (sans backdrop-filter) est un aplat opaque : le
+   * texte reste lisible partout, le verre n'est qu'un plus.
+   */
+  .glass {
+    position: relative;
+    background-color: rgb(var(--surface));
+    border: 1px solid rgb(var(--border));
+    box-shadow: 0 10px 30px -12px rgb(var(--glass-shadow));
+  }
+
+  @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .glass {
+      background-color: rgb(var(--glass-bg));
+      border-color: rgb(var(--glass-border));
+      -webkit-backdrop-filter: blur(22px) saturate(1.6);
+      backdrop-filter: blur(22px) saturate(1.6);
+      /* Anneau extérieur discret + reflet de lumière sur l'arête haute. */
+      box-shadow:
+        0 0 0 1px rgb(var(--glass-ring)),
+        inset 0 1px 0 0 rgb(255 255 255 / 0.35),
+        0 18px 40px -18px rgb(var(--glass-shadow));
+    }
+  }
+
+  .glass-hover {
+    transition:
+      transform var(--motion-base) var(--motion-ease-out),
+      box-shadow var(--motion-base) var(--motion-ease-out),
+      border-color var(--motion-fast) ease;
+  }
+  .glass-hover:hover {
+    transform: translateY(-3px);
+    border-color: rgb(var(--accent) / 0.45);
+  }
+
   /* Réservé au titre h1 : le seul endroit du site avec le CTA principal. */
   .text-gradient {
     @apply bg-clip-text text-transparent;
@@ -194,6 +266,68 @@
 }
 
 /*
+ * Profondeur du hero et dérive du fond, liées au défilement (CSS pur).
+ * Le texte du hero monte un peu moins vite que la page et s'estompe en
+ * sortant ; le halo du hero, lui, se déplace à contre-sens. Amplitudes
+ * volontairement faibles : de la profondeur, pas un numéro d'acrobatie.
+ */
+@keyframes hero-depth {
+  to {
+    transform: translateY(56px);
+    opacity: 0.25;
+  }
+}
+@keyframes hero-halo {
+  to {
+    transform: translateY(-70px) scale(1.06);
+  }
+}
+@keyframes aurora-drift {
+  to {
+    transform: translateY(-6%);
+  }
+}
+@keyframes reveal-soft {
+  from {
+    opacity: 0;
+    transform: translateY(var(--reveal-y, 14px)) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .hero-depth {
+    animation: hero-depth linear both;
+    animation-timeline: view();
+    animation-range: exit 0% exit 90%;
+  }
+  .hero-halo {
+    animation: hero-halo linear both;
+    animation-timeline: view();
+    animation-range: exit 0% exit 100%;
+  }
+  body::before {
+    animation: aurora-drift linear both;
+    animation-timeline: scroll(root);
+  }
+  .reveal-scroll {
+    animation-name: reveal-soft;
+  }
+}
+
+/* Surfaces du navigateur : sélection, focus et barre de défilement. */
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 3px;
+}
+html {
+  scrollbar-color: rgb(var(--muted) / 0.45) transparent;
+}
+
+/*
  * Réduction des animations.
  *
  * Ce bloc ne neutralisait que `scroll-behavior` : tout le reste — animations
@@ -234,7 +368,10 @@
    * défilement. Sans animation, le contenu est simplement visible.
    */
   .reveal-up,
-  .reveal-scroll {
+  .reveal-scroll,
+  .hero-depth,
+  .hero-halo,
+  body::before {
     animation-name: none !important;
   }
 }

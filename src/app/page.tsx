@@ -3,11 +3,17 @@ import type { IconType } from "react-icons";
 import {
   LuArrowRight,
   LuClipboardList,
+  LuContainer,
+  LuDatabase,
   LuGitPullRequest,
   LuLandmark,
   LuMail,
+  LuMonitor,
   LuNetwork,
   LuPencilRuler,
+  LuRocket,
+  LuServer,
+  LuSmartphone,
 } from "react-icons/lu";
 import Template from "./Template";
 import FeaturedProjects from "@/components/FeaturedProjects";
@@ -71,22 +77,51 @@ const expertise: {
   },
 ];
 
-const stack: { label: string; items: string[] }[] = [
+/*
+ * Classées de la couche la plus visible à la plus transverse ; dans chaque
+ * groupe, du plus utilisé au moins utilisé. Figma rejoint « Outils et
+ * livraison » : seul, il aurait fait une catégorie d'un élément.
+ */
+const stack: { label: string; icon: IconType; items: string[] }[] = [
   {
-    label: "Backend",
-    items: ["Python", "Django", "Django REST Framework", "Spring Boot", "API REST", "SOAP"],
+    label: "Frontend web",
+    icon: LuMonitor,
+    items: ["TypeScript", "React", "Next.js", "Tailwind CSS"],
   },
   {
-    label: "Frontend",
-    items: ["TypeScript", "React", "Next.js", "React Native"],
+    label: "Mobile",
+    icon: LuSmartphone,
+    items: ["Flutter", "React Native", "Expo"],
+  },
+  {
+    label: "Backend et API",
+    icon: LuServer,
+    items: [
+      "Python",
+      "Django",
+      "Django REST Framework",
+      "API REST",
+      "Java",
+      "Spring Boot",
+      "Authentification JWT",
+      "WebSocket",
+      "SOAP",
+    ],
   },
   {
     label: "Données",
-    items: ["PostgreSQL", "MySQL", "MongoDB", "Elasticsearch"],
+    icon: LuDatabase,
+    items: ["PostgreSQL", "MySQL", "Redis", "MongoDB", "Elasticsearch"],
   },
   {
-    label: "Infrastructure et exploitation",
-    items: ["Docker", "Ansible", "CI/CD", "Linux", "Prometheus", "Grafana"],
+    label: "Outils et livraison",
+    icon: LuRocket,
+    items: ["Git", "GitHub Actions", "CI/CD", "Tests automatisés", "Figma"],
+  },
+  {
+    label: "Infrastructure",
+    icon: LuContainer,
+    items: ["Docker", "Linux", "Coolify", "Ansible", "Prometheus", "Grafana"],
   },
 ];
 
@@ -102,14 +137,14 @@ export default function Home() {
             page sans poser d'aplat derrière le texte, qui perdrait en lisibilité. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[560px] bg-[radial-gradient(ellipse_at_top_left,rgb(var(--accent)/0.30),transparent_55%),radial-gradient(ellipse_at_top_right,rgb(var(--info)/0.26),transparent_55%)]"
+          className="hero-halo pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[760px] [mask-image:linear-gradient(to_bottom,black_55%,transparent)] bg-[radial-gradient(ellipse_at_top_left,rgb(var(--accent)/0.34),transparent_55%),radial-gradient(ellipse_at_top_right,rgb(var(--accent-2)/0.28),transparent_55%),radial-gradient(ellipse_at_50%_100%,rgb(var(--accent-3)/0.2),transparent_60%)]"
         />
 
         {/* Le hero était le seul bloc entièrement statique de la page, alors
             que tout le reste s'animait au défilement. La cascade rétablit
             l'équilibre : le regard descend le premier écran dans l'ordre où il
             doit le lire. */}
-        <IntroGroup className="mx-auto max-w-5xl px-4 py-20 md:px-8 md:py-28">
+        <IntroGroup className="hero-depth mx-auto max-w-5xl px-4 py-20 md:px-8 md:py-32">
           <p className="inline-flex items-center rounded-full bg-accent-soft px-4 py-1.5 text-sm font-bold uppercase tracking-[0.14em] text-accent">
             {site.role}
           </p>
@@ -123,7 +158,7 @@ export default function Home() {
             {site.tagline}
           </p>
 
-          <div className="mt-9 flex flex-wrap gap-3">
+          <div className="mt-12 flex flex-wrap gap-3 md:mt-14">
             {/* Un seul appel à l'action : la prise de contact. Les projets
                 restent à un clic dans le menu. */}
             <Link href="/contact" className={buttonClass("primary", "lg")}>
@@ -140,7 +175,7 @@ export default function Home() {
       {/* Fonds de section alternés, teintés très légèrement : ils rythment la
           lecture sans que la couleur devienne le sujet. En sombre, les teintes
           sont atténuées pour ne pas écraser le texte. */}
-      <section className="border-t border-border bg-surface-muted">
+      <section>
         <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
           <SectionHeader
             id="projets"
@@ -168,7 +203,7 @@ export default function Home() {
       </section>
 
       {/* Prototypes Figma, interactifs au clic. */}
-      <section className="border-t border-border">
+      <section>
         <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
           <SectionHeader
             id="prototypes"
@@ -185,7 +220,7 @@ export default function Home() {
       {/* ---------------------------------------------------------------- */}
       {/* Expertise                                                         */}
       {/* ---------------------------------------------------------------- */}
-      <section className="border-t border-border bg-accent-soft/45 dark:bg-accent-soft/20">
+      <section>
         <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
           <SectionHeader
             id="expertise"
@@ -199,7 +234,7 @@ export default function Home() {
           <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2">
             {expertise.map(({ icon: Icon, title, description, tint }, index) => (
               <ScrollReveal key={title} delay={0.08 + index * 0.06} y={24}>
-                <article className="flex h-full gap-4 rounded-2xl border border-border bg-surface p-6 transition-colors duration-200 hover:border-accent/40">
+                <article className="glass glass-hover flex h-full gap-4 rounded-3xl p-6">
                   <span
                     className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tint}`}
                   >
@@ -230,7 +265,7 @@ export default function Home() {
       {/* ---------------------------------------------------------------- */}
       {/* Stack                                                             */}
       {/* ---------------------------------------------------------------- */}
-      <section className="border-t border-border bg-warning-soft/30 dark:bg-warning-soft/15">
+      <section>
         <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
           <SectionHeader
             id="stack"
@@ -239,14 +274,20 @@ export default function Home() {
             subtitle="Ce avec quoi je travaille réellement au quotidien, pas une liste exhaustive."
           />
 
-          <div className="mt-12 grid grid-cols-1 gap-x-10 gap-y-8 sm:grid-cols-2">
-            {stack.map(({ label, items }, index) => (
+          <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {stack.map(({ label, icon: Icon, items }, index) => (
               <ScrollReveal key={label} delay={0.05 + index * 0.06} y={20}>
-                <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-                    {label}
-                  </h3>
-                  <div className="mt-3 flex flex-wrap gap-2">
+                <div className="glass h-full rounded-3xl p-6">
+                  <div className="flex items-center gap-3">
+                    {/* Pastille vitrée : même langage que les cartes. */}
+                    <span className="glass inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-accent">
+                      <Icon className="h-5 w-5" aria-hidden />
+                    </span>
+                    <h3 className="text-base font-bold text-foreground">
+                      {label}
+                    </h3>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
                     {items.map((item) => (
                       <Chip key={item}>{item}</Chip>
                     ))}
@@ -261,10 +302,10 @@ export default function Home() {
       {/* ---------------------------------------------------------------- */}
       {/* Contact                                                           */}
       {/* ---------------------------------------------------------------- */}
-      <section className="border-t border-border bg-info-soft/40 dark:bg-info-soft/20">
+      <section>
         <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
           <ScrollReveal y={24}>{/* Bloc de contact */}
-            <div className="flex flex-col items-start gap-6 rounded-2xl border border-border bg-surface p-10">
+            <div className="glass flex flex-col items-start gap-6 rounded-3xl p-10 md:p-14">
               <h2 className="max-w-xl text-balance text-3xl font-bold tracking-tight md:text-4xl">
                 Un projet, un poste, une question technique ?
               </h2>
