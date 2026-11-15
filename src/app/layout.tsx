@@ -48,6 +48,9 @@ export default function RootLayout({
     // conteneur de defilement, ce qui cassait animation-timeline: view().
     <html lang="fr" suppressHydrationWarning className="overflow-x-clip">
       <head>
+        <noscript>
+          <style>{`[data-motion]{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
         {/*
           Le thème est appliqué AVANT le premier rendu, par un script bloquant.
 

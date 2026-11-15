@@ -50,7 +50,9 @@ export default function Header() {
             : "border-b border-transparent bg-background/40 backdrop-blur-sm"
         }`}
       >
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3.5 md:px-8">
+        <div className={`mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 transition-[padding] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:px-8 ${
+            scrolled ? "py-1.5" : "py-3.5"
+          }`}>
           {/* La marque est décorative : le lien porte déjà son intitulé et le nom
               est lu juste à côté. L'alignement sur la ligne de base reste sur le
               groupe de texte, un SVG s'y alignerait mal. */}

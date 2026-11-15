@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { LuArrowRight, LuImageOff, LuLock } from "react-icons/lu";
 import { Chip, StatusBadge } from "@/components/ui/Badge";
+import { GlassTilt, ParallaxImage } from "@/components/motion/primitives";
 
 interface Project {
   id: string;
@@ -95,8 +96,10 @@ export default function FeaturedProjects() {
         const meta = [project.client, project.period].filter(Boolean);
 
         return (
-          <article
+          <GlassTilt
             key={project.id}
+            reveal
+            delay={index * 0.12}
             className="glass glass-hover group grid items-center gap-8 rounded-3xl p-6 md:p-10 lg:grid-cols-2"
           >
             <div
@@ -172,7 +175,7 @@ export default function FeaturedProjects() {
                 de 2:1). Un cadre 4/3 les amputait de moitié. `object-top`
                 conserve l'en-tête et la bannière, la partie reconnaissable. */}
             {!project.confidential && project.imageUrl && (
-              <div
+              <ParallaxImage
                 className={`relative aspect-[16/10] overflow-hidden rounded-xl border border-border bg-surface-muted ${
                   index % 2 === 1 ? "lg:order-1" : ""
                 }`}
@@ -182,11 +185,11 @@ export default function FeaturedProjects() {
                   alt={project.title}
                   fill
                   sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-cover object-top"
+                  className="object-cover object-top transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
                 />
-              </div>
+              </ParallaxImage>
             )}
-          </article>
+          </GlassTilt>
         );
       })}
     </div>

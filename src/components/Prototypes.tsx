@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { motion } from "framer-motion";
+import { EASE } from "@/components/motion/primitives";
 import { LuArrowUpRight, LuPlay, LuX } from "react-icons/lu";
 import { buttonClass } from "@/components/ui/button-styles";
 
@@ -52,12 +54,22 @@ export default function Prototypes() {
 
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-      {prototypes.map((p) => {
+      {prototypes.map((p, i) => {
         const isOpen = open === p.url;
 
         return (
-          <article
+          <motion.article
             key={p.url}
+            layout
+            data-motion=""
+            initial={{ opacity: 0, y: 40, scale: 0.97 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+            transition={{
+              layout: { duration: 0.6, ease: EASE },
+              default: { duration: 0.7, ease: EASE, delay: i * 0.12 },
+            }}
+            style={{ borderRadius: 24 }}
             className={`glass glass-hover flex flex-col overflow-hidden rounded-3xl ${
               isOpen ? "md:col-span-3" : ""
             }`}
@@ -121,7 +133,7 @@ export default function Prototypes() {
                 </a>
               </div>
             </div>
-          </article>
+          </motion.article>
         );
       })}
     </div>

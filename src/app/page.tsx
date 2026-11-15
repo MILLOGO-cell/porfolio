@@ -21,8 +21,8 @@ import Prototypes from "@/components/Prototypes";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { IntroGroup } from "@/components/motion/Intro";
+import { ChipWave, HeroParallax, Magnetic } from "@/components/motion/primitives";
 import { buttonClass } from "@/components/ui/button-styles";
-import { Chip } from "@/components/ui/Badge";
 import { site } from "@/lib/site";
 
 /**
@@ -130,6 +130,16 @@ const stack: { label: string; icon: IconType; span?: 2; items: string[] }[] = [
   },
 ];
 
+/** Découpe un texte en mots animés en cascade (`--i` = rang du mot). */
+const words = (text: string, from = 0, extra = "") =>
+  text.split(" ").map((w, i) => (
+    <span key={i}>
+      <span className={`word-in ${extra}`} style={{ "--i": from + i } as React.CSSProperties}>
+        {w}
+      </span>{" "}
+    </span>
+  ));
+
 export default function Home() {
   return (
     <Template>
@@ -140,23 +150,31 @@ export default function Home() {
       <section className="relative isolate overflow-hidden">
         {/* Halo coloré derrière le hero : il donne le ton chromatique de la
             page sans poser d'aplat derrière le texte, qui perdrait en lisibilité. */}
-        <div
-          aria-hidden
-          className="hero-halo pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[760px] [mask-image:linear-gradient(to_bottom,black_55%,transparent)] bg-[radial-gradient(ellipse_at_top_left,rgb(var(--accent)/0.34),transparent_55%),radial-gradient(ellipse_at_top_right,rgb(var(--accent-2)/0.28),transparent_55%),radial-gradient(ellipse_at_50%_100%,rgb(var(--accent-3)/0.2),transparent_60%)]"
-        />
+        <HeroParallax
+          y={[0, -80]}
+          className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[760px] [mask-image:linear-gradient(to_bottom,black_55%,transparent)]"
+        >
+          <div
+            aria-hidden
+            className="halo-drift absolute inset-y-0 -inset-x-[10%] bg-[radial-gradient(ellipse_at_top_left,rgb(var(--accent)/0.34),transparent_55%),radial-gradient(ellipse_at_top_right,rgb(var(--accent-2)/0.28),transparent_55%),radial-gradient(ellipse_at_50%_100%,rgb(var(--accent-3)/0.2),transparent_60%)]"
+          />
+        </HeroParallax>
 
         {/* Le hero était le seul bloc entièrement statique de la page, alors
             que tout le reste s'animait au défilement. La cascade rétablit
             l'équilibre : le regard descend le premier écran dans l'ordre où il
             doit le lire. */}
-        <IntroGroup className="hero-depth mx-auto max-w-5xl px-4 py-20 md:px-8 md:py-32">
+        <HeroParallax y={[0, 60]}>
+        <IntroGroup className="mx-auto max-w-5xl px-4 py-20 md:px-8 md:py-32">
           <p className="inline-flex items-center rounded-full bg-accent-soft px-4 py-1.5 text-sm font-bold uppercase tracking-[0.14em] text-accent">
             {site.role}
           </p>
 
           <h1 className="mt-5 max-w-4xl text-pretty text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
-            Je construis des applications métiers{" "}
-            <span className="text-gradient">qui tiennent en production</span>.
+            {words("Je construis des applications métiers")}
+            {/* Le dégradé est posé sur chaque mot : un parent en
+                background-clip:text ne peint pas ses enfants inline-block. */}
+            {words("qui tiennent en production.", 5, "text-gradient")}
           </h1>
 
           <p className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted">
@@ -166,12 +184,15 @@ export default function Home() {
           <div className="mt-12 flex flex-wrap gap-3 md:mt-14">
             {/* Un seul appel à l'action : la prise de contact. Les projets
                 restent à un clic dans le menu. */}
-            <Link href="/contact" className={buttonClass("primary", "lg")}>
-              Me contacter
-              <LuArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
+            <Magnetic>
+              <Link href="/contact" className={buttonClass("primary", "lg")}>
+                Me contacter
+                <LuArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+            </Magnetic>
           </div>
         </IntroGroup>
+        </HeroParallax>
       </section>
 
       {/* ---------------------------------------------------------------- */}
@@ -300,11 +321,7 @@ export default function Home() {
                       {label}
                     </h3>
                   </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {items.map((item) => (
-                      <Chip key={item}>{item}</Chip>
-                    ))}
-                  </div>
+                  <ChipWave items={items} />
                 </div>
               </ScrollReveal>
             ))}

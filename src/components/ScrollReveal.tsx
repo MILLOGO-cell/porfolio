@@ -1,56 +1,45 @@
-import { ReactNode } from 'react';
+"use client";
+
+import { motion } from "framer-motion";
+import type { ReactNode } from "react";
 
 interface ScrollRevealProps {
-    children: ReactNode;
-    width?: "fit-content" | "100%";
-    /** Retard en secondes, utilisé uniquement par le repli au chargement. */
-    delay?: number;
-    /** Amplitude de la montée, en pixels. */
-    y?: number;
-    /** Classes de mise en page (ex. emprise dans une grille). */
-    className?: string;
+  children: ReactNode;
+  width?: "fit-content" | "100%";
+  /** Retard en secondes, compté depuis l'entrée du bloc dans l'écran. */
+  delay?: number;
+  /** Amplitude de la montée, en pixels. */
+  y?: number;
+  /** Classes de mise en page (ex. emprise dans une grille). */
+  className?: string;
 }
 
 /**
- * Révélation du contenu situé sous la ligne de flottaison.
+ * Révélation au défilement, jouée une seule fois : fondu, montée et très léger
+ * zoom en 700 ms, courbe douce.
  *
- * La version framer-motion (`whileInView`) inscrivait `opacity: 0` dans le HTML
- * rendu côté serveur : sans JavaScript, tout ce qui se trouvait sous le premier
- * écran restait invisible. Le hero avait été corrigé de la même façon ; cette
- * fois c'est le reste de la page.
- *
- * Le mouvement est désormais porté par `.reveal-scroll` (globals.css), qui
- * s'appuie sur `animation-timeline: view()` là où le navigateur le sait faire,
- * et retombe sur un simple fondu au chargement ailleurs. Dans les deux cas le
- * contenu finit visible, et aucun JavaScript n'est nécessaire.
- *
- * Le composant n'a plus de directive `'use client'` : il fonctionne aussi bien
- * dans un composant serveur que dans un composant client.
- *
- * Pour le contenu déjà visible au chargement, voir `IntroGroup`.
+ * Elle repose sur framer-motion (IntersectionObserver) et non sur
+ * `animation-timeline: view()`, absent de Firefox. `reducedMotion="user"`
+ * (MotionProvider) retire le déplacement pour qui l'a demandé et garde le
+ * fondu. Sans JavaScript, la règle <noscript> du layout rétablit l'affichage
+ * grâce à l'attribut `data-motion` (le HTML serveur contient opacity: 0).
  */
 export const ScrollReveal = ({
-    children,
-    width = "100%",
-    delay = 0.2,
-    y = 14,
-    className = ""
-}: ScrollRevealProps) => {
-    return (
-        // Plus d'`overflow: hidden` : il rognait les ombres et les
-        // débordements au survol des cartes qu'il enveloppait.
-        <div
-            className={`reveal-scroll ${className}`}
-            style={
-                {
-                    position: "relative",
-                    width,
-                    "--reveal-y": `${y}px`,
-                    "--reveal-delay": `${delay}s`,
-                } as React.CSSProperties
-            }
-        >
-            {children}
-        </div>
-    );
-};
+  children,
+  width = "100%",
+  delay = 0.1,
+  y = 28,
+  className = "",
+}: ScrollRevealProps) => (
+  <motion.div
+    data-motion=""
+    className={className}
+    style={{ position: "relative", width }}
+    initial={{ opacity: 0, y: Math.max(y, 24), scale: 0.985 }}
+    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+    viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+    transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: Math.min(delay, 0.4) }}
+  >
+    {children}
+  </motion.div>
+);
