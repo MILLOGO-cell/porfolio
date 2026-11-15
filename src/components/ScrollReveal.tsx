@@ -7,6 +7,8 @@ interface ScrollRevealProps {
     delay?: number;
     /** Amplitude de la montée, en pixels. */
     y?: number;
+    /** Classes de mise en page (ex. emprise dans une grille). */
+    className?: string;
 }
 
 /**
@@ -31,13 +33,14 @@ export const ScrollReveal = ({
     children,
     width = "100%",
     delay = 0.2,
-    y = 14
+    y = 14,
+    className = ""
 }: ScrollRevealProps) => {
     return (
         // Plus d'`overflow: hidden` : il rognait les ombres et les
         // débordements au survol des cartes qu'il enveloppait.
         <div
-            className="reveal-scroll"
+            className={`reveal-scroll ${className}`}
             style={
                 {
                     position: "relative",

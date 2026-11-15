@@ -82,7 +82,10 @@ const expertise: {
  * groupe, du plus utilisé au moins utilisé. Figma rejoint « Outils et
  * livraison » : seul, il aurait fait une catégorie d'un élément.
  */
-const stack: { label: string; icon: IconType; items: string[] }[] = [
+/* Une teinte par groupe, en rotation : accent, violet, cyan. */
+const tints = ["accent", "accent-2", "accent-3"] as const;
+
+const stack: { label: string; icon: IconType; span?: 2; items: string[] }[] = [
   {
     label: "Frontend web",
     icon: LuMonitor,
@@ -96,6 +99,7 @@ const stack: { label: string; icon: IconType; items: string[] }[] = [
   {
     label: "Backend et API",
     icon: LuServer,
+    span: 2,
     items: [
       "Python",
       "Django",
@@ -116,6 +120,7 @@ const stack: { label: string; icon: IconType; items: string[] }[] = [
   {
     label: "Outils et livraison",
     icon: LuRocket,
+    span: 2,
     items: ["Git", "GitHub Actions", "CI/CD", "Tests automatisés", "Figma"],
   },
   {
@@ -231,7 +236,7 @@ export default function Home() {
 
           {/* Deux colonnes plutôt que trois : les six entrees portent un texte
               dense, une colonne trop etroite les rendrait illisibles. */}
-          <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 md:[&>:last-child:nth-child(odd)]:col-span-2">
             {expertise.map(({ icon: Icon, title, description, tint }, index) => (
               <ScrollReveal key={title} delay={0.08 + index * 0.06} y={24}>
                 <article className="glass glass-hover flex h-full gap-4 rounded-3xl p-6">
@@ -274,13 +279,21 @@ export default function Home() {
             subtitle="Ce avec quoi je travaille réellement au quotidien, pas une liste exhaustive."
           />
 
-          <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {stack.map(({ label, icon: Icon, items }, index) => (
-              <ScrollReveal key={label} delay={0.05 + index * 0.06} y={20}>
+          <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {stack.map(({ label, icon: Icon, span, items }, index) => (
+              <ScrollReveal
+                key={label}
+                delay={0.05 + index * 0.06}
+                y={20}
+                className={span === 2 ? "sm:col-span-2" : ""}
+              >
                 <div className="glass h-full rounded-3xl p-6">
                   <div className="flex items-center gap-3">
                     {/* Pastille vitrée : même langage que les cartes. */}
-                    <span className="glass inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-accent">
+                    <span
+                      className="glass inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+                      style={{ color: `rgb(var(--${tints[index % 3]}))` }}
+                    >
                       <Icon className="h-5 w-5" aria-hidden />
                     </span>
                     <h3 className="text-base font-bold text-foreground">

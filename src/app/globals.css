@@ -24,7 +24,10 @@
     --accent-soft: 199 210 254;
     /* Deux compagnons de l'accent pour les halos : violet et cyan. */
     --accent-2: 168 85 247;
-    --accent-3: 34 211 238;
+    --accent-3: 8 145 178;
+    --accent-4: 245 158 11;
+    /* Intensité des halos du fond d'ambiance. */
+    --halo: 0.2;
 
     /* Verre : fond translucide, filet clair, reflet haut et ombre portée. */
     --glass-bg: 255 255 255 / 0.58;
@@ -61,11 +64,13 @@
     --accent-soft: 30 27 75;
     --accent-2: 192 132 252;
     --accent-3: 103 232 249;
+    --accent-4: 251 191 36;
+    --halo: 0.42;
 
-    --glass-bg: 30 30 38 / 0.5;
-    --glass-border: 255 255 255 / 0.12;
-    --glass-ring: 0 0 0 / 0.35;
-    --glass-shadow: 0 0 0 / 0.5;
+    --glass-bg: 255 255 255 / 0.075;
+    --glass-border: 255 255 255 / 0.2;
+    --glass-ring: 0 0 0 / 0.4;
+    --glass-shadow: 99 102 241 / 0.45;
 
     --success: 52 211 153;
     --success-soft: 6 78 59;
@@ -117,16 +122,26 @@
    * verre ; sans lui, un `backdrop-filter` ne ferait rien de visible.
    * Statique et sans filtre : il ne coûte rien au défilement.
    */
+  body {
+    position: relative;
+  }
   body::before {
     content: "";
-    position: fixed;
-    inset: -10% 0;
+    position: absolute;
+    inset: -3% 0;
     z-index: -1;
     pointer-events: none;
+    /* Halos répartis le long de toute la page, en alternance : le verre a
+       toujours de la couleur à flouter derrière lui, où qu'on soit. */
     background:
-      radial-gradient(48rem 32rem at 12% 8%, rgb(var(--accent) / 0.2), transparent 70%),
-      radial-gradient(44rem 30rem at 92% 28%, rgb(var(--accent-2) / 0.16), transparent 70%),
-      radial-gradient(52rem 34rem at 30% 88%, rgb(var(--accent-3) / 0.14), transparent 70%);
+      radial-gradient(58rem 36rem at 15% 6%, rgb(var(--accent) / var(--halo)), transparent 70%),
+      radial-gradient(58rem 36rem at 85% 14%, rgb(var(--accent-2) / var(--halo)), transparent 70%),
+      radial-gradient(58rem 36rem at 8% 30%, rgb(var(--accent-3) / var(--halo)), transparent 70%),
+      radial-gradient(58rem 36rem at 92% 44%, rgb(var(--accent) / var(--halo)), transparent 70%),
+      radial-gradient(58rem 36rem at 20% 58%, rgb(var(--accent-2) / var(--halo)), transparent 70%),
+      radial-gradient(58rem 36rem at 80% 70%, rgb(var(--accent-4) / calc(var(--halo) * 0.7)), transparent 70%),
+      radial-gradient(58rem 36rem at 12% 84%, rgb(var(--accent-3) / var(--halo)), transparent 70%),
+      radial-gradient(58rem 36rem at 88% 96%, rgb(var(--accent) / var(--halo)), transparent 70%);
   }
 
   /*
@@ -144,13 +159,19 @@
     .glass {
       background-color: rgb(var(--glass-bg));
       border-color: rgb(var(--glass-border));
-      -webkit-backdrop-filter: blur(22px) saturate(1.6);
-      backdrop-filter: blur(22px) saturate(1.6);
+      -webkit-backdrop-filter: blur(24px) saturate(1.7);
+      backdrop-filter: blur(24px) saturate(1.7);
+      /* Léger dégradé interne : la carte s'éclaire d'un coin à l'autre. */
+      background-image: linear-gradient(
+        135deg,
+        rgb(255 255 255 / 0.14),
+        rgb(255 255 255 / 0) 55%
+      );
       /* Anneau extérieur discret + reflet de lumière sur l'arête haute. */
       box-shadow:
         0 0 0 1px rgb(var(--glass-ring)),
-        inset 0 1px 0 0 rgb(255 255 255 / 0.35),
-        0 18px 40px -18px rgb(var(--glass-shadow));
+        inset 0 1px 0 0 rgb(255 255 255 / 0.4),
+        0 22px 48px -20px rgb(var(--glass-shadow));
     }
   }
 
@@ -284,7 +305,7 @@
 }
 @keyframes aurora-drift {
   to {
-    transform: translateY(-6%);
+    transform: translateY(-2%);
   }
 }
 @keyframes reveal-soft {
