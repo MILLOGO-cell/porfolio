@@ -33,14 +33,14 @@ export default function Footer() {
               <Link
                 key={href}
                 href={href}
-                className="text-sm font-medium text-muted transition-colors hover:text-accent"
+                className="inline-block py-3 text-sm font-medium text-muted transition-colors hover:text-accent md:py-1"
               >
                 {label}
               </Link>
             ))}
             <Link
               href="/contact"
-              className="text-sm font-medium text-muted transition-colors hover:text-accent"
+              className="inline-block py-3 text-sm font-medium text-muted transition-colors hover:text-accent md:py-1"
             >
               Contact
             </Link>
@@ -58,7 +58,7 @@ export default function Footer() {
                   target={url.startsWith("http") ? "_blank" : undefined}
                   rel="noopener noreferrer"
                   aria-label={name}
-                  className="rounded-lg border border-border p-2.5 text-muted transition-colors hover:border-accent/40 hover:text-accent"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:border-accent/40 hover:text-accent"
                 >
                   <Icon className="h-4 w-4" />
                 </a>
@@ -71,10 +71,10 @@ export default function Footer() {
           <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
             <span>© {year} {site.name}</span>
             <nav aria-label="Informations légales" className="flex flex-wrap gap-x-5 gap-y-2">
-              <Link href="/mentions-legales" className="hover:text-accent">Mentions légales</Link>
-              <Link href="/confidentialite" className="hover:text-accent">Confidentialité</Link>
-              <Link href="/conditions" className="hover:text-accent">Conditions</Link>
-              <CookieSettingsButton className="hover:text-accent" />
+              <Link href="/mentions-legales" className="inline-flex min-h-11 items-center hover:text-accent md:min-h-0">Mentions légales</Link>
+              <Link href="/confidentialite" className="inline-flex min-h-11 items-center hover:text-accent md:min-h-0">Confidentialité</Link>
+              <Link href="/conditions" className="inline-flex min-h-11 items-center hover:text-accent md:min-h-0">Conditions</Link>
+              <CookieSettingsButton className="inline-flex min-h-11 items-center hover:text-accent md:min-h-0" />
             </nav>
           </div>
         </div>

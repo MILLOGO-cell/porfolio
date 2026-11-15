@@ -132,7 +132,7 @@ function CaseSection({
       {/* whitespace-pre-line : les sauts de ligne saisis en admin sont conservés.
           `hyphens-auto` accompagne la justification : sans césure, un texte
           justifié en français creuse des rivières de blanc entre les mots. */}
-      <p className="hyphens-auto whitespace-pre-line text-justify leading-relaxed text-foreground">
+      <p className="hyphens-auto whitespace-pre-line md:text-justify leading-relaxed text-foreground">
         {linkify(children)}
       </p>
     </section>
@@ -161,7 +161,7 @@ export default async function ProjectPage({ params }: PageProps) {
       <article className="mx-auto max-w-3xl px-4 py-16 md:px-8">
         <Link
           href="/projets"
-          className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-accent"
+          className="inline-flex min-h-11 items-center gap-2 text-sm text-muted transition-colors hover:text-accent"
         >
           <LuArrowLeft className="h-4 w-4" aria-hidden />
           Tous les projets
@@ -179,7 +179,7 @@ export default async function ProjectPage({ params }: PageProps) {
           </h1>
 
           {project.summary && (
-            <p className="mt-4 hyphens-auto text-justify text-lg leading-relaxed text-muted">
+            <p className="mt-4 hyphens-auto md:text-justify text-lg leading-relaxed text-muted">
               {project.summary}
             </p>
           )}

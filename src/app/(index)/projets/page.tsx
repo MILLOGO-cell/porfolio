@@ -99,7 +99,7 @@ function ProjectCard({ project, delay }: { project: Project; delay: number }) {
           </h3>
 
           {teaser && (
-            <p className="mt-2 line-clamp-3 hyphens-auto text-justify text-sm leading-relaxed text-muted">
+            <p className="mt-2 line-clamp-3 hyphens-auto lg:text-justify text-sm leading-relaxed text-muted">
               {teaser}
             </p>
           )}
@@ -182,7 +182,7 @@ export default function Projets() {
       }));
 
   const filterClass = (active: boolean) =>
-    `rounded-full px-4 py-1.5 text-sm font-bold transition-colors duration-200 ${
+    `min-h-11 rounded-full px-4 py-1.5 text-sm md:min-h-0 font-bold transition-colors duration-200 ${
       active
         ? "bg-accent text-white shadow-subtle"
         : "bg-accent-soft/60 text-accent hover:bg-accent-soft"
@@ -198,7 +198,7 @@ export default function Projets() {
           <h1 className="mt-4 max-w-2xl text-pretty text-4xl font-bold tracking-tight md:text-5xl">
             Ce que j&apos;ai construit
           </h1>
-          <p className="mt-4 max-w-2xl hyphens-auto text-justify leading-relaxed text-muted">
+          <p className="mt-4 max-w-2xl hyphens-auto md:text-justify leading-relaxed text-muted">
             Applications métiers, API et interfaces. Chaque fiche détaille le
             contexte, les décisions techniques et le résultat.
           </p>

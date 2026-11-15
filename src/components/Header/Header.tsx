@@ -54,7 +54,7 @@ export default function Header() {
           {/* La marque est décorative : le lien porte déjà son intitulé et le nom
               est lu juste à côté. L'alignement sur la ligne de base reste sur le
               groupe de texte, un SVG s'y alignerait mal. */}
-          <Link href="/" className="flex items-center gap-2.5">
+          <Link href="/" className="flex min-h-11 items-center gap-2.5">
             <Logo className="h-7 w-7 shrink-0" />
             <span className="flex items-baseline gap-2.5">
               <span className="text-[15px] font-bold tracking-tight text-foreground">
@@ -96,7 +96,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setIsOpen(true)}
-              className="rounded-lg border border-border p-2 text-foreground transition-colors hover:bg-surface-muted md:hidden"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border text-foreground transition-colors hover:bg-surface-muted md:hidden"
               aria-label="Ouvrir le menu"
               aria-expanded={isOpen}
             >
@@ -171,7 +171,7 @@ export default function Header() {
                       target={url.startsWith("http") ? "_blank" : undefined}
                       rel="noopener noreferrer"
                       aria-label={name}
-                      className="rounded-lg border border-border p-2.5 text-muted transition-colors hover:border-accent/40 hover:text-accent"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:border-accent/40 hover:text-accent"
                     >
                       <Icon className="h-4 w-4" />
                     </a>

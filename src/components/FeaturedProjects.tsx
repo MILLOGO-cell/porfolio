@@ -124,7 +124,7 @@ export default function FeaturedProjects() {
               </h3>
 
               {teaser && (
-                <p className="hyphens-auto text-justify leading-relaxed text-muted">
+                <p className="hyphens-auto md:text-justify leading-relaxed text-muted">
                   {teaser}
                 </p>
               )}
@@ -141,7 +141,7 @@ export default function FeaturedProjects() {
 
               <Link
                 href={`/projets/${project.slug}`}
-                className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-accent transition-opacity hover:opacity-80"
+                className="mt-2 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-accent transition-opacity hover:opacity-80"
               >
                 Lire l&apos;étude de cas
                 <LuArrowRight

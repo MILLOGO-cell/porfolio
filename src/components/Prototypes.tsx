@@ -63,7 +63,7 @@ export default function Prototypes() {
             }`}
           >
             {isOpen ? (
-              <div className="relative aspect-[16/10] w-full bg-surface-muted">
+              <div className="relative aspect-[3/4] w-full bg-surface-muted sm:aspect-[16/10]">
                 <iframe
                   src={embedUrl(p.url)}
                   title={`Prototype Figma : ${p.title}`}

@@ -111,7 +111,7 @@ export default function Contact() {
                     href={url}
                     target={url.startsWith("http") ? "_blank" : undefined}
                     rel="noopener noreferrer"
-                    className="group flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-muted transition-colors hover:bg-surface hover:text-foreground"
+                    className="group flex min-h-11 items-center gap-3 rounded-lg px-2 py-2 text-sm text-muted transition-colors hover:bg-surface hover:text-foreground"
                   >
                     <Icon className="h-4 w-4 text-accent" aria-hidden />
                     {name === "Email" ? site.email : name}

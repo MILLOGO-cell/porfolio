@@ -197,7 +197,7 @@ export default function Home() {
             <div className="mt-12">
               <Link
                 href="/projets"
-                className="inline-flex items-center gap-2 text-sm font-medium text-accent transition-opacity hover:opacity-80"
+                className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-accent transition-opacity hover:opacity-80"
               >
                 Tous les projets
                 <LuArrowRight className="h-4 w-4" aria-hidden />
@@ -255,7 +255,7 @@ export default function Home() {
                         {title}
                       </h3>
                     </div>
-                    <p className="mt-2 hyphens-auto text-justify text-sm leading-relaxed text-muted">
+                    <p className="mt-2 hyphens-auto lg:text-justify text-sm leading-relaxed text-muted">
                       {description}
                     </p>
                   </div>

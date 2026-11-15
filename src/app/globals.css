@@ -175,6 +175,16 @@
     }
   }
 
+  /* Sur mobile, un flou moins coûteux : une quinzaine de cartes vitrées. */
+  @media (max-width: 767px) {
+    @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+      .glass {
+        -webkit-backdrop-filter: blur(12px) saturate(1.4);
+        backdrop-filter: blur(12px) saturate(1.4);
+      }
+    }
+  }
+
   .glass-hover {
     transition:
       transform var(--motion-base) var(--motion-ease-out),
