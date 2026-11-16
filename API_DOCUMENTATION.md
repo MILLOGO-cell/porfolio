@@ -1,26 +1,26 @@
-# 🚀 MISE EN PLACE DES API - PORTFOLIO
+# MISE EN PLACE DES API - PORTFOLIO
 
-## ✅ Fichiers Créés
+## Fichiers Créés
 
 ```
 src/
 ├── lib/
-│   ├── validations.ts       ✅ Schemas Zod pour validation
-│   └── api-response.ts      ✅ Helpers pour réponses API
+│   ├── validations.ts        Schemas Zod pour validation
+│   └── api-response.ts       Helpers pour réponses API
 │
 └── app/api/
     ├── projects/
-    │   ├── route.ts         ✅ GET/POST /api/projects
+    │   ├── route.ts          GET/POST /api/projects
     │   └── [id]/
-    │       └── route.ts     ✅ GET/PUT/DELETE /api/projects/:id
+    │       └── route.ts      GET/PUT/DELETE /api/projects/:id
     │
     └── contact/
-        └── route.ts         ✅ POST /api/contact
+        └── route.ts          POST /api/contact
 ```
 
 ---
 
-## 📦 1. INSTALLER LES DÉPENDANCES
+## 1. INSTALLER LES DÉPENDANCES
 
 ```powershell
 npm install zod
@@ -28,7 +28,7 @@ npm install zod
 
 ---
 
-## 📝 2. CONFIGURER LES VARIABLES D'ENVIRONNEMENT
+## 2. CONFIGURER LES VARIABLES D'ENVIRONNEMENT
 
 Ajoutez dans `.env` :
 
@@ -49,7 +49,7 @@ EMAIL_TO="destination@example.com"
 
 ---
 
-## 🧪 3. TESTER LES API
+## 3. TESTER LES API
 
 ### Démarrer le serveur
 
@@ -108,7 +108,7 @@ curl -X POST http://localhost:3000/api/contact \
 
 ---
 
-## 🔍 4. VÉRIFIER DANS LA BASE DE DONNÉES
+## 4. VÉRIFIER DANS LA BASE DE DONNÉES
 
 ```powershell
 # Voir les projets créés
@@ -119,7 +119,7 @@ Ouvrez <http://localhost:5555> et vérifiez la table `projects`.
 
 ---
 
-## 📚 5. DOCUMENTATION COMPLÈTE
+## 5. DOCUMENTATION COMPLÈTE
 
 Consultez `API_DOCUMENTATION.md` pour :
 
@@ -130,7 +130,7 @@ Consultez `API_DOCUMENTATION.md` pour :
 
 ---
 
-## ✅ CHECKLIST
+## CHECKLIST
 
 - [ ] Dependencies installées (`npm install zod`)
 - [ ] Variables d'environnement configurées (`.env`)
@@ -141,7 +141,7 @@ Consultez `API_DOCUMENTATION.md` pour :
 
 ---
 
-## 🎯 PROCHAINES ÉTAPES
+## PROCHAINES ÉTAPES
 
 1. **Authentification** : NextAuth pour protéger les routes admin
 2. **Frontend** : Pages pour consommer ces API
@@ -150,7 +150,7 @@ Consultez `API_DOCUMENTATION.md` pour :
 
 ---
 
-## 🐛 PROBLÈMES COURANTS
+## PROBLÈMES COURANTS
 
 ### Erreur : "Module not found: Can't resolve '@/lib/...'"
 
@@ -184,4 +184,4 @@ npm run prisma:generate
 
 ---
 
-**🎉 Vos API sont prêtes et professionnelles !**
+** Vos API sont prêtes et professionnelles !**
